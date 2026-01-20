@@ -1,0 +1,10 @@
+{
+    "name": "tte/team-project-app",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Tte\\TeamProjectApp\\": "backend/"
+        }
+    },
+    "require": {}
+}
