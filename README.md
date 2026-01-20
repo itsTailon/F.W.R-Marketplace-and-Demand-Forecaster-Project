@@ -23,4 +23,4 @@ As in MVC, views (the frontend) interface with controllers (which contain busine
   - **/model** — to store 'model' source code.
   - **/global** — to store any global classes and functions, incl. helper functions.
 - **/partials** — to store template partials — i.e. PHP templates included in other templates (e.g., page header, page footer, sidebar, etc.).
-- **/vendor** — to store any composer dependencies and auto-generated PSR-4 autoloading logic — do not touch!
+- **/vendor** — to store any Composer dependencies and auto-generated PSR-4 autoloading logic — do not touch!
