@@ -37,18 +37,25 @@ for use throughout development.
     This is here strictly for the demo, but please note that this is not best practice for general development.
     -->
     <style>
-        .demo-wrapper {
+        body {
             width: 100vw;
+            display: flex;
+            justify-content: center;
+        }
+        .demo-wrapper {
+            width: 512px;
             min-height: 100vh;
-            padding: 128px;
             display: flex;
             flex-direction: column;
             gap: 32px;
+            padding: 128px 0;
         }
     </style>
 </head>
 <body>
     <div class="demo-wrapper">
+
+        <h1>Component Library</h1>
 
         <!--
 
