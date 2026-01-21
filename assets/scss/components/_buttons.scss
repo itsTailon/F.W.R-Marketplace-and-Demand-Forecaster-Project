@@ -3,3 +3,32 @@ Stylesheet for buttons (as reusable components)
  */
 
 @use '../abstracts/config';
+@use 'sass:map';
+
+.button {
+  $v-padding: 12px;
+  $h-padding: 16px;
+
+  background-color: map.get(config.$colours, "primary-light");
+  border: none;
+  border-radius: 8px;
+  appearance: none;
+  outline: none;
+  padding: $v-padding ($h-padding * 2) $v-padding $h-padding;
+  transition: all 0.2s ease;
+  font-size: map.get(config.$font-sizes, "default");
+
+  &--text-align-left {
+    text-align: left;
+  }
+
+  &:hover {
+    background-color: map.get(config.$colours, "primary-main");
+    color: #fff;
+  }
+
+  &:active {
+    background-color: map.get(config.$colours, "primary-outline");
+    color: #fff;
+  }
+}

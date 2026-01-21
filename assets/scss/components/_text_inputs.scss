@@ -8,17 +8,19 @@ Stylesheet for text inputs (as reusable components)
 .textbox {
   $v-padding: 8px;
   $h-padding: 16px;
-  $close-button-size: map.get(config.$font-sizes, "default") - 2px;
+  $close-button-size: map.get(config.$font-sizes, "default");
   $cross-icon-size: map.get(config.$font-sizes, "default") - 4px;
-
 
   display: flex;
   align-items: center;
   position: relative;
-  max-width: fit-content;
 
   // Used to adjust height of overall element, such that when the label is 'pushed' into the border, it does not collide with element above.
   padding-top: map.get(config.$font-sizes, "label") / 2 + 2px;
+
+  &--size-fill {
+    width: 100%;
+  }
 
   &__input {
     border: 1px solid map.get(config.$colours, "input-border");
@@ -27,6 +29,8 @@ Stylesheet for text inputs (as reusable components)
     color: map.get(config.$colours, "input-main");
     border-radius: 4px;
     outline: none;
+    min-height: 40px;
+    width: 100%;
 
     &:focus {
       border-color: map.get(config.$colours, "primary-outline");
@@ -86,7 +90,7 @@ Stylesheet for text inputs (as reusable components)
 
     &__cross-icon {
       height: $close-button-size;
-      padding-top: 2px;
+      padding-top: 4px;
       fill: map.get(config.$colours, "input-border");
     }
 

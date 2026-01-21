@@ -62,7 +62,7 @@ for use throughout development.
             - data-id:      the input 'id' attribute value (e.g., 'First Name', 'E-mail Address')
 
         -->
-        <div class="textbox" data-type="text" data-label="Basic Input" data-id="sample-textbox"></div>
+        <div class="textbox textbox--size-fill" data-type="text" data-label="Basic Input" data-id="sample-textbox"></div>
 
 
         <!--
@@ -73,6 +73,22 @@ for use throughout development.
 
         -->
         <div class="textbox textbox--error" data-type="text" data-label="Error Input" data-id="sample-error-textbox"></div>
+
+
+        <!--
+
+        Use the 'button' class for a button (can be used on input:submit tags and anchor tags, too).
+
+        -->
+        <button class="button">Click me</button>
+
+
+        <!--
+
+        Combine the 'button' class with 'button--text-left-align' for left-aligned button text.
+
+        -->
+        <button class="button button--text-align-left">Click me (but left-aligned)</button>
 
     </div>
 </body>
