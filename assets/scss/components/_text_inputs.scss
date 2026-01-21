@@ -31,6 +31,8 @@ Stylesheet for text inputs (as reusable components)
     outline: none;
     min-height: 40px;
     width: 100%;
+    font-family: map.get(config.$font-families, "default");
+    font-weight: map.get(config.$font-weights, "default");
 
     &:focus {
       border-color: map.get(config.$colours, "primary-outline");
@@ -53,11 +55,13 @@ Stylesheet for text inputs (as reusable components)
 
   &__label {
     position: absolute;
-    padding: 2px 4px 0 4px;
+    padding: 2px 4px 2px 4px;
     left: $h-padding - 2px;
     font-size: map.get(config.$font-sizes, "label");
     pointer-events: none;
     transition: 0.1s margin-top ease;
+    font-family: map.get(config.$font-families, "default");
+    font-weight: map.get(config.$font-weights, "default");
   }
 
   // Adjust label (placeholder) position and colour when text has been input.

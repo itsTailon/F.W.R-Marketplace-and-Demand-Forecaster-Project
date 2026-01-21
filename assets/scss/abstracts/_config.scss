@@ -2,6 +2,15 @@
 For global site stylesheet configuration — e.g., global colours, font sizing, etc.
  */
 
+$font-families: (
+        "default": ('Lexend', sans-serif),
+);
+
+$font-weights: (
+        "default": 300,
+);
+
+
 $font-sizes: (
     "default": 18px,
     "label": 14px,

@@ -18,6 +18,8 @@ Stylesheet for buttons (as reusable components)
   transition: all 0.2s ease;
   font-size: map.get(config.$font-sizes, "default");
   min-height: 40px;
+  font-family: map.get(config.$font-families, "default");
+  font-weight: map.get(config.$font-weights, "default");
 
   &--text-align-left {
     text-align: left;

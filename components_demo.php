@@ -17,6 +17,11 @@ for use throughout development.
     <!--  Page title, as shown in tabs and as would be indexed by search engines  -->
     <title>Components Demo</title>
 
+    <!--  Load Google Fonts  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap" rel="stylesheet">
+
     <!--  Load the main project stylesheet  -->
     <link rel="stylesheet" href="assets/css/style.css">
 

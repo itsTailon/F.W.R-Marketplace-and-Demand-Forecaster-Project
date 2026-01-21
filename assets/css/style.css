@@ -27,7 +27,6 @@ For global site stylesheet configuration — e.g., global colours, font sizing, 
  */
 body, html {
   font-family: "Lexend", sans-serif;
-  font-weight: 300;
 }
 
 /*
@@ -46,6 +45,8 @@ Stylesheet for buttons (as reusable components)
   transition: all 0.2s ease;
   font-size: 18px;
   min-height: 40px;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
 }
 .button--text-align-left {
   text-align: left;
@@ -83,6 +84,8 @@ Stylesheet for text inputs (as reusable components)
   outline: none;
   min-height: 40px;
   width: 100%;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
 }
 .textbox__input:focus {
   border-color: #3C6DFF;
@@ -97,11 +100,13 @@ Stylesheet for text inputs (as reusable components)
 }
 .textbox__label {
   position: absolute;
-  padding: 2px 4px 0 4px;
+  padding: 2px 4px 2px 4px;
   left: 14px;
   font-size: 14px;
   pointer-events: none;
   transition: 0.1s margin-top ease;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
 }
 .textbox__input:not(:placeholder-shown) + .textbox__label {
   margin-top: -40px;
