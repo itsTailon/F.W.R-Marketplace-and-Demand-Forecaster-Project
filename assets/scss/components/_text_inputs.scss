@@ -3,3 +3,129 @@ Stylesheet for text inputs (as reusable components)
  */
 
 @use '../abstracts/config';
+@use 'sass:map';
+
+.textbox {
+  $v-padding: 8px;
+  $h-padding: 16px;
+  $close-button-size: map.get(config.$font-sizes, "default") - 2px;
+  $cross-icon-size: map.get(config.$font-sizes, "default") - 4px;
+
+
+  display: flex;
+  align-items: center;
+  position: relative;
+  max-width: fit-content;
+
+  // Used to adjust height of overall element, such that when the label is 'pushed' into the border, it does not collide with element above.
+  padding-top: map.get(config.$font-sizes, "label") / 2 + 2px;
+
+  &__input {
+    border: 1px solid map.get(config.$colours, "input-border");
+    padding: $v-padding ($h-padding *2 + $close-button-size) $v-padding $h-padding;
+    font-size: map.get(config.$font-sizes, "default");
+    color: map.get(config.$colours, "input-main");
+    border-radius: 4px;
+    outline: none;
+
+    &:focus {
+      border-color: map.get(config.$colours, "primary-outline");
+      border-width: 2px;
+
+      // Adjust for thicker border (ensure that element remains the same size)
+      padding: ($v-padding - 1) ($h-padding *2 + $close-button-size - 1) ($v-padding - 1) ($h-padding - 1);
+    }
+  }
+
+  // Change label colour to match input border when input is focused
+  &__input:focus + &__label {
+    color: map.get(config.$colours, "primary-outline") !important;
+  }
+
+  // Ensure label colour is the 'placeholder colour' if the input contains no text.
+  &__input:placeholder-shown + &__label {
+    color: map.get(config.$colours, "input-placeholder") !important;
+  }
+
+  &__label {
+    position: absolute;
+    padding: 2px 4px 0 4px;
+    left: $h-padding - 2px;
+    font-size: map.get(config.$font-sizes, "label");
+    pointer-events: none;
+    transition: 0.1s margin-top ease;
+  }
+
+  // Adjust label (placeholder) position and colour when text has been input.
+  &__input:not(:placeholder-shown) + &__label {
+    margin-top: - (map.get(config.$font-sizes, "default") + map.get(config.$font-sizes, "label") + $v-padding);
+    color: map.get(config.$colours, "input-border");
+    background: #ffffff;
+  }
+
+  // Display the 'clear' button when the input is focused...
+  &__input:focus + &__label + &__clear-button {
+    opacity: 1;
+    pointer-events: unset;
+  }
+  // ... but not before text has been input.
+  &__input:placeholder-shown + &__label + &__clear-button {
+    opacity: 0;
+  }
+
+  &__clear-button {
+    position: absolute;
+    right: $h-padding;
+    appearance: none;
+    outline: none;
+    border: none;
+    background: none;
+
+    // Clear button should be hidden by default. Cannot use display:none, as it causes issues with button clicks.
+    opacity: 0;
+
+    &__cross-icon {
+      height: $close-button-size;
+      padding-top: 2px;
+      fill: map.get(config.$colours, "input-border");
+    }
+
+    &__error-icon {
+      height: $cross-icon-size;
+      fill: map.get(config.$colours, "error");
+      display: none; // Error icon should be hidden by default
+    }
+  }
+
+  &--error {
+    .textbox__input {
+      border-color: map.get(config.$colours, "error");
+      border-width: 2px;
+
+      // Adjust for thicker border (ensure that element remains the same size)
+      padding: ($v-padding - 1) ($h-padding *2 + $close-button-size - 1) ($v-padding - 1) ($h-padding - 1);
+    }
+
+    // Change label colour to match input border when input is focused
+    .textbox__input:focus + .textbox__label {
+        color: map.get(config.$colours, "error") !important;
+    }
+
+    // Ensure label colour is the 'placeholder colour' if the input contains no text.
+    .textbox__input:placeholder-shown + .textbox__label {
+      color: map.get(config.$colours, "input-placeholder") !important;
+    }
+
+    .textbox__clear-button {
+      opacity: 1 !important;
+
+      &__cross-icon {
+        display: none;
+      }
+
+      &__error-icon {
+        display: block;
+      }
+    }
+  }
+}

@@ -1,0 +1,138 @@
+@charset "UTF-8";
+/*
+This file will include all other compilable SCSS files, and will itself be compiled as the single, global stylesheet.
+ */
+/*
+Reset
+ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+For global site stylesheet configuration — e.g., global colours, font sizing, etc.
+ */
+body, html {
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for buttons (as reusable components)
+ */
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for text inputs (as reusable components)
+ */
+.textbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  max-width: fit-content;
+  padding-top: 9px;
+}
+.textbox__input {
+  border: 1px solid #79747E;
+  padding: 8px 48px 8px 16px;
+  font-size: 18px;
+  color: #4A4459;
+  border-radius: 4px;
+  outline: none;
+}
+.textbox__input:focus {
+  border-color: #3C6DFF;
+  border-width: 2px;
+  padding: 7px 47px 7px 15px;
+}
+.textbox__input:focus + .textbox__label {
+  color: #3C6DFF !important;
+}
+.textbox__input:placeholder-shown + .textbox__label {
+  color: #49454F !important;
+}
+.textbox__label {
+  position: absolute;
+  padding: 2px 4px 0 4px;
+  left: 14px;
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.1s margin-top ease;
+}
+.textbox__input:not(:placeholder-shown) + .textbox__label {
+  margin-top: -40px;
+  color: #79747E;
+  background: #ffffff;
+}
+.textbox__input:focus + .textbox__label + .textbox__clear-button {
+  opacity: 1;
+  pointer-events: unset;
+}
+.textbox__input:placeholder-shown + .textbox__label + .textbox__clear-button {
+  opacity: 0;
+}
+.textbox__clear-button {
+  position: absolute;
+  right: 16px;
+  appearance: none;
+  outline: none;
+  border: none;
+  background: none;
+  opacity: 0;
+}
+.textbox__clear-button__cross-icon {
+  height: 16px;
+  padding-top: 2px;
+  fill: #79747E;
+}
+.textbox__clear-button__error-icon {
+  height: 14px;
+  fill: #B3261E;
+  display: none;
+}
+.textbox--error .textbox__input {
+  border-color: #B3261E;
+  border-width: 2px;
+  padding: 7px 47px 7px 15px;
+}
+.textbox--error .textbox__input:focus + .textbox__label {
+  color: #B3261E !important;
+}
+.textbox--error .textbox__input:placeholder-shown + .textbox__label {
+  color: #49454F !important;
+}
+.textbox--error .textbox__clear-button {
+  opacity: 1 !important;
+}
+.textbox--error .textbox__clear-button__cross-icon {
+  display: none;
+}
+.textbox--error .textbox__clear-button__error-icon {
+  display: block;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for index.php (homepage)
+ */
+
+/*# sourceMappingURL=style.css.map */

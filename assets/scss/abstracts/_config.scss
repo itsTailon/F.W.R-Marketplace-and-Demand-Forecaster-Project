@@ -1,3 +1,18 @@
 /*
 For global site stylesheet configuration — e.g., global colours, font sizing, etc.
  */
+
+$font-sizes: (
+    "default": 18px,
+    "label": 14px,
+);
+
+$colours: (
+        "input-placeholder":      #49454F,
+        "input-main":             #4A4459,
+        "input-border":           #79747E,
+
+        "error":                  #B3261E,
+
+        "primary-outline":        #3C6DFF,
+);
