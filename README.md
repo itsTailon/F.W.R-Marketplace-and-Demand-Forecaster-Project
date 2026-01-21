@@ -16,6 +16,8 @@ As in MVC, views (the frontend) interface with controllers (which contain busine
     - **/components** — to store styles for reusable atomic components (e.g., buttons, textboxes, etc.).
     - **/pages**— to store styles unique to individual pages.
   - **/js** — to store JavaScript source code.
+    - **/lib** — to store any libraries such as JQuery.
+    - **/components** — to store source code relating to individual reusable UI components (e.g., textboxes). 
   - **/img** — to store images and icons.
 
 - **/backend** — to store backend source code
