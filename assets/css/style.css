@@ -36,6 +36,28 @@ Stylesheet for base typographical styles/formatting
 /*
 Stylesheet for buttons (as reusable components)
  */
+.button {
+  background-color: #D0DCFF;
+  border: none;
+  border-radius: 8px;
+  appearance: none;
+  outline: none;
+  padding: 12px 32px 12px 16px;
+  transition: all 0.2s ease;
+  font-size: 18px;
+}
+.button--text-align-left {
+  text-align: left;
+}
+.button:hover {
+  background-color: #809FFF;
+  color: #fff;
+}
+.button:active {
+  background-color: #3C6DFF;
+  color: #fff;
+}
+
 /*
 Stylesheet for base typographical styles/formatting
  */
@@ -46,21 +68,25 @@ Stylesheet for text inputs (as reusable components)
   display: flex;
   align-items: center;
   position: relative;
-  max-width: fit-content;
   padding-top: 9px;
+}
+.textbox--size-fill {
+  width: 100%;
 }
 .textbox__input {
   border: 1px solid #79747E;
-  padding: 8px 48px 8px 16px;
+  padding: 8px 50px 8px 16px;
   font-size: 18px;
   color: #4A4459;
   border-radius: 4px;
   outline: none;
+  min-height: 40px;
+  width: 100%;
 }
 .textbox__input:focus {
   border-color: #3C6DFF;
   border-width: 2px;
-  padding: 7px 47px 7px 15px;
+  padding: 7px 49px 7px 15px;
 }
 .textbox__input:focus + .textbox__label {
   color: #3C6DFF !important;
@@ -98,8 +124,8 @@ Stylesheet for text inputs (as reusable components)
   opacity: 0;
 }
 .textbox__clear-button__cross-icon {
-  height: 16px;
-  padding-top: 2px;
+  height: 18px;
+  padding-top: 4px;
   fill: #79747E;
 }
 .textbox__clear-button__error-icon {
@@ -110,7 +136,7 @@ Stylesheet for text inputs (as reusable components)
 .textbox--error .textbox__input {
   border-color: #B3261E;
   border-width: 2px;
-  padding: 7px 47px 7px 15px;
+  padding: 7px 49px 7px 15px;
 }
 .textbox--error .textbox__input:focus + .textbox__label {
   color: #B3261E !important;
