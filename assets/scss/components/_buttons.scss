@@ -6,7 +6,7 @@ Stylesheet for buttons (as reusable components)
 @use 'sass:map';
 
 .button {
-  $v-padding: 12px;
+  $v-padding: 8px;
   $h-padding: 16px;
 
   background-color: map.get(config.$colours, "primary-light");
@@ -17,6 +17,7 @@ Stylesheet for buttons (as reusable components)
   padding: $v-padding ($h-padding * 2) $v-padding $h-padding;
   transition: all 0.2s ease;
   font-size: map.get(config.$font-sizes, "default");
+  min-height: 40px;
 
   &--text-align-left {
     text-align: left;
