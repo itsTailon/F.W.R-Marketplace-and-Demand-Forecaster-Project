@@ -94,7 +94,7 @@ Stylesheet for text inputs (as reusable components)
 
     &__cross-icon {
       height: $close-button-size;
-      padding-top: 4px;
+      padding-top: 2px;
       fill: map.get(config.$colours, "input-border");
     }
 

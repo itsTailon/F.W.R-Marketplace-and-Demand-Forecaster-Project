@@ -20,7 +20,7 @@ $(document).ready(function () {
         inputID = inputID === undefined ? '' : inputID; // If unspecified, default to empty string
 
         // Create actual input field and insert it
-        const input = $('<input class="textbox__input" type="' + inputType + '" placeholder="" id="' + inputID + '">');
+        const input = $('<input class="textbox__input" type="' + inputType + '" placeholder=" " id="' + inputID + '">');
         $(this).append(input);
 
         // Create actual label/placeholder and insert it

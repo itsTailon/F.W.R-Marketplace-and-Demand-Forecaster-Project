@@ -131,7 +131,7 @@ Stylesheet for text inputs (as reusable components)
 }
 .textbox__clear-button__cross-icon {
   height: 18px;
-  padding-top: 4px;
+  padding-top: 2px;
   fill: #79747E;
 }
 .textbox__clear-button__error-icon {
