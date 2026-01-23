@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Tte\\TeamProjectApp\\' => array($baseDir . '/backend'),
+    'TTE\\App\\' => array($baseDir . '/backend'),
 );
