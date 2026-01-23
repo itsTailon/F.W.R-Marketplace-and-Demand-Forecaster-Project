@@ -15,7 +15,6 @@ class Authenticator {
      *
      * @param string $email
      * @param string $password
-     * @throws DatabaseException
      * @return bool true, upon success. false, upon failure.
      */
     public static function authenticateUser(string $email, string $password): bool {
