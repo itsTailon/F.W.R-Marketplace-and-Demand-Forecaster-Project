@@ -1,0 +1,27 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+.dashboard-header {
+  width: 100vw;
+  height: 64px;
+  display: flex;
+  align-items: center; // Vertical centring
+  background-color: map.get(config.$colours, "title-bar");
+  padding: 16px 32px;
+  font-size: map.get(config.$font-sizes, "default");
+
+  &__branding {
+    margin-right: auto; // Flexbox alignment trick (stick to left-hand side)
+
+    &__title {
+      font-weight: map.get(config.$font-weights, "semi-bold"); // Lexend semi-bold
+    }
+  }
+
+  &__account {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-left: auto; // Flexbox alignment trick (stick to right-hand side)
+  }
+}

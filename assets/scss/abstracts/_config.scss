@@ -7,9 +7,9 @@ $font-families: (
 );
 
 $font-weights: (
-        "default": 300,
+        "default":    300, // Lexend light
+        "semi-bold":  600, // Lexend semi-bold
 );
-
 
 $font-sizes: (
     "default": 18px,
@@ -21,9 +21,15 @@ $colours: (
         "input-main":             #4A4459,
         "input-border":           #79747E,
 
+        "button-text":            #000000,
+
         "error":                  #B3261E,
 
         "primary-outline":        #3C6DFF,
         "primary-light":          #D0DCFF,
         "primary-main":           #809FFF,
+
+        "title-bar":              #EBF3FF,
 );
+
+$desktop-max-content-width: 1366px;

@@ -14,12 +14,15 @@ Stylesheet for buttons (as reusable components)
   border-radius: 8px;
   appearance: none;
   outline: none;
-  padding: $v-padding ($h-padding * 2) $v-padding $h-padding;
+  padding: $v-padding $h-padding $v-padding $h-padding;
   transition: all 0.2s ease;
   font-size: map.get(config.$font-sizes, "default");
   min-height: 40px;
   font-family: map.get(config.$font-families, "default");
   font-weight: map.get(config.$font-weights, "default");
+  text-align: center;
+  text-decoration: none;
+  color: map.get(config.$colours, "button-text");
 
   &--text-align-left {
     text-align: left;

@@ -41,12 +41,15 @@ Stylesheet for buttons (as reusable components)
   border-radius: 8px;
   appearance: none;
   outline: none;
-  padding: 8px 32px 8px 16px;
+  padding: 8px 16px 8px 16px;
   transition: all 0.2s ease;
   font-size: 18px;
   min-height: 40px;
   font-family: "Lexend", sans-serif;
   font-weight: 300;
+  text-align: center;
+  text-decoration: none;
+  color: #000000;
 }
 .button--text-align-left {
   text-align: left;
@@ -163,8 +166,49 @@ Stylesheet for text inputs (as reusable components)
 /*
 Stylesheet for base typographical styles/formatting
  */
+.dashboard-header {
+  width: 100vw;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  background-color: #EBF3FF;
+  padding: 16px 32px;
+  font-size: 18px;
+}
+.dashboard-header__branding {
+  margin-right: auto;
+}
+.dashboard-header__branding__title {
+  font-weight: 600;
+}
+.dashboard-header__account {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
 /*
 Stylesheet for index.php (homepage)
  */
+/*
+Stylesheet for base typographical styles/formatting
+ */
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+}
+
+.dashboard {
+  width: 100%;
+  max-width: 1366px;
+  min-height: 200px;
+  padding: 40px 32px;
+}
 
 /*# sourceMappingURL=style.css.map */
