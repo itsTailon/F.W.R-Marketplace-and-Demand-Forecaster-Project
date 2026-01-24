@@ -63,7 +63,7 @@ class DatabaseHandler {
     private static function initSchema() {
         try {
             // Create 'account' table
-            self::$pdo->exec("CREATE TABLE IF NOT EXISTS account (userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(128) NOT NULL UNIQUE, passwordHash VARCHAR(256) NOT NULL);");
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS account (userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(128) NOT NULL UNIQUE, passwordHash VARCHAR(256) NOT NULL, accountType VARCHAR(64) NOT NULL);");
 
             // Create 'customer' table
             self::$pdo->exec("CREATE TABLE IF NOT EXISTS customer (customerID INT NOT NULL PRIMARY KEY, username VARCHAR(128) NOT NULL, streak INT DEFAULT 0, FOREIGN KEY (customerID) REFERENCES account(userID));");
