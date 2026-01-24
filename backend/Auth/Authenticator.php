@@ -112,4 +112,20 @@ class Authenticator {
         return $_SESSION['currentUser'];
     }
 
+    /**
+     * Returns an object which is a subclass of Account, corresponding to the current user and their account type — e.g., A Seller object, if the current user is a seller.
+     *
+     * If the user is not logged in, returns null.
+     *
+     * @return ?Account If logged in, a specialised (e.g., Seller) object representing the current user. Otherwise, null.
+     */
+    public static function getCurrentUserSubclass(): ?Account {
+        // Check if user is actually logged in
+        if (!self::isLoggedIn()) {
+            return null;
+        }
+
+        return $_SESSION['currentUser']->getSubclass();
+    }
+
 }
