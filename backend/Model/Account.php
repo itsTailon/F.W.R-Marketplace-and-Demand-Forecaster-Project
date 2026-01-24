@@ -4,9 +4,11 @@ namespace TTE\App\Model;
 
 class Account extends StoredObject {
 
-    private int $userID;
+    protected int $userID;
 
-    private string $email;
+    protected string $email;
+
+    protected string $accountType;
 
     /**
      * Returns an Account object representing the account with the given ID.
@@ -14,7 +16,7 @@ class Account extends StoredObject {
      * @param int $id ID of account to load
      *
      * @throws DatabaseException if no account exists with the given ID.
-     * @return StoredObject
+     * @return Account
      */
     public static function load(int $id): Account {
         // Prepare parameterised statement
@@ -35,6 +37,7 @@ class Account extends StoredObject {
         $account = new Account();
         $account->userID = $row['userID'];
         $account->email = $row['email'];
+        $account->accountType = $row['accountType'];
 
         return $account;
     }
@@ -58,6 +61,10 @@ class Account extends StoredObject {
         return $this->email;
     }
 
+    public function getAccountType(): string {
+        return $this->accountType;
+    }
+
     /**
      * Setter for e-mail field
      *
@@ -75,6 +82,27 @@ class Account extends StoredObject {
         }
 
         $this->email = $email;
+    }
+
+    /**
+     * Returns an instance of a specialised subclass of Account (e.g., Seller), relating to the account type.
+     *
+     * @return Account
+     */
+    public function getSubclass(): Account {
+        switch ($this->accountType) {
+            case 'seller':
+                return Seller::load($this->userID);
+                break;
+
+            case 'customer':
+                return Customer::load($this->userID);
+                break;
+
+            default:
+                return $this;
+                break;
+        }
     }
 
 }
