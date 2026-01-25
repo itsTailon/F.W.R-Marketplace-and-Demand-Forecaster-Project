@@ -53,6 +53,27 @@ class Account extends StoredObject {
         return new Account();
     }
 
+    /**
+     * Checks if an account record exists with the given ID.
+     *
+     * @param int $id ID to check
+     *
+     * @return bool true, if such an account exists. Otherwise, false.
+     */
+    public static function existsWithID(int $id): bool {
+        // Prepare parameterised statement
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM account WHERE userID=:userID;");
+
+        // Execute statement with given account ID
+        $stmt->execute(["userID" => $id]);
+
+        // Get result
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Return true if an account exists with the given ID
+        return !($row === false);
+    }
+
     public function getUserID(): int {
         return $this->userID;
     }
@@ -104,5 +125,6 @@ class Account extends StoredObject {
                 break;
         }
     }
+
 
 }

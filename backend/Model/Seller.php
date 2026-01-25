@@ -58,6 +58,27 @@ class Seller extends Account {
         return $seller;
     }
 
+    /**
+     * Checks if a seller record exists with the given ID.
+     *
+     * @param int $id ID to check
+     *
+     * @return bool true, if such a seller exists. Otherwise, false.
+     */
+    public static function existsWithID(int $id): bool {
+        // Prepare parameterised statement to get seller record
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM seller WHERE sellerID=:sellerID;");
+
+        // Execute statement with given ID
+        $stmt->execute(["sellerID" => $id]);
+
+        // Get result
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Return true if an account exists with the given ID
+        return !($row === false);
+    }
+
     public function getName(): string {
         return $this->name;
     }
