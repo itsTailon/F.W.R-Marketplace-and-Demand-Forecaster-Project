@@ -58,6 +58,27 @@ class Customer extends Account {
         return $customer;
     }
 
+    /**
+     * Checks if a customer record exists with the given ID.
+     *
+     * @param int $id ID to check
+     *
+     * @return bool true, if such a customer exists. Otherwise, false.
+     */
+    public static function existsWithID(int $id): bool {
+        // Prepare parameterised statement
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer WHERE customerID=:customerID;");
+
+        // Execute statement with given account ID
+        $stmt->execute(["customerID" => $id]);
+
+        // Get result
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Return true if a customer exists with the given ID
+        return !($row === false);
+    }
+
     public function getUsername(): string {
         return $this->username;
     }

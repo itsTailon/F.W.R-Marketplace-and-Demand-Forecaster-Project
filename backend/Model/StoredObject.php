@@ -37,4 +37,13 @@ abstract class StoredObject {
      */
     public abstract static function load(int $id): StoredObject;
 
+    /**
+     * Checks if a record (of a concrete type) exists with the given ID.
+     *
+     * @param int $id ID to check
+     *
+     * @return bool true, if such a record exists. Otherwise, false.
+     */
+    public abstract static function existsWithID(int $id): bool;
+
 }
