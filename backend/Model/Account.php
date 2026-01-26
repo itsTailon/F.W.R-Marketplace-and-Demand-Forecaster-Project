@@ -46,7 +46,7 @@ class Account extends StoredObject {
         // TODO: Implement update() method.
     }
 
-    public function create(): Account {
+    public static function create(): Account {
         // TODO: Implement create() method.
 
         // TODO: Remove placeholder return

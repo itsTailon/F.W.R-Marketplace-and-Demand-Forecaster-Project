@@ -31,7 +31,7 @@ class Bundle extends StoredObject {
         //  (2) The underlying value of the $status enum should be stored. May need to use '->value' (see docs for PHP backed enums).
     }
 
-    public function create(): Bundle {
+    public static function create(): Bundle {
         // TODO: (TGP-36) Implement create() method.
 
         // Notes for implementation:

@@ -25,7 +25,7 @@ abstract class StoredObject {
      * @throws DatabaseException upon failure.
      * @return StoredObject an object representing the record created.
      */
-    public abstract function create(): StoredObject;
+    public abstract static function create(): StoredObject;
 
     /**
      * Loads a record and returns an object representing it.
