@@ -49,7 +49,9 @@ const validateEmail = email => {
 Description: Determine if a password meets the requirements
 Parameters:
 - password: Password to be checked
-Returns true or false depending on if the password is allowed
+Returns:
+- If password valid, "PASS"
+- If the password is not valid, the reason why
 */
 const validatePassword = password => {
     if (password.length < 8) { return "Password must be at least 8 characters" }
