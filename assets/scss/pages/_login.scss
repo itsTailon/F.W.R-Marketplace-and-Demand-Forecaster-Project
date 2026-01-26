@@ -25,6 +25,10 @@ button.white {
   background-color: white;
 }
 
+button.white:hover {
+  background-color: #8f8f8f;
+}
+
 h1.login-form__title {
   text-align: center;
   font-size: x-large;
