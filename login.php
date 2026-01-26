@@ -18,6 +18,7 @@
 
         <script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>
         <script src="/assets/js/components/text-inputs.js"></script>
+        <script src="/assets/js/components/validation.js"></script>
         <script src="/assets/js/login.js"></script>
     </body>
 </html>
