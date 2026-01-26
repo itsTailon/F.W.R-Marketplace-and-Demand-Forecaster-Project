@@ -87,4 +87,10 @@ class Customer extends Account {
         return $this->streak;
     }
 
+    public static function delete(int $id): void {
+        // TODO: Implement delete() method.
+
+        // Call superclass method
+    }
+
 }
