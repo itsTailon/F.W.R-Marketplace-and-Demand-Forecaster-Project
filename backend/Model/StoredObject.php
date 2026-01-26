@@ -46,4 +46,12 @@ abstract class StoredObject {
      */
     public abstract static function existsWithID(int $id): bool;
 
+    /**
+     * Deletes a record.
+     *
+     * @param int $id ID of the record to delete
+     * @return void
+     */
+    public abstract static function delete(int $id): void;
+
 }

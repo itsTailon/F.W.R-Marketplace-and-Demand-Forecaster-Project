@@ -12,7 +12,7 @@ class Customer extends Account {
         // TODO: Implement update() method.
     }
 
-    public function create(): Seller {
+    public static function create(): Seller {
         // TODO: Implement create() method.
 
         // Perhaps make a call to super class, then get ID and create seller record (?) — i.e., create account, then specialise?
