@@ -1,2 +1,30 @@
-<!-- Delete line below -->
-<h1>Seller dashboard home</h1>
+
+
+<h1 class="dashboard-welcome">Welcome, {User}</h1>
+
+<div>
+    <nav class="dashboard-nav">
+    <ul class="dashboard-options">
+        <li>
+            <a>Analytics</a>
+        </li>
+        <li>
+            <a>My Listings</a>
+        </li>
+    </ul>
+    <ul class = "dashboard-options">
+        <li>
+            <a>Create New Listing</a>
+        </li>
+        <li>
+            <a>My Messages</a>
+        </li>
+    </ul>
+    </nav>
+</div>
+<div class="dashboard-curreservations">
+    <br>
+    <br>
+    <h2>Your current Bundles:</h2>
+</div>
+
