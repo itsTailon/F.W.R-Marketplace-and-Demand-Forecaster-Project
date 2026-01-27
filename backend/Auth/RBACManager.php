@@ -31,7 +31,7 @@ class RBACManager {
      * @throws \ValueError if the title is too long (> 128)
      * @return void
      */
-    private static function createRole(string $title): void {
+    public static function createRole(string $title): void {
         // Ensure role title does not exceed max length (for DB)
         if (strlen($title) > self::MAX_LEN_ROLE_TITLE) {
             throw new \ValueError("Role title length cannot exceed " . self::MAX_LEN_ROLE_TITLE . " characters.");
@@ -49,6 +49,25 @@ class RBACManager {
     }
 
     /**
+     * Deletes a role.
+     *
+     * @param string $roleTitle the role title
+     * @return void
+     * @throws NoSuchRoleException if the role does not exist
+     * @throws \PDOException if the role could not be deleted
+     */
+    public static function deleteRole(string $roleTitle): void {
+        // Ensure role exists
+        if (!self::roleExists($roleTitle)) {
+            throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
+        }
+
+        // Prepare and execute SQL statement
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_roles WHERE title=:roleTitle;");
+        $stmt->execute(["roleTitle" => $roleTitle]);
+    }
+
+    /**
      * Registers a new permission.
      *
      * Note: permission titles cannot exceed 128 characters in length.
@@ -57,7 +76,7 @@ class RBACManager {
      * @throws \ValueError if the title is too long (> 128)
      * @return void
      */
-    private static function createPermission(string $title): void {
+    public static function createPermission(string $title): void {
         // Ensure permission title does not exceed max length (for DB)
         if (strlen($title) > self::MAX_LEN_PERMISSION_TITLE) {
             throw new \ValueError("Permission title length cannot exceed " . self::MAX_LEN_ROLE_TITLE . " characters.");
@@ -75,12 +94,31 @@ class RBACManager {
     }
 
     /**
+     * Deletes a permission.
+     *
+     * @param string $permissionTitle the permission title
+     * @return void
+     * @throws NoSuchPermissionException if the permission does not exist
+     * @throws \PDOException if the permission could not be deleted
+     */
+    public static function deletePermission(string $permissionTitle): void {
+        // Ensure permission exists
+        if (!self::permissionExists($permissionTitle)) {
+            throw new NoSuchPermissionException("Permission '$permissionTitle' does not exist.");
+        }
+
+        // Prepare and execute SQL statement
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_permissions WHERE title=:permissionTitle;");
+        $stmt->execute(["permissionTitle" => $permissionTitle]);
+    }
+
+    /**
      * Checks if a role exists.
      *
      * @param string $roleTitle the role title
      * @return bool true, if such a role exists. Otherwise, false.
      */
-    private static function roleExists(string $roleTitle): bool {
+    public static function roleExists(string $roleTitle): bool {
         // Prepare and execute SQL statement
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT title FROM rbac_roles WHERE title=:title;");
         $stmt->execute(["title" => $roleTitle]);
@@ -95,7 +133,7 @@ class RBACManager {
      * @param string $permissionTitle the permission title
      * @return bool true, if such a permission exists. Otherwise, false.
      */
-    private static function permissionExists(string $permissionTitle): bool {
+    public static function permissionExists(string $permissionTitle): bool {
         // Prepare and execute SQL statement
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT title FROM rbac_permissions WHERE title=:title;");
         $stmt->execute(["title" => $permissionTitle]);
@@ -116,7 +154,7 @@ class RBACManager {
      * @throws NoSuchPermissionException if the specified permission does not exist
      * @throws NoSuchRoleException if the specified role does not exist
      */
-    private static function assignPermissionToRole(string $roleTitle, string $permissionTitle): bool {
+    public static function assignPermissionToRole(string $roleTitle, string $permissionTitle): bool {
         // Ensure role exists
         if (!self::roleExists($roleTitle)) {
             throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
@@ -146,6 +184,42 @@ class RBACManager {
             // TODO: Consider logging
             return false;
         }
+    }
+
+    /**
+     * Removes a permission from a role — i.e. removes permission-role assignment.
+     *
+     * @param string $roleTitle the role title
+     * @param string $permissionTitle the permission title
+     * @return bool true, if the permission-role assignment was removed. false, if it was not, or if the assignment never existed in the first place
+     * @throws NoSuchPermissionException if no such permission exists
+     * @throws NoSuchRoleException if no such role exists
+     */
+    public static function removePermissionFromRole(string $roleTitle, string $permissionTitle): bool {
+        // Ensure role exists
+        if (!self::roleExists($roleTitle)) {
+            throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
+        }
+
+        // Ensure permission exists
+        if (!self::permissionExists($permissionTitle)) {
+            throw new NoSuchPermissionException("Permission '$permissionTitle' does not exist.");
+        }
+
+        // Ensure that permission is actually assigned to role
+        if (!self::isRolePermitted($roleTitle, $permissionTitle)) {
+            return false;
+        }
+
+        // Prepare and execute SQL statement to remove permission-role assignment
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_pa WHERE permissionTitle=:permissionTitle AND roleTitle=:roleTitle;");
+        $stmt->execute([
+            "permissionTitle" => $permissionTitle,
+            "roleTitle" => $roleTitle,
+        ]);
+
+        // Success
+        return true;
     }
 
     /**
@@ -189,6 +263,42 @@ class RBACManager {
             // TODO: Consider logging
             return false;
         }
+    }
+
+    /**
+     * Removes a role from a user — i.e. removes user-role assignment.
+     *
+     * @param int $userID the user's ID
+     * @param string $roleTitle the role title
+     * @return bool true, if the user-role assignment was removed. false, if it was not, or if the assignment never existed in the first place
+     * @throws NoSuchAccountException if no account exists with the given user ID
+     * @throws NoSuchRoleException if no such role exists
+     */
+    public static function removeRoleFromUser(int $userID, string $roleTitle): bool {
+        // Ensure user exists
+        if (!Account::existsWithID($userID)) {
+            throw new NoSuchAccountException("Account with user ID '$userID' does not exist.");
+        }
+
+        // Ensure role exists
+        if (!self::roleExists($roleTitle)) {
+            throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
+        }
+
+        // Ensure that role is actually assigned to user
+        if (!self::hasRole($userID, $roleTitle)) {
+            return false;
+        }
+
+        // Prepare and execute SQL statement to remove user-role assignment
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_ua WHERE userID=:userID AND roleTitle=:roleTitle;");
+        $stmt->execute([
+            "userID" => $userID,
+            "roleTitle" => $roleTitle,
+        ]);
+
+        // Success
+        return true;
     }
 
     /**
@@ -288,6 +398,22 @@ class RBACManager {
         $nRows = $stmt->fetchColumn();
 
         return $nRows > 0;
+    }
+
+    /**
+     * Checks if the current user has a given permission.
+     *
+     * @param string $permissionTitle the permission title
+     * @return bool true, if the user has the permission. Otherwise, false.
+     * @throws NoSuchPermissionException if no such permission exists
+     */
+    public static function isCurrentUserPermitted(string $permissionTitle) {
+        // If the user is not logged-in, then they cannot have any permissions (by definition)
+        if (!Authenticator::isLoggedIn()) {
+            return false;
+        }
+
+        return self::isUserPermitted(Authenticator::getCurrentUser()->getUserID(), $permissionTitle);
     }
 
 }
