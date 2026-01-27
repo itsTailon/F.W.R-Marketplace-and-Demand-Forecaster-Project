@@ -191,4 +191,103 @@ class RBACManager {
         }
     }
 
+    /**
+     * Checks if a role has a specific permission.
+     *
+     * @param string $roleTitle the role title
+     * @param string $permissionTitle the permission title
+     * @return bool true, if the role has the permission. Otherwise, false.
+     * @throws NoSuchPermissionException if no such permission exists
+     * @throws NoSuchRoleException if no such role exists
+     */
+    public static function isRolePermitted(string $roleTitle, string $permissionTitle): bool {
+        // Ensure role exists
+        if (!self::roleExists($roleTitle)) {
+            throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
+        }
+
+        // Ensure permission exists
+        if (!self::permissionExists($permissionTitle)) {
+            throw new NoSuchPermissionException("Permission '$permissionTitle' does not exist.");
+        }
+
+        // Prepare and execute SQL statement to see if a mapping exists between the role and permission
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT COUNT(*) FROM rbac_pa WHERE roleTitle=:roleTitle AND permissionTitle=:permissionTitle;");
+        $stmt->execute([
+            "roleTitle" => $roleTitle,
+            "permissionTitle" => $permissionTitle,
+        ]);
+
+        // Get the number of results found (this will be either 1 or 0)
+        $nRows = $stmt->fetchColumn();
+
+        return $nRows > 0;
+    }
+
+    /**
+     * Checks if a user is assigned to a specific role.
+     *
+     * @param int $userID the user's ID
+     * @param string $roleTitle the role title
+     * @return bool true, if the user is assigned to the role. Otherwise, false.
+     * @throws NoSuchAccountException if no account exists with the given user ID
+     * @throws NoSuchRoleException if no such role exists
+     */
+    public static function hasRole(int $userID, string $roleTitle): bool {
+        // Ensure user exists
+        if (!Account::existsWithID($userID)) {
+            throw new NoSuchAccountException("Account with user ID '$userID' does not exist.");
+        }
+
+        // Ensure role exists
+        if (!self::roleExists($roleTitle)) {
+            throw new NoSuchRoleException("Role '$roleTitle' does not exist.");
+        }
+
+        // Prepare and execute SQL statement to see if a mapping exists between the role and user
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT COUNT(*) FROM rbac_ua WHERE roleTitle=:roleTitle AND userID=:userID;");
+        $stmt->execute([
+            "roleTitle" => $roleTitle,
+            "userID" => $userID,
+        ]);
+
+        // Get the number of results found (this will be either 1 or 0)
+        $nRows = $stmt->fetchColumn();
+
+        return $nRows > 0;
+    }
+
+    /**
+     * Checks if a user has a specific permission.
+     *
+     * @param int $userID the user's ID
+     * @param string $permissionTitle the permission title
+     * @return bool true, if the user has the permission. Otherwise, false.
+     * @throws NoSuchAccountException if no account exists with the given user ID
+     * @throws NoSuchPermissionException if no such permission exists
+     */
+    public static function isUserPermitted(int $userID, string $permissionTitle): bool {
+        // Ensure user exists
+        if (!Account::existsWithID($userID)) {
+            throw new NoSuchAccountException("Account with user ID '$userID' does not exist.");
+        }
+
+        // Ensure permission exists
+        if (!self::permissionExists($permissionTitle)) {
+            throw new NoSuchPermissionException("Permission '$permissionTitle' does not exist.");
+        }
+
+        // Prepare and execute SQL statement to see if the user has permission
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT COUNT(rbac_pa.permissionTitle) FROM rbac_pa JOIN rbac_ua ON rbac_pa.roleTitle = rbac_ua.roleTitle WHERE rbac_ua.userID=:userID AND rbac_pa.permissionTitle=:permissionTitle;");
+        $stmt->execute([
+            "userID" => $userID,
+            "permissionTitle" => $permissionTitle,
+        ]);
+
+        // Get the number of results found (if > 0, then the user has the permission)
+        $nRows = $stmt->fetchColumn();
+
+        return $nRows > 0;
+    }
+
 }
