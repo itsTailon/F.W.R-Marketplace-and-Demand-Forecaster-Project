@@ -22,10 +22,11 @@ abstract class StoredObject {
     /**
      * Creates a new database record and returns an object representing it.
      *
-     * @throws DatabaseException upon failure.
+     * @param array $fields assoc. array (keys = db fields, values = field values)
      * @return StoredObject an object representing the record created.
+     *@throws DatabaseException upon failure.
      */
-    public abstract static function create(): StoredObject;
+    public abstract static function create(array $fields): StoredObject;
 
     /**
      * Loads a record and returns an object representing it.

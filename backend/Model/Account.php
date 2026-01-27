@@ -46,11 +46,32 @@ class Account extends StoredObject {
         // TODO: Implement update() method.
     }
 
-    public static function create(): Account {
-        // TODO: Implement create() method.
+    public static function create(array $fields): Account
+    {
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO account(email, passwordHash, accountType) VALUES (:email, :passwordHash, :accountType);");
+        $passwordHash = password_hash($fields['password'], PASSWORD_ARGON2ID);
 
-        // TODO: Remove placeholder return
-        return new Account();
+        try {
+            $stmt->execute([":email" => $fields['email'], ":passwordHash" => $passwordHash, ":accountType" => $fields['accountType']]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());//TODO: change msg
+        }
+
+        // We use the email of the user (which is unique) to find the user we just added to the database
+        // TODO: Find a better approach
+        $stmt2 = DatabaseHandler::getPDO()->prepare("SELECT userID FROM account WHERE email=:email;");
+        $stmt2->execute([":email" => $fields['email']]);
+
+        // Get the user ID (the one bit of info we don't have)
+        $row = $stmt2->fetch(\PDO::FETCH_ASSOC);
+        $userID = $row["userID"];
+
+        // Create a new Account object
+        $account = new Account();
+        $account->userID = $userID;
+        $account->email = $fields['email'];
+        $account->accountType = $fields['accountType'];
+        return $account;
     }
 
     /**

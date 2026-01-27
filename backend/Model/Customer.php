@@ -12,13 +12,23 @@ class Customer extends Account {
         // TODO: Implement update() method.
     }
 
-    public static function create(): Seller {
-        // TODO: Implement create() method.
+    public static function create(array $fields): Customer {
+        // Create the account in the database
+        $account = parent::create([
+            'email' => $fields['email'],
+            'accountType' => 'customer',
+            'password' => $fields['password']
+        ]);
 
-        // Perhaps make a call to super class, then get ID and create seller record (?) — i.e., create account, then specialise?
+        // Create the customer in the database
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO Customer(customerID, username) VALUES (:id, :username);");
+        $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username']]);
 
-        // TODO: Remove placeholder return
-        return new Seller();
+        // Create and return a customer object
+        $customer = new Customer();
+        $customer->username = $fields['username'];
+        $customer->streak = 0;
+        return $customer;
     }
 
     /**
