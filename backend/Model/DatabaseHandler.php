@@ -15,7 +15,7 @@ class DatabaseHandler {
     /**
      * @var string Database port. Change for your local dev env., but don't commit changes. (consider adding this file to your gitignore)
      */
-    private static string $DB_PORT = "8889";
+    private static string $DB_PORT = "3306";
 
     /**
      * @var string Database user
@@ -25,7 +25,7 @@ class DatabaseHandler {
     /**
      * @var string Database user password
      */
-    private static string $DB_PASSWORD = "root";
+    private static string $DB_PASSWORD = "";
 
 
     /**
