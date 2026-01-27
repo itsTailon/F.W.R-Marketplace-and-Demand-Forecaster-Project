@@ -126,5 +126,7 @@ class Account extends StoredObject {
         }
     }
 
-
+    public static function delete(int $id): void {
+        // TODO: Implement delete() method.
+    }
 }

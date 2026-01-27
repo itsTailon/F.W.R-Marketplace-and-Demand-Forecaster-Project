@@ -191,4 +191,7 @@ class Bundle extends StoredObject {
         $this->purchaserID = $customerID;
     }
 
+    public static function delete(int $id): void {
+        // TODO: Implement delete() method.
+    }
 }
