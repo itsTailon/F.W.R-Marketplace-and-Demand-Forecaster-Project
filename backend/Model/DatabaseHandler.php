@@ -62,6 +62,8 @@ class DatabaseHandler {
      */
     private static function initSchema() {
         try {
+            // Create tables for data model:
+
             // Create 'account' table
             self::$pdo->exec("CREATE TABLE IF NOT EXISTS account (userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, email VARCHAR(128) NOT NULL UNIQUE, passwordHash VARCHAR(256) NOT NULL, accountType VARCHAR(64) NOT NULL);");
 
@@ -73,6 +75,21 @@ class DatabaseHandler {
 
             // Create 'bundle' table
             self::$pdo->exec("CREATE TABLE IF NOT EXISTS bundle (bundleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY, bundleStatus ENUM('available', 'reserved', 'collected', 'cancelled') NOT NULL, title VARCHAR(128) NOT NULL,  details TEXT NOT NULL,  rrp DECIMAL(8, 2) NOT NULL, discountedPrice DECIMAL(8, 2) NOT NULL, CHECK (rrp > discountedPrice), sellerID INT NOT NULL, purchaserID INT DEFAULT NULL, FOREIGN KEY (sellerID) REFERENCES seller(sellerID), FOREIGN KEY (purchaserID) REFERENCES customer(customerID));");
+
+
+            // Create supporting tables for RBAC:
+
+            // Create RBAC roles table
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_roles (title VARCHAR(128) PRIMARY KEY);");
+
+            // Create RBAC permissions table
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_permissions (title VARCHAR(128) PRIMARY KEY);");
+
+            // Create RBAC PA table
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_pa (roleTitle VARCHAR(128) NOT NULL, permissionTitle VARCHAR(128) NOT NULL, PRIMARY KEY (roleTitle, permissionTitle), FOREIGN KEY (roleTitle) REFERENCES rbac_roles(title), FOREIGN KEY (permissionTitle) REFERENCES rbac_permissions(title));");
+
+            // Create RBAC UA table
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_ua (userID INT NOT NULL, roleTitle VARCHAR(128) NOT NULL, PRIMARY KEY (userID, roleTitle), FOREIGN KEY (userID) REFERENCES account(userID), FOREIGN KEY (roleTitle) REFERENCES rbac_roles(title));");
 
         } catch (\PDOException $e) {
             echo $e->getMessage();
