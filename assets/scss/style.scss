@@ -11,6 +11,7 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'components/text_inputs';
 
 @use 'layout/dashboard_header';
+@use 'layout/dashboard_sidebar';
 
 @use 'pages/index';
 @use 'pages/dashboard';
