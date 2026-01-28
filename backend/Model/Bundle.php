@@ -32,14 +32,17 @@ class Bundle extends StoredObject {
     }
 
     /**
+     * Create a Bundle object and add entry to database.
+     *
+     * @param array $fields associative array of fields required for Bundle.
      * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException
+     * @return Bundle object with fields holding values passed in at call of the function.
      */
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
         if (isset($fields['bundleStatus']) || isset($fields['bundleTitle']) || isset($fields['bundleDetails']) || isset($fields['bundleRrpGBX']) ||
-            isset($fields['bundleDiscountedPriceGBX']) || isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails'])))
-        {
+            isset($fields['bundleDiscountedPriceGBX']) || isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -70,7 +73,13 @@ class Bundle extends StoredObject {
             throw new DatabaseException($e->getMessage());
         }
 
-        // return Bundle object as output once the database is successfully updated
+        // Get query ID of the last record added to the database (i.e., the one just created)
+        $lastId = (int) DatabaseHandler::getPDO()->lastInsertId();
+        // Add ID to Bundle object
+        $bundle->id = $lastId;
+
+
+        // Return Bundle object as output once the database is successfully updated
         return $bundle;
     }
 
