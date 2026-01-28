@@ -31,16 +31,48 @@ class Bundle extends StoredObject {
         //  (2) The underlying value of the $status enum should be stored. May need to use '->value' (see docs for PHP backed enums).
     }
 
-    public static function create(): Bundle {
-        // TODO: (TGP-36) Implement create() method.
+    /**
+     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException
+     */
+    public static function create(array $fields): Bundle {
 
-        // Notes for implementation:
-        //  (1) Remember to be careful with rrp and discountedPrice, as these are denoted in this class as GBX (pence).
-        //  (2) The underlying value of the $status enum should be stored. May need to use '->value' (see docs for PHP backed enums).
-        //  (3) Please use the class's setter functions, as these already encapsulate logic to enforce DB constraints on internal values.
+        // Presence check on all inputs - not on purchaserID as it is nullable
+        if (isset($fields['bundleStatus']) || isset($fields['bundleTitle']) || isset($fields['bundleDetails']) || isset($fields['bundleRrpGBX']) ||
+            isset($fields['bundleDiscountedPriceGBX']) || isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails'])))
+        {
 
-        // TODO: Remove placeholder return
-        return new Bundle();
+            // Produce error message if field exists with no content
+            throw new MissingValuesException("Missing information required to create a bundle");
+        }
+
+        // Creating new Bundle object
+        $bundle = new Bundle();
+        // Updating attributes in line with input
+        $bundle->setStatus($fields['bundleStatus']);
+        $bundle->setTitle($fields['bundleTitle']);
+        $bundle->setDetails($fields['bundleDetails']);
+        $bundle->setRrpGBX($fields['bundleRrpGBX']);
+        $bundle->setDiscountedPriceGBX($fields['bundleDiscountedPriceGBX']);
+        $bundle->setSellerID($fields['bundleSellerID']);
+        $bundle->setPurchaserID($fields['bundlePurchaserID']);
+
+        // Creating parameterised SQL command
+        //TODO: Update GBX values to be in GB once conversion helper function is implemented
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, ) 
+            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID);");
+
+        // Try-catch block for handling potential database exceptions
+        try {
+            // Execute SQL command, establishing values of parameterised fields
+            $stmt->execute([":bundleStatus" => $bundle->getStatus(), ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => $bundle->getRrpGBX(),
+                ":discountedPrice" => $bundle->getDiscountedPriceGBX(), ":sellerID" => $bundle->getSellerID()]);
+        } catch (\PDOException $e) {
+            // Throw exception message aligning with output of database error
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // return Bundle object as output once the database is successfully updated
+        return $bundle;
     }
 
     /**
