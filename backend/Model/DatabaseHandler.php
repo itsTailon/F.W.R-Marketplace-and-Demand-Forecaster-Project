@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Global\AppConfig;
+
 /**
  * Provides a single point of access to the database
  */
@@ -10,27 +12,27 @@ class DatabaseHandler {
     /**
      * @var string Database name
      */
-    private static string $DB_NAME = \AppConfig::DB_NAME;
+    private static string $DB_NAME = AppConfig::DB_NAME;
 
     /**
      * @var string Database port. Change for your local dev env., but don't commit changes. (consider adding this file to your gitignore)
      */
-    private static string $DB_PORT = \AppConfig::DB_PORT;
+    private static string $DB_PORT = AppConfig::DB_PORT;
 
     /**
      * @var string Database user
      */
-    private static string $DB_USERNAME = \AppConfig::DB_USER;
+    private static string $DB_USERNAME = AppConfig::DB_USER;
 
     /**
      * @var string Database user password
      */
-    private static string $DB_PASSWORD = \AppConfig::DB_PASSWORD;
+    private static string $DB_PASSWORD = AppConfig::DB_PASSWORD;
 
     /**
      * @var string Database host
      */
-    private static string $DB_HOST = \AppConfig::DB_HOST;
+    private static string $DB_HOST = AppConfig::DB_HOST;
 
 
     /**

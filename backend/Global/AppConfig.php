@@ -1,4 +1,5 @@
 <?php
+namespace TTE\App\Global;
 
 final class AppConfig {
     const DB_PORT = "8886"; // If using MySQL/MariaDB default, change to 3306
