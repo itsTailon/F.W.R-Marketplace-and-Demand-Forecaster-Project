@@ -10,6 +10,7 @@
             <div class="circle blue middle"></div>
             <h1 class="login-form__title">Sign Up</h1>
             <p class="error-text"></p>
+            <div class="textbox textbox--size-fill" data-type="username" data-label="Username" data-id="username" id="username-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="email" data-label="Email" data-id="email" id="email-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="password" data-label="Password" data-id="password" id="password-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="password" data-label="Confirm Password" data-id="confirm-password" id="confirm-password-textbox"></div>
