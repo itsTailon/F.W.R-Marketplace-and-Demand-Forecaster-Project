@@ -1,14 +1,22 @@
 $("#register-btn").click(() => { // When sign up button is clicked
-    // Get values from email, password, and confirmation fields
+    // Get values from username, email, password, and confirmation fields
+    var username = $("#username").val();
     var email = $("#email").val();
     var password = $("#password").val();
     var confirm_password = $("#confirm-password").val();
 
     // Remove all error highlighting of text boxes and error text
+    $("#username-textbox").removeClass("textbox--error");
     $("#email-textbox").removeClass("textbox--error");
     $("#password-textbox").removeClass("textbox--error");
     $("#confirm-password-textbox").removeClass("textbox--error");
     $('.error-text').text("");
+
+    if (username.length < 3) {
+        $("#username-textbox").addClass("textbox--error"); // Add error highlighting to username textbox
+        $('.error-text').text("Username must be at least 3 characters");
+        return false;
+    }
 
      if (!validateEmail(email)) { // If email is invalid
         // Highlight the email textbox with red using textbox--error class
@@ -36,6 +44,7 @@ $("#register-btn").click(() => { // When sign up button is clicked
         url: "/backend/API/Auth/register.php",
         type: 'POST',
         data: {
+            username: username,
             email: email,
             password: password
         },
