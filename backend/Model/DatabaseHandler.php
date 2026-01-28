@@ -10,22 +10,27 @@ class DatabaseHandler {
     /**
      * @var string Database name
      */
-    private static string $DB_NAME = "TeamProjectApp";
+    private static string $DB_NAME = \AppConfig::DB_NAME;
 
     /**
      * @var string Database port. Change for your local dev env., but don't commit changes. (consider adding this file to your gitignore)
      */
-    private static string $DB_PORT = "3306";
+    private static string $DB_PORT = \AppConfig::DB_PORT;
 
     /**
      * @var string Database user
      */
-    private static string $DB_USERNAME = "root";
+    private static string $DB_USERNAME = \AppConfig::DB_USER;
 
     /**
      * @var string Database user password
      */
-    private static string $DB_PASSWORD = "";
+    private static string $DB_PASSWORD = \AppConfig::DB_PASSWORD;
+
+    /**
+     * @var string Database host
+     */
+    private static string $DB_HOST = \AppConfig::DB_HOST;
 
 
     /**
@@ -44,7 +49,7 @@ class DatabaseHandler {
         // Create PDO instance if one has not already been created
         if (self::$pdo === null) {
             // Connect to database
-            self::$pdo = new \PDO("mysql:host=127.0.0.1;dbname=" . self::$DB_NAME . ";port=" . self::$DB_PORT, self::$DB_USERNAME, self::$DB_PASSWORD); // TODO: Add DSN
+            self::$pdo = new \PDO("mysql:host=" . self::$DB_HOST . ";dbname=" . self::$DB_NAME . ";port=" . self::$DB_PORT, self::$DB_USERNAME, self::$DB_PASSWORD); // TODO: Add DSN
 
             // Have PDO errors communicated by means of exceptions being thrown
             self::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
