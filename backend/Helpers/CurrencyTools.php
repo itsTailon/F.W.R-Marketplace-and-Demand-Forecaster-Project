@@ -30,4 +30,28 @@ class CurrencyTools {
 
     // TODO: Implement inverse of decimalStringToGBX (i.e. pence integer to DECIMAL string)
 
+
+    /**
+     * Converts an integer representing the total number of pence (GBX) to a string representation of a (MySQL) DECIMAL type.
+     *
+     * Example: "250" => 2.50
+     *
+     * @param int $gbx
+     * @throws \ValueError if $gbx is not of valid format
+     * @return string amount represented as total pounds
+     */
+    public static function gbxToDecimalString(int $gbx) : string {
+
+        //Check valid input
+        if (isset($gbx) || $gbx < 0) {
+            throw new \ValueError("Invalid number '$gbx'");
+        }
+
+        // Convert int -> float and divide by 100 to get pounds from pence
+        $decimalValue = (float)$gbx / 100;
+
+        // return float value as a string
+        return (string)$decimalValue;
+    }
+
 }

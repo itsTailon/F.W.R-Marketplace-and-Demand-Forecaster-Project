@@ -57,7 +57,6 @@ class Bundle extends StoredObject {
         $bundle->setPurchaserID($fields['bundlePurchaserID']);
 
         // Creating parameterised SQL command
-        //TODO: Update GBX values to be in GB once conversion helper function is implemented
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, ) 
             VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID);");
 
@@ -65,7 +64,7 @@ class Bundle extends StoredObject {
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $bundle->getStatus(), ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => $bundle->getRrpGBX(),
-                ":discountedPrice" => $bundle->getDiscountedPriceGBX(), ":sellerID" => $bundle->getSellerID()]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => CurrencyTools::gbxToDecimalString($bundle->getSellerID())]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
