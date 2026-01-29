@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
 
 class Bundle extends StoredObject {
@@ -23,13 +24,61 @@ class Bundle extends StoredObject {
 
     private int $purchaserID;
 
-    public function update(): void
+    /**
+     * @param int $id of bundle to be updated.
+     * @param array $fields holding field names and values to update record with.
+     * @throws DatabaseException|NoSuchBundleException
+     */
+    public function update(int $id, array $fields): void
     {
-        // TODO: (TGP-37) Implement update() method.
+        // Check validity of bundleID
+        if (!Bundle::existsWithID($id)) {
+            // Exception thrown if ID is invalid
+            throw new NoSuchBundleException("No such bundle with ID $id");
+        }
 
-        // Notes for implementation:
-        //  (1) Remember to be careful with rrp and discountedPrice, as these are denoted in this class as GBX (pence).
-        //  (2) The underlying value of the $status enum should be stored. May need to use '->value' (see docs for PHP backed enums).
+        // Ensuring that there is at least one field passed
+        if (count($fields) < 1) {
+            // Throwing exception
+            throw new InvalidArgumentException("At least one field must be passed to update a bundle.");
+        }
+
+        // List of viable fields for editing
+        $valid_fields = array("bundleStatus", "bundleTitle", "bundleDetails", "bundleRrpGBX", "purchaserID");
+
+        // Enforcing field limits
+        foreach (array_keys($fields) as $field) {
+            if (!in_array($field, $valid_fields)) {
+                throw new InvalidArgumentException("Field ". $field ." cannot be updated.");
+            }
+        }
+
+        // Arrays to hold SET parameters and bindings for SQL query
+        $setParams = array();
+        $execBindings = array();
+
+        // Building arrays
+        foreach($fields as $field=>$value) {
+            $setParams[] = "$field = :$field";
+            $execBindings[":$field"] = $value;
+        }
+        // Adding the ID as a exec value as we know it will be present in query
+        $execBindings[":bundleID"] = $id;
+
+        // SQL query to be executed
+        $sql_query = "Update bundles SET ".implode(", ", $setParams)."WHERE id = :id";
+        // Prepare and execute query
+        $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
+
+        // Try-catch block for handling potential database exceptions
+        try {
+            // Execute SQL command, establishing values of parameterised fields
+            $stmt->execute($execBindings);
+        } catch (\PDOException $e) {
+            // Throw exception message aligning with output of database error
+            throw new DatabaseException($e->getMessage());
+        }
+
     }
 
     /**

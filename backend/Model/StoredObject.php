@@ -17,7 +17,7 @@ abstract class StoredObject {
      *
      * @throws DatabaseException upon failure to save.
      */
-    public abstract function update(): void;
+    public abstract function update(int $id, array $fields): void;
 
     /**
      * Creates a new database record and returns an object representing it.
