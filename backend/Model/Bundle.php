@@ -23,7 +23,8 @@ class Bundle extends StoredObject {
 
     private int $purchaserID;
 
-    public function update(): void {
+    public function update(): void
+    {
         // TODO: (TGP-37) Implement update() method.
 
         // Notes for implementation:
@@ -41,8 +42,8 @@ class Bundle extends StoredObject {
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
-        if (isset($fields['bundleStatus']) || isset($fields['bundleTitle']) || isset($fields['bundleDetails']) || isset($fields['bundleRrpGBX']) ||
-            isset($fields['bundleDiscountedPriceGBX']) || isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
+        if (!isset($fields['bundleStatus']) || !isset($fields['bundleTitle']) || !isset($fields['bundleDetails']) || !isset($fields['bundleRrpGBX']) ||
+            !isset($fields['bundleDiscountedPriceGBX']) || !isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
