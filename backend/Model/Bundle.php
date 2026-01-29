@@ -21,7 +21,7 @@ class Bundle extends StoredObject {
 
     private int $sellerID;
 
-    private int $purchaserID;
+    private ?int $purchaserID;
 
     public function update(): void {
         // TODO: (TGP-37) Implement update() method.
