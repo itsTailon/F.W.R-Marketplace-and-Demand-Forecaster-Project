@@ -31,7 +31,7 @@ class Bundle extends StoredObject {
         //  (2) The underlying value of the $status enum should be stored. May need to use '->value' (see docs for PHP backed enums).
     }
 
-    public static function create(): Bundle {
+    public static function create(array $fields): Bundle {
         // TODO: (TGP-36) Implement create() method.
 
         // Notes for implementation:
@@ -67,7 +67,7 @@ class Bundle extends StoredObject {
         // Construct Bundle object, performing any necessary data type/format conversions
         $bundle = new Bundle();
         $bundle->id = $row['bundleID'];
-        $bundle->bundleStatus = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
+        $bundle->status = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
         $bundle->title = $row['title'];
         $bundle->details = $row['details'];
         // MySQL DECIMAL values are returned by PDO as strings, so convert to ints representing pence (ints to avoid FP errors)
