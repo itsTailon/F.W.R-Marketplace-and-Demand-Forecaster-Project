@@ -16,6 +16,15 @@ class CurrencyTools {
     public static function decimalStringToGBX(string $decimal): int {
         // Split input into LHS and RHS
         $split = explode($decimal, '.');
+
+        // Remove leading zeros
+        if ($split[0][0] == "0") {
+            $split[0] = "{$split[0][1]}";
+        }
+        if ($split[1][0] == "0") {
+            $split[1] = "{$split[0][1]}";
+        }
+
         $lhs = filter_var($split[0], FILTER_VALIDATE_INT);
         $rhs = filter_var($split[1], FILTER_VALIDATE_INT);
 
