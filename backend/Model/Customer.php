@@ -21,7 +21,7 @@ class Customer extends Account {
         ]);
 
         // Create the customer in the database
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO Customer(customerID, username) VALUES (:id, :username);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username) VALUES (:id, :username);");
         $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username']]);
 
         // Create and return a customer object
