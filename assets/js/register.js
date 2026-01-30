@@ -52,6 +52,12 @@ $("#register-btn").click(() => { // When sign up button is clicked
             200: () => { // If registration was successful
                 location.href = "/login.php" // Go to login page
             },
+            400: () => { // Bad request
+                $('.error-text').text("Invalid input");
+            },
+            409: () => { // Conflict
+                $('.error-text').text("Username or email already taken");
+            },
             500: () => { // Internal Server Error
                 $('.error-text').text("Internal Server Error");
             }
