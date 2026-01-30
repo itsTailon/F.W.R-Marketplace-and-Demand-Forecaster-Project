@@ -19,6 +19,7 @@ abstract class StoredObject {
      */
     public abstract function update(int $id, array $fields): void;
 
+    // TODO: Return to no parameters passed and fix update() within bundle
     /**
      * Creates a new database record and returns an object representing it.
      *
