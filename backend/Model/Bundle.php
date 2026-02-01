@@ -3,6 +3,7 @@
 namespace TTE\App\Model;
 
 use http\Exception\InvalidArgumentException;
+use TTE\App\Auth\Authenticator;
 use TTE\App\Helpers\CurrencyTools;
 
 class Bundle extends StoredObject {
@@ -65,7 +66,7 @@ class Bundle extends StoredObject {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
         if (!isset($fields['bundleStatus']) || !isset($fields['bundleTitle']) || !isset($fields['bundleDetails']) || !isset($fields['bundleRrpGBX']) ||
-            !isset($fields['bundleDiscountedPriceGBX']) || !isset($fields['bundleSellerID']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
+            !isset($fields['bundleDiscountedPriceGBX']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -79,7 +80,7 @@ class Bundle extends StoredObject {
         $bundle->setDetails($fields['bundleDetails']);
         $bundle->setRrpGBX($fields['bundleRrpGBX']);
         $bundle->setDiscountedPriceGBX($fields['bundleDiscountedPriceGBX']);
-        $bundle->setSellerID($fields['bundleSellerID']);
+        $bundle->setSellerID(Authenticator::getCurrentUser()->getUserID());
         $bundle->setPurchaserID($fields['bundlePurchaserID']);
 
         // Creating parameterised SQL command
