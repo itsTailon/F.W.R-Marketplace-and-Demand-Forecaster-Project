@@ -24,13 +24,14 @@ session_start();
 
 // Check that user is currently logged in
 if (!Authenticator::isLoggedIn()) {
-    http_response_code(401); //TODO: Add JSON encoding
+    // JSON-encoded response
+    header('ContentType: application/json');
+    echo json_encode(http_response_code(401));
     die();
 }
 
-// Check raw request data to see if PUT is used as no native support
-elseif ($_SERVER["REQUEST_METHOD"] == "PUT") {
-
+// Check raw request data to see if PUT or POST were used for update() and create() respectively
+if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     // Handling response depending on output on update() of Bundle.php
     try {
 
@@ -44,7 +45,7 @@ elseif ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // check data is set and of the right form before using
-        if (!isset($bundle_ID['bundleID']) || !is_numeric($bundle_ID['bundleID'])) {
+        if (!isset($bundle_ID['bundleID']) || !ctype_digit((string)$bundle_ID['bundleID'])) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -70,45 +71,52 @@ elseif ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Explicitly give "OK" HTTP response code
         http_response_code(200);
-        // TODO: Check if need a die() or keep as is
+        die();
 
         //TODO: JSON handling messages and verify response codes
     } catch (NoSuchPermissionException $perm_e) {
-        // Handling exception produced if user doesn't have required permission
-        http_response_code(403);
+        // Handling exception produced if user doesn't have required permission and producing JSON-encoded response
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(403));
         die();
     } catch (DatabaseException $db_e) {
-        // Handling exception produced due to database error
-        http_response_code(500);
+        // Handling exception produced due to database error and producing JSON-encoded response
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(500));
         die();
     } catch (NoSuchBundleException $sb_e) {
-        // Handling exception if bundle attempted to update does not exist
-        http_response_code(404);
+        // Handling exception if bundle attempted to update does not exist and producing JSON-encoded response
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(404));
         die();
     } catch (\PDOException $pdo_e) {
-        // Handling exception produced by failed PDO request
-        http_response_code(500);
+        // Handling exception produced by failed PDO request and producing JSON-encoded response
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(500));
         die();
     } catch (FailedOwnershipAuthException $no_e) {
-        // Handling exception produced failure to authenticate seller for updating specified bundle
-        http_response_code(403);
+        // Handling exception produced failure
+        //to authenticate seller for updating specified bundle and producing JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(403));
         die();
     }
 
-}
-
-// Handle POST request for creating bundle
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+} elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
 
         // POST input
         $fields = filter_input_array(INPUT_POST);
 
+        // Ensuring input is, in fact, an array
+        if (!is_array($fields)) {
+            throw new InvalidArgumentException("Fields must be an array");
+        }
+
         // Checking that current user has permissions to create a Bundle
         if (!RBACManager::isCurrentuserPermitted("bundle_create")) {
             throw new NoSuchPermissionException("Seller " . $fields['sellerID'] . " is not allowed to create bundle");
         }
-        //TODO: Might want to add check that all arrays are included (though check for missing values is done in create() so consider)
 
         // Array of valid fields
         $valid_fields =
@@ -128,30 +136,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 throw new InvalidArgumentException("Invalid field $field");
             }
 
-            //TODO: FIX TYPE CHECKS
-
             // Switch-case confirming field type
+            // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
                 case "bundleStatus":
-                    if (gettype($field) != BundleStatus::Available || gettype($field) != BundleStatus::Reserved || gettype($field) != BundleStatus::Collected || gettype($field) != BundleStatus::Cancelled ) {
-                        throw new InvalidArgumentException("Invalid field type for $field");
-                    }
-                    break;case "title":
-                case "details":
-                    if (gettype($field) != "string") {
-                        throw new InvalidArgumentException("Invalid field type for $field");
-                    }
+                    // Switch-case checking value to additionally update it to non-string
+                    $fields["bundleStatus"] = match ((string)$value) {
+                        "Available" => BundleStatus::Available,
+                        "Reserved" => BundleStatus::Reserved,
+                        "Collected" => BundleStatus::Collected,
+                        "Cancelled" => BundleStatus::Cancelled,
+                        default => throw new InvalidArgumentException("Invalid field type for $field"),
+                    };
                     break;
+
                 case "rrp":
                 case "discountedPrice":
                 case "sellerID":
-                    if (gettype($field) != "integer") {
+                    // Check string contains only [0,9] digits and no '.'
+                    if (!ctype_digit((string)$value)) {
                         throw new InvalidArgumentException("Invalid field type for $field");
                     }
+                    // Convert string to integer
+                    $fields[$field] = (int)$value;
                     break;
+
                 case "purchaserID":
-                    if (gettype($field) != "integer" && gettype($field) != "NULL") {
+                    // If not [0,9] or null, throw exception
+                    if (!ctype_digit((string)$value) && (string)$value !== "NULL") {
                         throw new InvalidArgumentException("Invalid field type for $field");
+                    }
+
+                    // Convert type and store depending on whether there is ID or it is NULL
+                    if ((string)$value === "NULL") {
+                        $fields[$field] = null;
+                    } elseif (ctype_digit((string)$value)) {
+                        $fields[$field] = (int)$value;
                     }
                     break;
 
@@ -162,29 +182,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Calling create() method, storing Bundle object produced as $bundle
         $bundle = Bundle::create($fields);
 
-        // TODO: maybe success in creating bundle should give 201 instead of 200
+        // TODO: JSON message to add
+        http_response_code(201);
+        die();
 
 
     } catch (NoSuchPermissionException $nsp_e) {
-        // Permission denied thus "forbidden" to access content
-        http_response_code(403);
+        // Permission denied thus "forbidden" to access content and produce JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(403));
+        die();
     } catch (DatabaseException $e) {
-        // Internal server error caused by failed database query
-        http_response_code(500);
+        // Internal server error caused by failed database query and produce JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(500));
+        die();
     } catch (MissingValuesException $mv_e) {
-        // Bad request not in the form required as input
-        http_response_code(400);
+        // Bad request not in the form required as input and produce JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(400));
+        die();
     } catch (NoSuchCustomerException $nsc_e) {
-        // Customer not found
-        http_response_code(404);
+        // Customer not found and produce JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(404));
+        die();
     } catch (NoSuchSellerException $nss_e) {
-        // Seller not found
-        http_response_code(404);
+        // Seller not found and produce JSON-encoded message
+        header('ContentType: application/json');
+        echo json_encode(http_response_code(404));
+        die();
     }
 
-}
-
-else {
-    // Response if no permitted request is made
-    http_response_code(405);
+} else {
+    // JSON-encoded response if no permitted request is made
+    header('ContentType: application/json');
+    echo json_encode(http_response_code(405));
+    die();
 }
