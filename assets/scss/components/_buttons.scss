@@ -4,6 +4,7 @@ Stylesheet for buttons (as reusable components)
 
 @use '../abstracts/config';
 @use 'sass:map';
+@use 'sass:color';
 
 .button {
   $v-padding: 8px;
@@ -23,6 +24,24 @@ Stylesheet for buttons (as reusable components)
   text-align: center;
   text-decoration: none;
   color: map.get(config.$colours, "button-text");
+
+  &--rounded {
+    border-radius: $v-padding * 2 + map.get(config.$font-sizes, "default");
+  }
+
+  &--green {
+    background-color: map.get(config.$colours, "button-green");
+
+    &:hover {
+      background-color: color.adjust(map.get(config.$colours, "button-green"), $lightness: -20%) !important;
+      color: #fff;
+    }
+
+    &:active {
+      background-color: color.adjust(map.get(config.$colours, "button-green"), $lightness: -30%) !important;
+      color: #fff;
+    }
+  }
 
   &--text-align-left {
     text-align: left;
