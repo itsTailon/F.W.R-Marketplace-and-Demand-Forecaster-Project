@@ -1,0 +1,79 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+.bundle-dashboard-buttons {
+  display: flex;
+  gap: 32px;
+}
+
+.bundle-view {
+  margin-top: 40px;
+
+  &__img {
+    width: 384px;
+    height: 384px;
+    background-color: #FF0000;
+  }
+
+  &__main {
+    display: flex;
+    gap: 32px;
+  }
+
+  &__seller {
+    display: block;
+    margin-top: 16px;
+    font-weight: map.get(config.$font-weights, "semi-bold");
+  }
+
+  &__date {
+    display: block;
+    margin-top: 64px;
+    font-style: italic;
+    font-weight: map.get(config.$font-weights, "light");
+  }
+
+  &__price {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    font-size: map.get(config.$font-sizes, "default");
+    margin-top: 16px;
+  }
+
+  &__edit-btn {
+    display: inline-block;
+    width: 100%;
+  }
+
+  &__desc-wrapper {
+    margin-top: 64px;
+  }
+
+  &__allergens {
+    display: block;
+    font-weight: map.get(config.$font-weights, "semi-bold");
+  }
+
+  &__desc {
+    display: block;
+    margin-top: 32px;
+  }
+
+  &__info {
+
+  }
+
+}
+
+.single-bundle-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+.single-bundle-wrapper {
+  max-width: 1366px;
+  padding: 40px 32px;
+}

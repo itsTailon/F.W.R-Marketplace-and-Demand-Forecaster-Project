@@ -1,17 +1,539 @@
-/* Error: Can't find stylesheet to import.
- *    ,
- * 14 | @use 'layout/dashboard_sidebar';
- *    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- *    '
- *   assets/scss/style.scss 14:1  root stylesheet */
-
-body::before {
-  font-family: "Source Code Pro", "SF Mono", Monaco, Inconsolata, "Fira Mono",
-      "Droid Sans Mono", monospace, monospace;
-  white-space: pre;
-  display: block;
-  padding: 1em;
-  margin-bottom: 1em;
-  border-bottom: 2px solid black;
-  content: "Error: Can't find stylesheet to import.\a    \2577 \a 14 \2502  @use 'layout/dashboard_sidebar';\a    \2502  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\a    \2575 \a   assets/scss/style.scss 14:1  root stylesheet";
+@charset "UTF-8";
+/*
+This file will include all other compilable SCSS files, and will itself be compiled as the single, global stylesheet.
+ */
+/*
+Reset
+ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
+
+body, html {
+  width: 100vw;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 0;
+  margin: 0;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+For global site stylesheet configuration — e.g., global colours, font sizing, etc.
+ */
+body, html {
+  font-family: "Lexend", sans-serif;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for buttons (as reusable components)
+ */
+.button {
+  background-color: #D0DCFF;
+  border: none;
+  border-radius: 8px;
+  appearance: none;
+  outline: none;
+  padding: 8px 16px 8px 16px;
+  transition: all 0.2s ease;
+  font-size: 18px;
+  min-height: 40px;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
+  text-align: center;
+  text-decoration: none;
+  color: #000000;
+}
+.button--rounded {
+  border-radius: 34px;
+}
+.button--green {
+  background-color: #b7dcbf;
+}
+.button--green:hover {
+  background-color: #72bb82 !important;
+  color: #fff;
+}
+.button--green:active {
+  background-color: #52a864 !important;
+  color: #fff;
+}
+.button--text-align-left {
+  text-align: left;
+}
+.button:hover {
+  background-color: #809FFF;
+  color: #fff;
+}
+.button:active {
+  background-color: #3C6DFF;
+  color: #fff;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for text inputs (as reusable components)
+ */
+.textbox {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding-top: 9px;
+}
+.textbox--size-fill {
+  width: 100%;
+}
+.textbox__input {
+  border: 1px solid #79747E;
+  padding: 8px 50px 8px 16px;
+  font-size: 18px;
+  color: #4A4459;
+  border-radius: 4px;
+  outline: none;
+  min-height: 40px;
+  width: 100%;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
+}
+.textbox__input:focus {
+  border-color: #3C6DFF;
+  border-width: 2px;
+  padding: 7px 49px 7px 15px;
+}
+.textbox__input:focus + .textbox__label {
+  color: #3C6DFF !important;
+}
+.textbox__input:placeholder-shown + .textbox__label {
+  color: #49454F !important;
+}
+.textbox__label {
+  position: absolute;
+  padding: 2px 4px 2px 4px;
+  left: 14px;
+  font-size: 14px;
+  pointer-events: none;
+  transition: 0.1s margin-top ease;
+  font-family: "Lexend", sans-serif;
+  font-weight: 300;
+}
+.textbox__input:not(:placeholder-shown) + .textbox__label {
+  margin-top: -40px;
+  color: #79747E;
+  background: #ffffff;
+}
+.textbox__input:focus + .textbox__label + .textbox__clear-button {
+  opacity: 1;
+  pointer-events: unset;
+}
+.textbox__input:placeholder-shown + .textbox__label + .textbox__clear-button {
+  opacity: 0;
+}
+.textbox__clear-button {
+  position: absolute;
+  right: 16px;
+  appearance: none;
+  outline: none;
+  border: none;
+  background: none;
+  opacity: 0;
+}
+.textbox__clear-button__cross-icon {
+  height: 18px;
+  padding-top: 2px;
+  fill: #79747E;
+}
+.textbox__clear-button__error-icon {
+  height: 14px;
+  fill: #B3261E;
+  display: none;
+}
+.textbox--error .textbox__input {
+  border-color: #B3261E;
+  border-width: 2px;
+  padding: 7px 49px 7px 15px;
+}
+.textbox--error .textbox__input:focus + .textbox__label {
+  color: #B3261E !important;
+}
+.textbox--error .textbox__input:placeholder-shown + .textbox__label {
+  color: #49454F !important;
+}
+.textbox--error .textbox__clear-button {
+  opacity: 1 !important;
+}
+.textbox--error .textbox__clear-button__cross-icon {
+  display: none;
+}
+.textbox--error .textbox__clear-button__error-icon {
+  display: block;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+.dashboard-header {
+  width: 100vw;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  background-color: #EBF3FF;
+  padding: 16px 32px;
+  font-size: 18px;
+}
+.dashboard-header__branding {
+  margin-right: auto;
+}
+.dashboard-header__branding__title {
+  font-weight: 600;
+}
+.dashboard-header__account {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.dashboard-header__menu__button {
+  background: transparent;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  margin-right: 1.5vw;
+  cursor: pointer;
+}
+
+.dashboard-header__menu__button:hover {
+  background-color: rgb(176, 176, 176);
+  transition-duration: 0.2s;
+  text-align: center;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+body {
+  margin: 0;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sidebar-overlay[hidden] {
+  display: none;
+}
+
+.sidebar-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  pointer-events: none;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  height: 100vh;
+  width: clamp(200px, 20vw, 400px);
+  max-width: 85vw;
+  padding: 0;
+  margin: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 1px 1px grey;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+body.sidebar-open .sidebar {
+  transform: translateX(0);
+}
+
+body.sidebar-open .sidebar-wrapper {
+  pointer-events: auto;
+}
+
+body.sidebar-open {
+  overflow: hidden;
+}
+
+.sidebar-title {
+  font-family: sans-serif;
+  color: rgb(97, 97, 97);
+  font-weight: normal;
+  display: block;
+  text-align: center;
+  margin: 0;
+  padding-top: 40px;
+}
+
+.sidebar-options {
+  padding-top: 20vh;
+  padding-left: 0;
+  text-decoration: none;
+  list-style: none;
+  display: block;
+  text-align: center;
+}
+
+.sidebar-options li a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: 1vw;
+  margin-right: 1vw;
+  margin-top: 2vh;
+  margin-bottom: 0.5vh;
+  padding-top: 1vh;
+  padding-bottom: 0.5vh;
+  padding-left: 2vw;
+  padding-right: 1.2vw;
+  background-color: rgb(255, 255, 255);
+  color: rgb(92, 92, 92);
+  text-decoration: none;
+  text-align: left;
+  font-weight: 500;
+  border-radius: 30px;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  font-size: 15px;
+}
+
+.sidebar-options li a:hover {
+  background-color: rgb(219, 219, 219);
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.sidebar-logout {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 1vw 0vw 1vw 2vw;
+  text-decoration: none;
+  font-family: sans-serif;
+  font-size: 18px;
+  text-align: left;
+  color: rgb(92, 92, 92);
+  cursor: pointer;
+}
+
+.sidebar-logout:hover {
+  background-color: rgb(219, 219, 219);
+  transition: background-color 0.2s, transform 0.2s;
+  color: rgb(255, 48, 48);
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+/*
+Stylesheet for index.php (homepage)
+ */
+/*
+Stylesheet for base typographical styles/formatting
+ */
+.dashboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+}
+
+.dashboard {
+  width: 100%;
+  max-width: 1366px;
+  min-height: 200px;
+  padding: 40px 32px;
+}
+
+.dashboard-welcome {
+  font-weight: normal;
+  font-family: sans-serif;
+}
+
+.dashboard-nav {
+  display: grid;
+  gap: 16px;
+  margin-top: 5vh;
+}
+
+.dashboard-options {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0 6vw;
+  gap: 20px;
+}
+
+.dashboard-options li {
+  flex: 1;
+}
+
+.dashboard-options li a {
+  display: block;
+  width: 100%;
+  background: none;
+  text-align: center;
+  text-decoration: none;
+  padding: clamp(15px, 2.5vh, 30px) 0;
+  line-height: 1.2;
+  border: 2px solid #000;
+  border-radius: 999px;
+  border-color: #484848;
+  cursor: pointer;
+  font-family: sans-serif;
+  font-size: clamp(13px, 1.6vw, 22px);
+}
+
+.dashboard-options li a:hover {
+  background-color: rgb(0, 0, 0);
+  color: white;
+  transition: background-color 0.7s;
+}
+
+.login-form {
+  width: 400px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  margin: auto;
+}
+
+.login-form div.textbox {
+  margin-bottom: 10px;
+}
+
+button.button-submit {
+  width: 100%;
+  margin-top: 20px;
+}
+
+button.white {
+  border: 1px solid black;
+  background-color: white;
+}
+
+button.white:hover {
+  background-color: #8f8f8f;
+}
+
+h1.login-form__title {
+  text-align: center;
+  font-size: x-large;
+  margin-bottom: 20px;
+  font-weight: normal;
+}
+
+div.circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+div.circle.blue {
+  background-color: #809fff;
+}
+
+div.login-form div.circle {
+  margin-bottom: 25px;
+}
+
+.middle {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-text {
+  color: red;
+  text-align: center;
+}
+
+/*
+Stylesheet for base typographical styles/formatting
+ */
+.bundle-dashboard-buttons {
+  display: flex;
+  gap: 32px;
+}
+
+.bundle-view {
+  margin-top: 40px;
+}
+.bundle-view__img {
+  width: 384px;
+  height: 384px;
+  background-color: #FF0000;
+}
+.bundle-view__main {
+  display: flex;
+  gap: 32px;
+}
+.bundle-view__seller {
+  display: block;
+  margin-top: 16px;
+  font-weight: 600;
+}
+.bundle-view__date {
+  display: block;
+  margin-top: 64px;
+  font-style: italic;
+  font-weight: 200;
+}
+.bundle-view__price {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  font-size: 18px;
+  margin-top: 16px;
+}
+.bundle-view__edit-btn {
+  display: inline-block;
+  width: 100%;
+}
+.bundle-view__desc-wrapper {
+  margin-top: 64px;
+}
+.bundle-view__allergens {
+  display: block;
+  font-weight: 600;
+}
+.bundle-view__desc {
+  display: block;
+  margin-top: 32px;
+}
+.single-bundle-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+.single-bundle-wrapper {
+  max-width: 1366px;
+  padding: 40px 32px;
+}
+
+/*# sourceMappingURL=style.css.map */

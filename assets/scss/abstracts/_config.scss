@@ -7,6 +7,7 @@ $font-families: (
 );
 
 $font-weights: (
+        "light":    200, // Lexend light(er)
         "default":    300, // Lexend light
         "semi-bold":  600, // Lexend semi-bold
 );
@@ -28,6 +29,8 @@ $colours: (
         "primary-outline":        #3C6DFF,
         "primary-light":          #D0DCFF,
         "primary-main":           #809FFF,
+
+        "button-green":           #b7dcbf,
 
         "title-bar":              #EBF3FF,
 );
