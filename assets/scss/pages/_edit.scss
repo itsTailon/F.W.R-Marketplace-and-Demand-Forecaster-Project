@@ -1,0 +1,109 @@
+section.edit-form {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 750px;
+    border: 2px solid #f2f2f2;
+    border-radius: 5px;
+    padding: 20px;
+}
+
+ul.allergen-list {
+    border: 1px solid gray;
+    border-radius: 5px;
+    list-style: none;
+    max-height: 220px;
+    overflow-y: scroll;
+}
+
+div.edit-form__field, ul.allergen-list {
+    max-width: 550px;
+}
+
+li.allergen-list__item {
+    padding: 5px;
+    border-bottom: 1px solid #c7c7c7;
+}
+
+select.allergen-list__item__selector {
+    background-color: white;
+    width: calc(100% - 100px);
+    padding: 10px;
+    border: 2px solid #4c4c4c;
+    color: #4c4c4c;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+select.allergen-list__item__selector.disabled {
+    border: 2px solid #c7c7c7;
+    color: #c7c7cd;
+}
+
+button.allergen-list__item__delete-btn {
+    border-radius: 50%;
+    border: none;
+    background-color: #e1e9ff;
+    padding: 10px;
+    font-weight: bold;
+    float: right;
+}
+
+button.allergen-list__item__delete-btn:hover {
+    background-color: #d0dcff;
+}
+
+button.button.red {
+    background-color: #b0200c;
+    color: white;
+}
+
+button.button.green {
+    background-color: #b7dcbf;
+    color: #1a1a1a;
+}
+
+button.button.red:hover {
+    background-color: #741307;
+}
+
+button.button.green:hover {
+    background-color: #80a287;
+    color: white;
+}
+
+.edit-form br {
+    display: block;
+    margin: 7px;
+}
+
+.edit-form__field {
+    display: flex;
+    justify-content: space-between;
+    height: fit-content;
+}
+
+div.edit-form__field > label {
+    flex-basis: 170px;
+    height: fit-content;
+}
+
+div.edit-form__field .textbox {
+    flex-basis: calc(100% - 170px);
+}
+
+div.edit-form__btns {
+    display: flex;
+}
+div.edit-form__btns > button.button {
+    margin-right: 30px;
+}
+
+textarea.textarea {
+    flex-basis: calc(100% - 170px);
+}
+
+.edit-form > h1 {
+    font-size: 35px;
+    font-weight: normal;
+}
