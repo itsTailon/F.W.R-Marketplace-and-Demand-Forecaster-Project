@@ -5,6 +5,7 @@
  */
 
 // Import bundle from Model directory
+use TTE\App\Helpers\CurrencyTools;
 use TTE\App\Model\Bundle;
 use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\RBACManager;
@@ -38,18 +39,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     // Handling PUT request that calls the update() method for the Bundle class
     try {
 
-        // Get input (bundleID) and parse it
-        $input = json_decode(file_get_contents("php://input"), true);
-        $bundleID = $input["bundleID"];
+        // Getting fields from input and storing under $_PUT to use as you would a superglobal
+        $_PUT = array();
+        parse_str(file_get_contents('php://input'), $_PUT);
+
+        // Get bundleID from input
+        $bundleID = $_PUT["bundleID"];
 
 
         // check data is set and of the right form before using
-        if (!isset($bundleID['bundleID']) || !ctype_digit((string)$bundleID['bundleID'])) {
+        if (!isset($bundleID['bundleID']) || !ctype_digit($bundleID['bundleID'])) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
         // Convert to int before using
-        $bundleID = (int)$bundleID;
+        $bundleID = intval($bundleID);
 
 
         // Get current user logged in
@@ -67,6 +71,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         if ($bundle->getSellerID() != $ownerID) {
             throw new FailedOwnershipAuthException("Seller $ownerID is not allowed to update bundle");
         }
+
+        // Apply changes to bundle
+        $bundle->setStatus(BundleStatus::from($_PUT("bundleStatus")));
+        $bundle->setTitle($_PUT["title"]);
+        $bundle->setDetails($_PUT['details']);
+        $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
+        $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
+        $bundle->setPurchaserID(intval($_PUT['purchaserID']));
 
         // Calling update() method as checks have been fulfilled
         $bundle->update();
@@ -96,49 +108,45 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         //to authenticate seller for updating specified bundle and producing JSON-encoded message
         echo json_encode(http_response_code(403));
         die();
+    } catch (NoSuchCustomerException $e) {
+        // Handling failure to customer ID and producing JSON-encoded message
+        echo json_encode(http_response_code(400));
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Handling POST request method that calls create() method
-
     try {
 
-        // Get input (bundleID) and parse it
-        $fields = json_decode(file_get_contents("php://input"), true);
-
-        // Ensuring input is, in fact, an array
-        if (!is_array($fields)) {
-            throw new InvalidArgumentException("Fields must be an array");
+        // Ensuring all required values are set
+        if (!isset($_POST["bundleStatus"]) || !isset($_POST["title"]) || !isset($_POST["details"])
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST["purchaserID"])) {
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
         }
+
+        // Get array of fields for bundle to create
+        $fields = array(
+            $_POST["bundleStatus"],
+            $_POST["title"],
+            $_POST["details"],
+            $_POST["rrp"],
+            $_POST["discountedPrice"],
+            $_POST["purchaserID"]
+        );
 
         // Checking that current user has permissions to create a Bundle
         if (!RBACManager::isCurrentuserPermitted("bundle_create")) {
             throw new NoSuchPermissionException("Seller " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to create bundle");
         }
 
-        // Array of valid fields
-        $valid_fields =
-            array(
-                "bundleStatus"
-            , "title"
-            , "details"
-            , "rrp"
-            , "discountedPrice"
-            , "purchaserID"
-            );
-
         // Checking passed fields are valid fields
         foreach ($fields as $field=>$value) {
-            if (!in_array($field, $valid_fields)) {
-                throw new InvalidArgumentException("Invalid field $field");
-            }
-
             // Switch-case confirming field type
             // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
                 case "bundleStatus":
                     // Switch-case checking value to additionally update it to non-string
-                    $fields["bundleStatus"] = match ((string)$value) {
+                    $fields["bundleStatus"] = match ($value) {
                         "Available" => BundleStatus::Available,
                         "Reserved" => BundleStatus::Reserved,
                         "Collected" => BundleStatus::Collected,
@@ -151,22 +159,25 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
                 case "discountedPrice":
                 case "sellerID":
                     // Check string contains only [0,9] digits and no '.'
-                    if (!ctype_digit((string)$value)) {
+                    if (!ctype_digit($value)) {
                         throw new InvalidArgumentException("Invalid field type for $field");
                     }
                     // Convert string to integer
-                    $fields[$field] = (int)$value;
+                    $fields[$field] = intval($value);
                     break;
 
                 case "purchaserID":
                     // If not [0,9] or null, throw exception
-                    if (!ctype_digit((string)$value) && (string)$value !== null) {
+                    if (!empty($value) || !ctype_digit($value)) {
                         throw new InvalidArgumentException("Invalid field type for $field");
                     }
 
                     // Convert type and store if integer
-                    if (ctype_digit((string)$value)) {
-                        $fields[$field] = (int)$value;
+                    if (ctype_digit($value)) {
+                        $fields[$field] = intval($value);
+                    } else {
+                        // If empty then store as null
+                        $fields[$field] = null;
                     }
                     break;
 
@@ -222,7 +233,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Convert to valid int type
-        $bundleID = (int)$bundleID;
+        $bundleID = intval($bundleID);
 
         // Get current user ID
         $userID = Authenticator::getCurrentUser()->getUserID();
@@ -267,7 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Convert to usable type
-        $bundleID = (int)$bundleID;
+        $bundleID = intval($bundleID);
 
         // Get current user ID
         $userID = Authenticator::getCurrentUser()->getUserID();

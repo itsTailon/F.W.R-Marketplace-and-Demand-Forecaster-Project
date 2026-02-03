@@ -65,8 +65,8 @@ class Bundle extends StoredObject {
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
-        if (!isset($fields['bundleStatus']) || !isset($fields['bundleTitle']) || !isset($fields['bundleDetails']) || !isset($fields['bundleRrpGBX']) ||
-            !isset($fields['bundleDiscountedPriceGBX']) || empty(trim($fields['bundleTitle'])) || empty(trim($fields['bundleDetails']))) {
+        if (!isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
+            !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -76,10 +76,10 @@ class Bundle extends StoredObject {
         $bundle = new Bundle();
         // Updating attributes in line with input
         $bundle->setStatus($fields['bundleStatus']);
-        $bundle->setTitle($fields['bundleTitle']);
-        $bundle->setDetails($fields['bundleDetails']);
-        $bundle->setRrpGBX($fields['bundleRrpGBX']);
-        $bundle->setDiscountedPriceGBX($fields['bundleDiscountedPriceGBX']);
+        $bundle->setTitle($fields['title']);
+        $bundle->setDetails($fields['details']);
+        $bundle->setRrpGBX($fields['rrp']);
+        $bundle->setDiscountedPriceGBX($fields['discountedPrice']);
         $bundle->setSellerID(Authenticator::getCurrentUser()->getUserID());
         $bundle->setPurchaserID($fields['bundlePurchaserID']);
 
