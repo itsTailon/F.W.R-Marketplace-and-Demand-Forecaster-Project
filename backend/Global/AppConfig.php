@@ -2,7 +2,7 @@
 namespace TTE\App\Global;
 
 final class AppConfig {
-    const DB_PORT = "8886"; // If using MySQL/MariaDB default, change to 3306
+    const DB_PORT = "8889"; // If using MySQL/MariaDB default, change to 3306
 
     const DB_HOST = "127.0.0.1";
 
