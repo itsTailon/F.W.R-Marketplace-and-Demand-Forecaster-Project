@@ -1,5 +1,7 @@
 <?php
 use TTE\App\Auth\Authenticator;
+use TTE\App\Model\DatabaseHandler;
+
 use TTE\App\Model\Seller;
 
 require 'partials/head.php';
@@ -30,6 +32,39 @@ if (!Authenticator::isLoggedIn()) {
     die();
 }
 
+
+
+$currentUser = $_SESSION['currentUser'];
+
+$PDO = DatabaseHandler::getPDO();
+
+$stmt = $PDO->prepare(query: "SELECT title, details, bundleStatus, rrp, discountedPrice FROM bundle WHERE sellerID = :sellerID AND bundleID = :bundleID");
+$stmt->execute(params: ["sellerID" => $currentUser->getUserID(), "bundleID" => $_GET['id']]);
+$row = $stmt->fetch();
+
+if (!$row) {
+    echo <<<XYZ
+    <!DOCTYE html>
+    <head lang="en">
+        <meta charset="utf-8">
+        <title>Redirecting</title>
+    </head>
+    <body>
+        <p>ERROR: Bundle not found or does not belong to seller.</p>
+        <script>
+            function redirectToDashboard() {
+                location.href = "/dashboard.php"
+            }
+
+            setTimeout(redirectToDashboard, 3000);
+    
+        </script>
+    </body>
+    XYZ;
+    die();
+}
+
+
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 
@@ -38,16 +73,22 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 ?>
 
 <section class="edit-form">
-    <h1>Editing [LISTING]</h1>
+    <h1>Editing "<?php
+        echo $row['title']
+    ?>"</h1>
     <br>
     <div class="edit-form__field">
         <label for="name">Name</label>
-        <div class="textbox" data-type="text" data-id="name" id="name-textbox"></div>
+        <div class="textbox" data-type="text" data-id="name" id="name-textbox" data-value="<?php
+        echo $row['title']
+    ?>"></div>
     </div>
     <br>
     <div class="edit-form__field">
         <label for="description">Description</label>
-        <textarea class="textarea"></textarea>
+        <textarea class="textarea"><?php
+        echo $row['details']
+    ?></textarea>
     </div>
     <br>
     <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
@@ -68,4 +109,5 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 </section>
 
 <script src="/assets/js/components/text-inputs.js"></script>
+<script src="/assets/js/bundle_form.js"></script>
 <script src="/assets/js/edit.js"></script>

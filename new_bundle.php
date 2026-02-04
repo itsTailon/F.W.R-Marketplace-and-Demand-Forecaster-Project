@@ -62,5 +62,6 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 </div>
 
 <script src="/assets/js/components/text-inputs.js"></script>
-<script src="/assets/js/edit.js"></script>
+<script src="/assets/js/bundle_form.js"></script>
+<script src="/assets/js/create.js"></script>
 <?php
