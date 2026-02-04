@@ -26,7 +26,11 @@ class Seller extends Account {
         // Create and return a seller object
         $seller = new Seller();
         $seller->name = $fields['name'];
-        $seller->address = 0;
+        $seller->setEmail($fields['email']);
+        $seller->setAddress($fields['address']);
+        $seller->accountType = "seller";
+        $seller->userID = $account->getUserID();
+
         return $seller;
     }
 

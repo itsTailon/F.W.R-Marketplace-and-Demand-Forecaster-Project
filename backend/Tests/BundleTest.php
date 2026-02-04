@@ -14,6 +14,10 @@ use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
 use TTE\App\Model\NoSuchBundleException;
 
+// Global for session to run test
+$_SESSION = array();
+
+
 // Class testing functions of the Bundle class
 class BundleTest extends TestCase
 {
@@ -33,6 +37,7 @@ class BundleTest extends TestCase
         );
 
         $customerFields = array(
+            "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
             "name" => "Name Test",
