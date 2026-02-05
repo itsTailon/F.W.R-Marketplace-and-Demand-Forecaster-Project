@@ -80,6 +80,8 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                             $user = Authenticator::getCurrentUserSubclass();
                             if ($user instanceof Seller && $bundle->getSellerID() == $user->getUserID()) {
                                 ?><a href="" class="bundle-view__edit-btn button button--rounded button--green">Edit</a><?php
+                            } else if ($user instanceof \TTE\App\Model\Customer) {
+                                ?><a href="" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</a><?php
                             }
                         ?>
                     </div>
