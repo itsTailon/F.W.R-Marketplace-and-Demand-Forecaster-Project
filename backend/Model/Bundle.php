@@ -3,7 +3,6 @@
 namespace TTE\App\Model;
 
 use http\Exception\InvalidArgumentException;
-use TTE\App\Auth\Authenticator;
 use TTE\App\Helpers\CurrencyTools;
 
 class Bundle extends StoredObject {
@@ -23,7 +22,7 @@ class Bundle extends StoredObject {
 
     private int $sellerID;
 
-    private int $purchaserID;
+    private ?int $purchaserID;
 
     /**
      * Take current values of all attributes of the Bundle object
@@ -39,15 +38,15 @@ class Bundle extends StoredObject {
         }
 
         // SQL query to be executed
-        $sql_query = "Update bundles SET (bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID) WHERE id = :id";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $this->getStatus(), ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":rrp" => $this->getRrpGBX(),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => CurrencyTools::gbxToDecimalString($this->getSellerID())]);
+            $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -65,7 +64,7 @@ class Bundle extends StoredObject {
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
-        if (!isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
+        if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
             !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
 
             // Produce error message if field exists with no content
@@ -80,25 +79,27 @@ class Bundle extends StoredObject {
         $bundle->setDetails($fields['details']);
         $bundle->setRrpGBX($fields['rrp']);
         $bundle->setDiscountedPriceGBX($fields['discountedPrice']);
-        $bundle->setSellerID(Authenticator::getCurrentUser()->getUserID());
-        $bundle->setPurchaserID($fields['bundlePurchaserID']);
+        $bundle->setSellerID($fields['sellerID']);
+        $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, ) 
-            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
+            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $bundle->getStatus(), ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => $bundle->getRrpGBX(),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => CurrencyTools::gbxToDecimalString($bundle->getSellerID())]);
+            $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
         }
 
+        //TODO: Look into behaviour of lastInsertId() in terms of concurrency problems
+
         // Get query ID of the last record added to the database (i.e., the one just created)
-        $lastId = (int) DatabaseHandler::getPDO()->lastInsertId();
+        $lastId = DatabaseHandler::getPDO()->lastInsertId();
         // Add ID to Bundle object
         $bundle->id = $lastId;
 
@@ -131,7 +132,7 @@ class Bundle extends StoredObject {
         // Construct Bundle object, performing any necessary data type/format conversions
         $bundle = new Bundle();
         $bundle->id = $row['bundleID'];
-        $bundle->bundleStatus = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
+        $bundle->status = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
         $bundle->title = $row['title'];
         $bundle->details = $row['details'];
         // MySQL DECIMAL values are returned by PDO as strings, so convert to ints representing pence (ints to avoid FP errors)
@@ -242,13 +243,13 @@ class Bundle extends StoredObject {
         $this->sellerID = $sellerID;
     }
 
-    public function getPurchaserID(): int {
+    public function getPurchaserID(): ?int {
         return $this->purchaserID;
     }
 
-    public function setPurchaserID(int $customerID): void {
+    public function setPurchaserID(?int $customerID): void {
         // Ensure that the given purchaser ID corresponds to an actual customer
-        if (!Customer::existsWithID($customerID)) {
+        if ($customerID != null && !Customer::existsWithID($customerID)) {
             throw new NoSuchCustomerException("Cannot set purchaser ID to non-existent customer (invalid customer ID $customerID)");
         }
 
