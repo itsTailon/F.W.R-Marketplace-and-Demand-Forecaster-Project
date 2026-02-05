@@ -18,7 +18,6 @@ abstract class StoredObject {
      * @throws DatabaseException upon failure to save.
      */
     public abstract function update(): void;
-
     /**
      * Creates a new database record and returns an object representing it.
      *

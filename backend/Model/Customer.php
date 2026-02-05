@@ -28,6 +28,9 @@ class Customer extends Account {
         $customer = new Customer();
         $customer->username = $fields['username'];
         $customer->streak = 0;
+        $customer->userID = $account->getUserID();
+        $customer->setEmail($fields['email']);
+        $customer->accountType = "customer";
         return $customer;
     }
 
