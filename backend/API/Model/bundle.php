@@ -46,15 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Get bundleID from input
         $bundleID = $_PUT["bundleID"];
 
-
         // check data is set and of the right form before using
-        if (!isset($bundleID['bundleID']) || !ctype_digit($bundleID['bundleID'])) {
+        if (!isset($bundleID) || !ctype_digit($bundleID)) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
         // Convert to int before using
         $bundleID = intval($bundleID);
-
 
         // Get current user logged in
         $ownerID = Authenticator::getCurrentUser()->getUserID();
@@ -73,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Apply changes to bundle
-        $bundle->setStatus(BundleStatus::from($_PUT("bundleStatus")));
+        $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
