@@ -13,7 +13,7 @@ class Streak extends StoredObject {
 
     private DateTimeImmutable $startDate;
 
-    private DateTimeImmutable $endDate;
+    private ?DateTimeImmutable $endDate;
 
     private int $customerID;
 
@@ -63,8 +63,8 @@ class Streak extends StoredObject {
         $streak = new Streak();
         // Updating attributes in line with input
         $streak->setStatus($fields["streakStatus"]);
-        $streak->startDate = new DateTimeImmutable("today");
-        $streak->endDate = null; //TODO: Figure out how to handle nulls
+        $streak->setStartDate(new DateTimeImmutable("today"));
+        $streak->setEndDate(null);
         $streak->setCustomerID($fields["customerID"]);
 
         // Creating parameterised SQL command
@@ -114,10 +114,10 @@ class Streak extends StoredObject {
         // Constructing new Streak object
         $streak = new Streak();
         $streak->id = $result["streakID"];
-        $streak->status = StreakStatus::from($result["streakStatus"]);
-        $streak->startDate = new DateTimeImmutable($result["startDate"]);
-        $streak->endDate = new DateTimeImmutable($result["endDate"]);
-        $streak->customerID = $result["customerID"];
+        $streak->setStatus(StreakStatus::from($result["streakStatus"]));
+        $streak->setStartDate(new DateTimeImmutable($result["startDate"]));
+        $streak->setEndDate(new DateTimeImmutable($result["endDate"]));
+        $streak->setCustomerID($result["customerID"]);
 
         return $streak;
     }
@@ -181,6 +181,14 @@ class Streak extends StoredObject {
     // Setters
     public function setStatus(StreakStatus $status): void {
         $this->status = $status;
+    }
+
+    public function setStartDate(DateTimeImmutable $startDate): void {
+        $this->startDate = $startDate;
+    }
+
+    public function setEndDate(?DateTimeImmutable $endDate): void {
+        $this->endDate = $endDate;
     }
 
     /**

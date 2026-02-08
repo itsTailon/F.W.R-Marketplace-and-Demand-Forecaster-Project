@@ -1,6 +1,6 @@
 <?php
 
-namespace TTE\App\Tests;
+namespace TTE\App\Tests\Model;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
