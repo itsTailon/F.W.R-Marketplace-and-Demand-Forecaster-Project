@@ -38,7 +38,7 @@ class Bundle extends StoredObject {
         }
 
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
