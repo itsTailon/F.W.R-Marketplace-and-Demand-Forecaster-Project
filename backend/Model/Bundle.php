@@ -257,6 +257,20 @@ class Bundle extends StoredObject {
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Create SQL command to delete bundle of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle WHERE bundleID=:bundleID;");
+
+        // Check if bundle exists
+        if (Bundle::existsWithID($id)) {
+            // Attempt to run SQL statement
+            try {
+                $stmt->execute(["bundleID" => $id]);
+            } catch (PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            // If bundle does not exist, throw error
+            throw new DatabaseException("No bundle found with ID $id");
+        }
     }
 }
