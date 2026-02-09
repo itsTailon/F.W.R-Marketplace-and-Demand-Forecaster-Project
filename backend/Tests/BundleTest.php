@@ -329,13 +329,75 @@ class BundleTest extends TestCase
     }
 
     // TODO: Create test case/s for the load() method
-    public function testLoadBundle()
-    {
+    public function testLoadBundle() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'sellertest@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Load bundle and compare to existing bundle object (both should be equal)
+        self::assertTrue($bundle == Bundle::load($bundle->getID()));
+
+        // Try loading non-existent bundle (ID of -1 will never exist)
+        // Ensure that such results in a DatabaseException being thrown
+        $thrown = false;
+        try {
+            Bundle::load(-1);
+        } catch (DatabaseException $e) {
+            $thrown = true;
+        }
+        if (!$thrown) {
+            $this->fail();
+        }
+
+        // Cleanup
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
     }
 
     // TODO: Create test case/s for the existsWithID() method
-    public function testExistsWithID()
-    {
+    public function testExistsWithID() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'sellertest@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Bundle should exist as it has just been created
+        self::assertTrue(Bundle::existsWithID($bundle->getID()));
+
+        // Delete bundle
+        Bundle::delete($bundle->getID());
+        // Should now be false, as bundle has been deleted
+        self::assertFalse(Bundle::existsWithID($bundle->getID()));
+
+        // Cleanup (delete seller)
+        Seller::delete($seller->getUserID());
     } // Not necessarily needed as should be tested through use in set...ID functions
 
     // TODO: Create test case/s for the delete() method
