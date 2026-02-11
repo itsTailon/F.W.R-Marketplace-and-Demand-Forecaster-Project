@@ -6,7 +6,7 @@
     <nav class="dashboard-nav">
     <ul class="dashboard-options">
         <li>
-            <a>Analytics</a>
+            <a href="/analytics.php">Analytics</a>
         </li>
         <li>
             <a>My Listings</a>
