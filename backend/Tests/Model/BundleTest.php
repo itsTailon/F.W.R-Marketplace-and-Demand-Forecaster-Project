@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
+use TTE\App\Model\Seller;
 use TTE\App\Model\MissingValuesException;
 
 // Class testing functions of the Bundle class
@@ -59,6 +60,25 @@ class BundleTest extends TestCase {
         if (!$thrown) {
             $this->fail();
         }
+    }
+
+    public function testSearchBundle() {
+        $testSeller = Seller::create(["email" => "testsearchbundle@example.com", "password" => "password",
+            "name" => "ex name", "address" => "ex address"]);
+        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available,
+            "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
+            "discountedPrice" => 8.00, "validFrom" => date("Y-m-d H:i:s"), "validUntil" => date("Y-m-d H:i:s")]);
+
+        $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
+        $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
+        $shouldNotFind = Bundle::searchBundles($testBundle->getTitle() . " except no");
+
+        assert(count($shouldFindFromTitle) == 1);
+        assert(count($shouldFindFromDetails) == 1);
+        assert(count($shouldNotFind) == 0);
+
+        Bundle::delete($testBundle->getID());
+        Seller::delete($testSeller->getUserID());
     }
 
     // TODO: If there exists a getter/setter not utilised within other methods, test here

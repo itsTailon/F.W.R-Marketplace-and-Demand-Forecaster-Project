@@ -114,4 +114,33 @@ class Seller extends Account {
         // Call superclass method
     }
 
+    public function getSellThroughRate() {
+        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
+        $stmt = DatabaseHandler::getPDO()->query($queryText);
+
+        $stmt->execute(["sellerID" => $this->userID, "status" => "collected"]);
+        $collectedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $collectedCount = $collectedRow["COUNT(*)"];
+
+        $stmt->execute(["sellerID" => $this->userID, "status" => "expired"]);
+        $expiredRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $expiredCount = $expiredRow["COUNT(*)"];
+
+        return 100 * ($collectedCount / ($collectedCount + $expiredCount));
+    }
+
+    public function getSellThroughRateForTimes() {
+        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
+        $stmt = DatabaseHandler::getPDO()->query($queryText);
+
+        $stmt->execute(["sellerID" => $this->userID, "status" => "collected"]);
+        $collectedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $collectedCount = $collectedRow["COUNT(*)"];
+
+        $stmt->execute(["sellerID" => $this->userID, "status" => "expired"]);
+        $expiredRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $expiredCount = $expiredRow["COUNT(*)"];
+
+        return 100 * ($collectedCount / ($collectedCount + $expiredCount));
+    }
 }

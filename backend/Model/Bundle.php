@@ -3,6 +3,7 @@
 namespace TTE\App\Model;
 
 use http\Exception\InvalidArgumentException;
+use PDO;
 use TTE\App\Helpers\CurrencyTools;
 
 class Bundle extends StoredObject {
@@ -65,7 +66,7 @@ class Bundle extends StoredObject {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
         if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
-            !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
+            !isset($fields['discountedPrice']) || empty($fields['validFrom']) || empty($fields['validUntil']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -83,14 +84,15 @@ class Bundle extends StoredObject {
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
-            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID, validFrom, validUntil) 
+            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID, :validFrom, :validUntil);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID(),
+                ":validFrom" => $fields["validFrom"], ":validUntil" => $fields["validUntil"]]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -163,6 +165,11 @@ class Bundle extends StoredObject {
 
         // Return true if a bundle exists with the given ID
         return !($row === false);
+    }
+
+    public function display(): void {
+        $format = "<div><a href='view_bundle.php?id=%s'><h2>%s</h2><p>%s</p></a></div>";
+        echo sprintf($format, $this->id, $this->title, $this->details);
     }
 
     public function getID(): int {
@@ -272,5 +279,27 @@ class Bundle extends StoredObject {
             // If bundle does not exist, throw error
             throw new DatabaseException("No bundle found with ID $id");
         }
+    }
+
+    public static function searchBundles(string $withWhatQuery) : array {
+        $pattern = "%" . $withWhatQuery . "%";
+        $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
+
+        $stmt = DatabaseHandler::getPDO()->prepare($query);
+        $stmt->execute([":pattern" => $pattern, ":status" => "available"]);
+
+        $rowsRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = array();
+
+        for ($i = 0; $i < count($rowsRaw); $i++)
+        {
+            try {
+                $rows[$i] = Bundle::load($rowsRaw[$i]["bundleID"]);
+            } catch (DatabaseException $e) {
+                echo "Something went very wrong loading a bundle";
+            }
+        }
+
+        return $rows;
     }
 }
