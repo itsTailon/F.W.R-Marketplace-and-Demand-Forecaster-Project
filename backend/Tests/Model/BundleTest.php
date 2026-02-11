@@ -73,9 +73,9 @@ class BundleTest extends TestCase {
         $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
         $shouldNotFind = Bundle::searchBundles($testBundle->getTitle() . " except no");
 
-        assert(count($shouldFindFromTitle) == 1);
-        assert(count($shouldFindFromDetails) == 1);
-        assert(count($shouldNotFind) == 0);
+        $this->assertCount(1, $shouldFindFromTitle);
+        $this->assertCount(1, $shouldFindFromDetails);
+        $this->assertCount(0, $shouldNotFind);
 
         Bundle::delete($testBundle->getID());
         Seller::delete($testSeller->getUserID());
