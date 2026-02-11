@@ -59,7 +59,7 @@ class Streak extends StoredObject {
             throw new MissingValuesException("Missing information required to create a bundle");
         }
 
-        // Creating new Bundle object
+        // Creating new Streak object
         $streak = new Streak();
         // Updating attributes in line with input
         $streak->setStatus($fields["streakStatus"]);
