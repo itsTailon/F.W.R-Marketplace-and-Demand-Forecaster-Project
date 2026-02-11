@@ -27,16 +27,18 @@ CREATE TABLE bundle (
     sellerID INT NOT NULL,
     title VARCHAR(128) NOT NULL, -- formerly `name`
     details TEXT NOT NULL, -- formerly `description`
-    quantity INT NOT NULL,
+    quantity INT NOT NULL DEFAULT 1,
     category ENUM('groceries', 'sandwiches', 'meals', 'sweet_pastries', 'savoury_pastries', 'cakes', 'brownies') NOT NULL, 
     imageURL VARCHAR (256) NOT NULL,
     rrp DECIMAL(8, 2) NOT NULL, -- recommended retail price
     discountedPrice DECIMAL(8, 2) NOT NULL,
     validFrom DATETIME NOT NULL,
     validUntil DATETIME NOT NULL,
+    purchaserID INT DEFAULT NULL,
     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
     CHECK (validUntil > validFrom),
-    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE
+    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
+    FOREIGN KEY (purchaserID) REFERENCES customer(customerID) ON DELETE CASCADE
     );
 
 CREATE TABLE allergen (
