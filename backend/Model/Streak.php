@@ -19,14 +19,14 @@ class Streak extends StoredObject {
 
     /**
      * Method updating DB entry for streak to current values held by object it is called for
-     * @throws NoSuchBundleException|DatabaseException
+     * @throws NoSuchStreakException|DatabaseException
      */
     public function update(): void
     {
         // Check validity of streakID
         if (!Streak::existsWithID($this->id)) {
             // Exception thrown if ID is invalid
-            throw new NoSuchBundleException("No such streak with ID $this->id");
+            throw new NoSuchStreakException("No such streak with ID $this->id");
         }
 
         // SQL query to be executed
@@ -56,7 +56,7 @@ class Streak extends StoredObject {
         if (!isset($fields["streakStatus"]) || !isset($fields["customerID"])) {
 
             // Produce error message if field exists with no content
-            throw new MissingValuesException("Missing information required to create a bundle");
+            throw new MissingValuesException("Missing information required to create a streak");
         }
 
         // Creating new Streak object
@@ -68,13 +68,20 @@ class Streak extends StoredObject {
         $streak->setCustomerID($fields["customerID"]);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (streakStatus, startDate, endDate, customerID) 
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (streakStatus, startDate, endDate, customerID) 
             VALUES (:streakStatus, :startDate, :endDate, :customerID);");
 
         // Try-catch block for handling potential database exceptions
         try {
+            // Checking if endDate is set or not
+            if ($streak->getEndDate() == null) {
+                $appliedEndDate = null;
+            } else{
+                $appliedEndDate = $streak->getEndDate()->format("d-m-Y");
+            }
+
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("d-m-Y"), ":endDate" => $streak->getEndDate()->format("d-m-Y"), ":customerID" => $streak->getCustomerID()]);
+            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("d-m-Y"), ":endDate" => $appliedEndDate, ":customerID" => $streak->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -84,11 +91,11 @@ class Streak extends StoredObject {
 
         // Get query ID of the last record added to the database (i.e., the one just created)
         $lastId = DatabaseHandler::getPDO()->lastInsertId();
-        // Add ID to Bundle object
+        // Add ID to Streak object
         $streak->id = $lastId;
 
 
-        // Return Bundle object as output once the database is successfully updated
+        // Return Streak object as output once the database is successfully updated
         return $streak;
     }
 
@@ -124,7 +131,7 @@ class Streak extends StoredObject {
 
     /**
      * @param int $id ID to check
-     * @return bool true, if such a bundle exists. Otherwise, false.
+     * @return bool true, if such a streak exists. Otherwise, false.
      */
     public static function existsWithID(int $id): bool
     {
@@ -169,7 +176,7 @@ class Streak extends StoredObject {
         return $this->startDate;
     }
 
-    public function getEndDate(): DateTimeImmutable
+    public function getEndDate(): ?DateTimeImmutable
     {
         return $this->endDate;
     }
