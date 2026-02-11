@@ -400,28 +400,33 @@ class BundleTest extends TestCase
         Seller::delete($seller->getUserID());
     } // Not necessarily needed as should be tested through use in set...ID functions
 
-    public function testDeleteBundle()
-    {
+    public function testDeleteBundle() {
         /*
-        * Test:
-        * - If a bundle is deleted, it is not in the database
-        * - If a bundle that doesn't exist is tried to be deleted, error thrown
+         * Test:
+         * - If a bundle is deleted, it is not in the database
+         * - If a bundle that doesn't exist is tried to be deleted, error thrown
          */
 
         // Create associative array for test bundle
-        $fields =
-            array(
-                "bundleStatus" => BundleStatus::Available,
-                "bundleTitle" => "Delete Bundle Title",
-                "bundleDetails" => "Delete Bundle Details",
-                "bundleRrpGBX" => 0,
-                "bundleDiscountedPriceGBX" => 0,
-                "bundleSellerID" => 0,
-                "bundlePurchaserID" => null,
-            );
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'sellertest@example.com',
+            'password' => 'password',
+            'name' => 'testShop',
+            'address' => '8 test street',
+        ]);
 
-        // Create test bundle and check it exists
-        $testDeleteBundle = Bundle::create($fields);
+        // Create bundle for testing
+        $testDeleteBundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Test if bundle exists
         $testDeleteID = $testDeleteBundle->getID();
         $this->assertTrue(Bundle::existsWithID($testDeleteID));
 
@@ -433,7 +438,7 @@ class BundleTest extends TestCase
         $thrown = false;
         try {
             Bundle::delete($testDeleteID);
-        } catch (\PDOException $e) {
+        } catch (PDOException $e) {
             $thrown = true;
         }
         if (!$thrown) {
