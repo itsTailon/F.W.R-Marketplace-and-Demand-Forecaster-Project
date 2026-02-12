@@ -13,6 +13,8 @@ class Streak extends StoredObject {
 
     private DateTimeImmutable $startDate;
 
+    private DateTimeImmutable $currentWeekStart;
+
     private ?DateTimeImmutable $endDate;
 
     private int $customerID;
@@ -20,6 +22,7 @@ class Streak extends StoredObject {
     /**
      * Method updating DB entry for streak to current values held by object it is called for
      * @throws NoSuchStreakException|DatabaseException
+     * @throws Exception
      */
     public function update(): void
     {
@@ -30,14 +33,26 @@ class Streak extends StoredObject {
         }
 
         // SQL query to be executed
-        $sql_query = "UPDATE streak SET streakStatus = :streakStatus, startDate = :startDate, endDate = :endDate, customerID = :customerID WHERE streakID = :streakID;";
+        $sql_query = "UPDATE streak SET startDate = :startDate, currentWeekStart = :currentWeekStart, endDate = :endDate, customerID = :customerID WHERE streakID = :streakID;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
+
+        // Establish values for currentWeekStart and endDate
+        if ($this->getCurrentWeekStart() == null) {
+            $currentWeekStart = null;
+        } else {
+            $currentWeekStart = (new DateTimeImmutable($this->getCurrentWeekStart()))->format("Y-m-d H:i:s");
+        }
+        if ($this->getEndDate() == null) {
+            $endDate = null;
+        } else {
+            $endDate = (new DateTimeImmutable($this->getEndDate()))->format("Y-m-d H:i:s");
+        }
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakID" => $this->id, ":streakStatus" => $this->getStatus()->value,":startDate" => $this->getStartDate()->format("Y-m-d H:i:s"), ":endDate" => $this->getEndDate()->format("Y-m-d H:i:s"), ":customerID" => $this->getCustomerID()]);
+            $stmt->execute([":streakID" => $this->id, ":startDate" => $this->getStartDate()->format("Y-m-d H:i:s"), $this->id, ":currentWeekStart" => $currentWeekStart, ":endDate" => $endDate, ":customerID" => $this->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -53,7 +68,7 @@ class Streak extends StoredObject {
     {
 
         // Presence check on all inputs
-        if (!isset($fields["streakStatus"]) || !isset($fields["customerID"])) {
+        if (!isset($fields["customerID"])) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a streak");
@@ -62,14 +77,15 @@ class Streak extends StoredObject {
         // Creating new Streak object
         $streak = new Streak();
         // Updating attributes in line with input
-        $streak->setStatus($fields["streakStatus"]);
+        $streak->setStatus(StreakStatus::Inactive);
         $streak->setStartDate(new DateTimeImmutable("now"));
+        $streak->setCurrentWeekStart(null);
         $streak->setEndDate(null);
         $streak->setCustomerID($fields["customerID"]);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (streakStatus, startDate, endDate, customerID) 
-            VALUES (:streakStatus, :startDate, :endDate, :customerID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (streakStatus, startDate, currentWeekStart, endDate, customerID) 
+            VALUES (:streakStatus, :startDate, :currentWeekStart, :endDate, :customerID);");
 
         // Try-catch block for handling potential database exceptions
         try {
@@ -80,8 +96,15 @@ class Streak extends StoredObject {
                 $appliedEndDate = $streak->getEndDate()->format("Y-m-d H:i:s");
             }
 
+            // Check if currentWeekStart is set
+            if ($streak->getCurrentWeekStart() == null) {
+                $currentWeekStart = null;
+            } else {
+                $currentWeekStart = $streak->getCurrentWeekStart()->format("Y-m-d H:i:s");
+            }
+
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("Y-m-d H:i:s"), ":endDate" => $appliedEndDate, ":customerID" => $streak->getCustomerID()]);
+            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("Y-m-d H:i:s"), ":currentWeekStart" => $currentWeekStart, ":endDate" => $appliedEndDate, ":customerID" => $streak->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -130,6 +153,13 @@ class Streak extends StoredObject {
             $streak->setEndDate(null);
         } else {
             $streak->setEndDate(new DateTimeImmutable($result["endDate"]));
+        }
+
+        // Assign current week start depending on retrieved value
+        if ($result["currentWeekStart"] == null) {
+            $streak->setCurrentWeekStart(null);
+        } else {
+            $streak->setCurrentWeekStart(new DateTimeImmutable($result["currentWeekStart"]));
         }
 
         return $streak;
@@ -187,6 +217,10 @@ class Streak extends StoredObject {
         return $this->endDate;
     }
 
+    public function getCurrentWeekStart(): ?DateTimeImmutable {
+        return $this->currentWeekStart;
+    }
+
     public function getCustomerID(): int {
         return $this->customerID;
     }
@@ -202,6 +236,10 @@ class Streak extends StoredObject {
 
     public function setEndDate(?DateTimeImmutable $endDate): void {
         $this->endDate = $endDate;
+    }
+
+    public function setCurrentWeekStart(DateTimeImmutable $currentWeekStart): void {
+        $this->currentWeekStart = $currentWeekStart;
     }
 
     /**

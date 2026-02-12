@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use DateTimeImmutable;
 use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
 
@@ -27,6 +28,8 @@ class Bundle extends StoredObject {
     /**
      * Take current values of all attributes of the Bundle object
      * @throws DatabaseException|NoSuchBundleException|MissingValuesException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchStreakException
      */
     public function update(): void
     {
@@ -47,7 +50,7 @@ class Bundle extends StoredObject {
 
 
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id;";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
@@ -55,10 +58,46 @@ class Bundle extends StoredObject {
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":id" => $this->id]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID() ,":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
+        }
+
+        // If bundle is collected by customer and there is a customer attached
+        if ($this->getStatus() == BundleStatus::Collected && isset($fields["purchaserID"])) {
+            // Check if customer has an ongoing streak and create one if not
+            $streak = Customer::load($this->getPurchaserID())->getStreak();
+            if ($streak == null) {
+                // Create streak
+                $streak = Streak::create([$this->getPurchaserID()]);
+                // Update end-date of streak to a week from now
+                $streak->setCurrentWeekStart($streak->getStartDate());
+                $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                $streak->update();
+            } else {
+                // Start new streak if "current" streak has already ended
+                if ($streak->getEndDate() < new DateTimeImmutable("now")) {
+                    $streak->setStartDate(new DateTimeImmutable("now"));
+                    $streak->setCurrentWeekStart($streak->getStartDate());
+                    $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                    // Update streak
+                    $streak->update();
+                } else {
+                    // Check if a bundle has already been collected to continue the streak
+                    if ($streak->getCurrentWeekStart() > new DateTimeImmutable("now")) {
+                        // No change to be made here
+                    } elseif ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
+                        // Changing currentWeekStart and endDate to a weeks time signifying update of streak
+                        $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
+                        $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                        // Applying update
+                        $streak->update();
+                    }
+
+
+                }
+            }
         }
 
     }

@@ -96,7 +96,7 @@ class Customer extends Account {
      * @param int $customerID
      * @return Streak|null, where Streak is if there is a streak related to the customer, and null if not
      */
-    public function getStreak(int $customerID): ?Streak {
+    public function getStreak(): ?Streak {
         // Get customer ID
         $customerID = $this->getUserID();
 
