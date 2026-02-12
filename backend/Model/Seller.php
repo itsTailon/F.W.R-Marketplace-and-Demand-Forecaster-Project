@@ -115,29 +115,18 @@ class Seller extends Account {
     }
 
     public function getSellThroughRate() {
-        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
-        $stmt = DatabaseHandler::getPDO()->query($queryText);
-
-        $stmt->execute(["sellerID" => $this->userID, "status" => "collected"]);
-        $collectedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $collectedCount = $collectedRow["COUNT(*)"];
-
-        $stmt->execute(["sellerID" => $this->userID, "status" => "expired"]);
-        $expiredRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $expiredCount = $expiredRow["COUNT(*)"];
-
-        return 100 * ($collectedCount / ($collectedCount + $expiredCount));
+        return $this->getSellThroughRateByDiscountRate(0, 100);
     }
 
-    public function getSellThroughRateForTimes() {
-        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
-        $stmt = DatabaseHandler::getPDO()->query($queryText);
+    public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) {
+        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status AND ((RRP - discountedPrice) / RRP) * 100 BETWEEN :minDiscount AND :maxDiscount;";
+        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
 
-        $stmt->execute(["sellerID" => $this->userID, "status" => "collected"]);
+        $stmt->execute([":sellerID" => $this->userID, ":status" => "collected", ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
         $collectedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
         $collectedCount = $collectedRow["COUNT(*)"];
 
-        $stmt->execute(["sellerID" => $this->userID, "status" => "expired"]);
+        $stmt->execute([":sellerID" => $this->userID, ":status" => "expired", ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
         $expiredRow = $stmt->fetch(\PDO::FETCH_ASSOC);
         $expiredCount = $expiredRow["COUNT(*)"];
 

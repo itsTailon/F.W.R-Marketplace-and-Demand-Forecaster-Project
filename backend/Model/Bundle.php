@@ -66,7 +66,7 @@ class Bundle extends StoredObject {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
         if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
-            !isset($fields['discountedPrice']) || empty($fields['validFrom']) || empty($fields['validUntil']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
+            !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -84,15 +84,14 @@ class Bundle extends StoredObject {
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID, validFrom, validUntil) 
-            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID, :validFrom, :validUntil);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
+            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID(),
-                ":validFrom" => $fields["validFrom"], ":validUntil" => $fields["validUntil"]]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -104,7 +103,6 @@ class Bundle extends StoredObject {
         $lastId = DatabaseHandler::getPDO()->lastInsertId();
         // Add ID to Bundle object
         $bundle->id = $lastId;
-
 
         // Return Bundle object as output once the database is successfully updated
         return $bundle;

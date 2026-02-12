@@ -67,7 +67,7 @@ class BundleTest extends TestCase {
             "name" => "ex name", "address" => "ex address"]);
         $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available,
             "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
-            "discountedPrice" => 8.00, "validFrom" => date("Y-m-d H:i:s"), "validUntil" => date("Y-m-d H:i:s")]);
+            "discountedPrice" => 8.00]);
 
         $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
         $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
