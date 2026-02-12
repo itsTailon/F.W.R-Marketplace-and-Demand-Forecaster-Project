@@ -57,15 +57,20 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Consider whether current user has permissions for update()
         if (!RBACManager::isCurrentuserPermitted("streak_update")) {
-            throw new NoSuchPermissionException("Customer with ID $streakID doesn't have permissions regarding this streak");
+            throw new NoSuchPermissionException("Customer with ID $ownerID doesn't have permissions regarding this streak");
         }
 
-        // Retrieve right Streak using streakID
-        $streak = Streak::load($streakID);
+        // Check if streak exists, and create if not
+        if (!Streak::existsWithID($streakID)) {
+            $streak = Streak::create([StreakStatus::from($_PUT["streakStatus"]), $_PUT["customerID"]]);
+        } else {
+            // Retrieve right Streak using StreakID
+            $streak = Streak::load($streakID);
 
-        // Ensure seller for which the method is called has ownership of said streak
-        if ($streak->getCustomerID() != $ownerID) {
-            throw new FailedOwnershipAuthException("Customer with ID $streakID isn't owner of this streak");
+            // Ensure seller for which the method is called has ownership of said streak
+            if ($streak->getCustomerID() != $ownerID) {
+                throw new FailedOwnershipAuthException("Customer with ID $ownerID isn't owner of this streak");
+            }
         }
 
         // Apply changes to streak
@@ -95,7 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         die();
     } catch (FailedOwnershipAuthException $no_e) {
         // Handling exception produced failure
-        //to authenticate seller for updating specified bundle and producing JSON-encoded message
+        //to authenticate seller for updating specified streak and producing JSON-encoded message
         echo json_encode(http_response_code(403));
         die();
     } catch (NoSuchCustomerException $e) {
@@ -129,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new MissingValuesException("Missing mandatory parameter/s");
         }
 
-        // Get array of fields for bundle to create
+        // Get array of fields for streak to create
         $fields = array(
             $_POST["streakStatus"],
             $_POST["customerID"]
@@ -191,10 +196,6 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Customer not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
         die();
-    } catch (NoSuchSellerException $nss_e) {
-        // Seller not found and produce JSON-encoded message
-        echo json_encode(http_response_code(404));
-        die();
     } catch (InvalidArgumentException $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
@@ -206,7 +207,6 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
     // Handling GET request calling the load() method for the Streak class
-
     try {
 
         // Handling GET request and storing input
@@ -248,6 +248,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Permission denied thus "forbidden" to access content and produce JSON-encoded message
         echo json_encode(http_response_code(403));
         die();
+    } catch (NoSuchCustomerException $nsc_e) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (Exception $ex) {
+        echo json_encode(http_response_code(400));
+        die();
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
@@ -259,7 +265,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Check that streak ID holds valid data
         if (!isset($streakID) || !ctype_digit($streakID)) {
-            throw new InvalidArgumentException("Invalid bundle ID");
+            throw new InvalidArgumentException("Invalid streak ID");
     }
 
         // Convert to usable type

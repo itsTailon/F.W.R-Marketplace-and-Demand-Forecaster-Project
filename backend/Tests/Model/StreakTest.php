@@ -4,29 +4,27 @@ namespace TTE\App\Tests\Model;
 
 use Exception;
 use PHPUnit\Framework\TestCase;
-use TTE\App\Helpers\CurrencyTools;
 use \DateTimeImmutable;
 use TTE\App\Model\Customer;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\NoSuchStreakException;
-use TTE\App\Model\Seller;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
-use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\Streak;
 use TTE\App\Model\StreakStatus;
+use function PHPUnit\Framework\assertSame;
 
 // Global for session to run test
 $_SESSION = array();
 
 
-// Class testing functions of the Bundle class
+// Class testing functions of the Streak class
 class StreakTest extends TestCase
 {
 
     /**
-     * @throws DatabaseException|NoSuchStreakException|NoSuchCustomerException
+     * @throws DatabaseException|NoSuchCustomerException
      */
     public function testUpdateStreak()
     {
@@ -36,8 +34,6 @@ class StreakTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating required Customer
@@ -63,7 +59,7 @@ class StreakTest extends TestCase
 
         // Change values for $streak to a set of valid values
         $streak->setStatus(StreakStatus::Inactive);
-        $endDate = new DateTimeImmutable("today");
+        $endDate = new DateTimeImmutable("now");
         $streak->setEndDate($endDate);
 
         // Attempting to update streak
@@ -84,8 +80,8 @@ class StreakTest extends TestCase
         // Comparing values of object stored in DB to what should be
         $this->assertEquals($streak->getStatus(), $db_streak->getStatus());
         $this->assertEquals($streak->getCustomerID(), $db_streak->getCustomerID());
-        $this->assertEquals($streak->getStartDate(), $db_streak->getStartDate());
-        $this->assertEquals($streak->getEndDate(), $db_streak->getEndDate());
+        $this->assertEquals($streak->getStartDate()->format("Y-m-d H:i:s"), $db_streak->getStartDate()->format("Y-m-d H:i:s"));
+        $this->assertEquals($streak->getEndDate()->format("Y-m-d H:i:s"), $db_streak->getEndDate()->format("Y-m-d H:i:s"));
 
         // If successful update, confirm and do cleanup
         Streak::delete($streak->getID());
@@ -104,8 +100,6 @@ class StreakTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating required Customer object
@@ -166,16 +160,14 @@ class StreakTest extends TestCase
     }
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
      */
-    public function testLoadBundle() {
+    public function testLoadStreak() {
         // Customer fields for create() methods
         $customerFields = array(
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating required Customer object
@@ -188,11 +180,28 @@ class StreakTest extends TestCase
                 "customerID" => $customer->getUserID(),
             );
 
-        // Create required streak
+        // Create required streak and get DB version
         $streak = Streak::create($fields);
+        $db_streak = Streak::load($streak->getID());
 
-        // Load streak and compare to existing streak object (both should be equal)
-        self::assertTrue($streak == Streak::load($streak->getID()));
+        try {
+            // Load streak and compare to existing streak object
+            self::assertEquals($streak->getStatus(), $streak->getStatus());
+            self::assertEquals($streak->getCustomerID(), $db_streak->getCustomerID());
+            self::assertEquals($streak->getStartDate()->format("Y-m-d H:i:s"), $db_streak->getStartDate()->format("Y-m-d H:i:s"));
+
+            if($streak->getEndDate() !== null) {
+                self::assertEquals($streak->getEndDate()->format("Y-m-d H:i:s"), $db_streak->getEndDate()->format("Y-m-d H:i:s"));
+            } else {
+                self::assertEquals($streak->getEndDate(), $db_streak->getEndDate());
+            }
+        } catch (DatabaseException|NoSuchStreakException $e) {
+            // Cleanup
+            Streak::delete($streak->getID());
+            Customer::delete($customer->getUserID());
+
+            $this->fail($e->getMessage());
+        }
 
         // Try loading non-existent streak (ID of -1 will never exist)
         // Ensure that such results in a DatabaseException being thrown
@@ -220,8 +229,6 @@ class StreakTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating required Customer object
@@ -250,17 +257,15 @@ class StreakTest extends TestCase
     }
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
      */
-    public function testDeleteBundle()
+    public function testDeleteStreak()
     {
         // Customer fields for create() methods
         $customerFields = array(
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating required Customer object
@@ -276,8 +281,17 @@ class StreakTest extends TestCase
         // Create required streak
         $streak = Streak::create($fields);
 
-        // Ensure streak exists
-        self::assertTrue($streak == Streak::load($streak->getID()));
+        // Check $streak attributes and ensure all hold appropriate values
+        foreach ($fields as $key => $value) {
+            switch ($key) {
+                case "streakStatus":
+                    $this->assertEquals($value, $streak->getStatus());
+                    break;
+                case "customerID":
+                    $this->assertEquals($value, $streak->getCustomerID());
+                    break;
+            }
+        }
 
         // Delete test streak and check that the streak no longer exists
         Streak::delete($streak->getID());

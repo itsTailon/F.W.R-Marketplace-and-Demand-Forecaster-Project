@@ -37,7 +37,7 @@ class Streak extends StoredObject {
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakID" => $this->id, ":streakStatus" => $this->getStatus()->value,":startDate" => $this->getStartDate(), ":endDate" => $this->getEndDate(), ":customerID" => $this->getCustomerID()]);
+            $stmt->execute([":streakID" => $this->id, ":streakStatus" => $this->getStatus()->value,":startDate" => $this->getStartDate()->format("Y-m-d H:i:s"), ":endDate" => $this->getEndDate()->format("Y-m-d H:i:s"), ":customerID" => $this->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -47,7 +47,7 @@ class Streak extends StoredObject {
     /**
      * @param array $fields containing the current status of the streak and the customer it is for
      * @return Streak returns a created Streak object after a confirmed addition of an active streak in the DB
-     *@throws NoSuchCustomerException|DatabaseException|MissingValuesException
+     *@throws DatabaseException|MissingValuesException|NoSuchCustomerException
      */
     public static function create(array $fields): StoredObject
     {
@@ -63,7 +63,7 @@ class Streak extends StoredObject {
         $streak = new Streak();
         // Updating attributes in line with input
         $streak->setStatus($fields["streakStatus"]);
-        $streak->setStartDate(new DateTimeImmutable("today"));
+        $streak->setStartDate(new DateTimeImmutable("now"));
         $streak->setEndDate(null);
         $streak->setCustomerID($fields["customerID"]);
 
@@ -77,11 +77,11 @@ class Streak extends StoredObject {
             if ($streak->getEndDate() == null) {
                 $appliedEndDate = null;
             } else{
-                $appliedEndDate = $streak->getEndDate()->format("d-m-Y");
+                $appliedEndDate = $streak->getEndDate()->format("Y-m-d H:i:s");
             }
 
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("d-m-Y"), ":endDate" => $appliedEndDate, ":customerID" => $streak->getCustomerID()]);
+            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate()->format("Y-m-d H:i:s"), ":endDate" => $appliedEndDate, ":customerID" => $streak->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -102,7 +102,7 @@ class Streak extends StoredObject {
     /**
      * @param int $id the ID of the Streak that is to be loaded
      * @return Streak object with given ID
-     * @throws DatabaseException|Exception
+     * @throws DatabaseException|NoSuchCustomerException|Exception
      */
     public static function load(int $id): StoredObject
     {
@@ -123,8 +123,14 @@ class Streak extends StoredObject {
         $streak->id = $result["streakID"];
         $streak->setStatus(StreakStatus::from($result["streakStatus"]));
         $streak->setStartDate(new DateTimeImmutable($result["startDate"]));
-        $streak->setEndDate(new DateTimeImmutable($result["endDate"]));
         $streak->setCustomerID($result["customerID"]);
+
+        // Assigning end date depending on retrieved value
+        if ($result["endDate"] == null) {
+            $streak->setEndDate(null);
+        } else {
+            $streak->setEndDate(new DateTimeImmutable($result["endDate"]));
+        }
 
         return $streak;
     }

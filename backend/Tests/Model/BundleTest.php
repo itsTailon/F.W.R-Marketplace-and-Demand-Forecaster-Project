@@ -41,8 +41,6 @@ class BundleTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating seller/customer objects
@@ -187,8 +185,6 @@ class BundleTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating seller/customer objects
