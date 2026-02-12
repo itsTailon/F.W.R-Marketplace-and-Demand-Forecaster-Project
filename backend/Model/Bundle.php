@@ -84,7 +84,7 @@ class Bundle extends StoredObject {
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle(bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
             VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID);");
 
         // Try-catch block for handling potential database exceptions
