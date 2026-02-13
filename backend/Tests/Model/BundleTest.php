@@ -8,6 +8,7 @@ use TTE\App\Helpers\CurrencyTools;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
+use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\Seller;
 use TTE\App\Model\DatabaseException;
@@ -432,25 +433,35 @@ class BundleTest extends TestCase
          */
 
         // Create associative array for test bundle
-        $fields =
-            array(
-                "bundleStatus" => BundleStatus::Available,
-                "bundleTitle" => "Delete Bundle Title",
-                "bundleDetails" => "Delete Bundle Details",
-                "bundleRrpGBX" => 0,
-                "bundleDiscountedPriceGBX" => 0,
-                "bundleSellerID" => 0,
-                "bundlePurchaserID" => null,
-            );
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'sellertest@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
 
         // Create test bundle and check it exists
-        $testDeleteBundle = Bundle::create($fields);
-        $testDeleteID = $testDeleteBundle->getID();
+        $testDeleteID = $bundle->getID();
         $this->assertTrue(Bundle::existsWithID($testDeleteID));
 
         // Delete test bundle and check that the bundle no longer exists
-        Bundle::delete($testDeleteID);
-        $this->assertFalse(Bundle::existsWithID($testDeleteID));
+        try {
+            Bundle::delete($testDeleteID);
+            $this->assertFalse(Bundle::existsWithID($testDeleteID));
+        } catch (DatabaseException $e) {
+            self::fail($e->getMessage());
+        }
 
         // Test deleting a bundle that does not exist
         $thrown = false;
