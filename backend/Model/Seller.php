@@ -119,17 +119,20 @@ class Seller extends Account {
     }
 
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) {
-        $queryText = "SELECT COUNT(*) FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status AND ((RRP - discountedPrice) / RRP) * 100 BETWEEN :minDiscount AND :maxDiscount;";
-        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+        $queryText = "SELECT COUNT(*) FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID AND ((RRP - discountedPrice) / RRP) * 100 BETWEEN :minDiscount AND :maxDiscount ";
 
-        $stmt->execute([":sellerID" => $this->userID, ":status" => "collected", ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
-        $collectedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $collectedCount = $collectedRow["COUNT(*)"];
+        $query1 = $queryText . "AND reservationStatus = 'completed';";
+        $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
+        $stmt1->execute([":sellerID" => $this->userID, ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
+        $completedRow = $stmt1->fetch(\PDO::FETCH_ASSOC);
+        $completedCount = $completedRow["COUNT(*)"];
 
-        $stmt->execute([":sellerID" => $this->userID, ":status" => "expired", ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
-        $expiredRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        $expiredCount = $expiredRow["COUNT(*)"];
+        $query2 = $queryText . "AND reservationStatus != 'active';";
+        $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
+        $stmt2->execute([":sellerID" => $this->userID, ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
+        $notActiveRow= $stmt2->fetch(\PDO::FETCH_ASSOC);
+        $notActiveCount = $notActiveRow["COUNT(*)"];
 
-        return 100 * ($collectedCount / ($collectedCount + $expiredCount));
+        return 100 * ($completedCount / $notActiveCount);
     }
 }
