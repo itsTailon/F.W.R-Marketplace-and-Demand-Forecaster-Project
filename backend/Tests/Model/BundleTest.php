@@ -24,7 +24,7 @@ class BundleTest extends TestCase
 {
 
     /**
-     * @throws NoSuchCustomerException|DatabaseException
+     * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchSellerException
      */
     public function testUpdateBundle()
     {
@@ -41,8 +41,6 @@ class BundleTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating seller/customer objects
@@ -72,77 +70,97 @@ class BundleTest extends TestCase
             $this->fail($e->getMessage());
         }
 
-        // Iterate through $fields array and update different values to null to test functionality
-        foreach($fields as $key => $value) {
+        // Running additional failure test for title to see if it is made to be empty strings
+        $prevValue = $bundle->getTitle();
+        $bundle->setTitle("      ");
 
-            // Storing previous value of field and updating it
-            $prevValue = $value;
-            unset($fields[$key]);
+        // Test update() function
+        $thrown = false;
+        try {
+            $bundle->update();
+        } catch (Exception $e) {
+            $thrown = true;
+        }
 
-            // Test update() function
-            $thrown = false;
-            try {
-                $bundle->update();
-            } catch (Exception $e) {
-                $thrown = true;
-                if (!$thrown) {
-                    // Cleanup if bundle fails to update
-                    $bundle->delete($bundle->getID());
-                    $customer->delete($customer->getUserID());
-                    $seller->delete($seller->getUserID());
+        if (!$thrown) {
+            // Cleanup if bundle fails to update
+            Bundle::delete($bundle->getID());
+            Customer::delete($customer->getUserID());
+            Seller::delete($seller->getUserID());
 
-                    // Force failure as error not thrown as should
-                    $this->fail($e->getMessage());
-                }
+            // Force failure as error not thrown as should
+            $this->fail("Didn't received expected Exception when attempting to update bundle with erroneous data");
+        }
 
-                // Return $fields to initial state
-                $fields[$key] = $prevValue;
-            }
+        $bundle->setTitle($prevValue);
+
+        // Running test to see if empty details causes exception as should
+        $prevValue = $bundle->getDetails();
+        $bundle->setDetails("      ");
+
+        // Test update() function
+        $thrown = false;
+        try {
+            $bundle->update();
+        } catch (Exception $e) {
+            $thrown = true;
+        }
+
+        if (!$thrown) {
+            // Cleanup if bundle fails to update
+            Bundle::delete($bundle->getID());
+            Customer::delete($customer->getUserID());
+            Seller::delete($seller->getUserID());
+
+            // Force failure as error not thrown as should
+            $this->fail("Didn't received expected Exception when attempting to update bundle with erroneous data");
+        }
+
+        $bundle->setDetails($prevValue);
 
 
-            // Change values for $bundle to a set of valid values
-            $bundle->setStatus(BundleStatus::Reserved);
-            $bundle->setPurchaserID($customer->getUserID());
-            $bundle->setTitle("Testing Updating Method");
-            $bundle->setRrpGBX(700);
+        // Change values for $bundle to a set of valid values
+        $bundle->setStatus(BundleStatus::Reserved);
+        $bundle->setPurchaserID($customer->getUserID());
+        $bundle->setTitle("Testing Updating Method");
+        $bundle->setRrpGBX(700);
 
-            // Attempting to update bundle
-            try {
-                $bundle->update();
-            } catch (DatabaseException|NoSuchBundleException $e) {
-                // Cleanup prior to throwing failure
-                Bundle::delete($bundle->getID());
-                Seller::delete($seller->getUserID());
-                Customer::delete($customer->getUserID());
-
-                // Fail test
-                $this->fail($e->getMessage());
-            }
-
-            // Get fresh object from the database
-            $db_bundle = Bundle::load($bundle->getID());
-
-            // Comparing values of object stored in DB to what should be
-            $this->assertEquals($bundle->getStatus(), $db_bundle->getStatus());
-            $this->assertEquals($bundle->getTitle(), $db_bundle->getTitle());
-            $this->assertEquals($bundle->getDetails(), $db_bundle->getDetails());
-            $this->assertEquals($bundle->getRrpGBX(), $db_bundle->getRrpGBX());
-            $this->assertEquals($bundle->getDiscountedPriceGBX(), $db_bundle->getDiscountedPriceGBX());
-            $this->assertEquals($bundle->getSellerID(), $db_bundle->getSellerID());
-            $this->assertEquals($bundle->getPurchaserID(), $db_bundle->getPurchaserID());
-
-            // If successful update, confirm and do cleanup
+        // Attempting to update bundle
+        try {
+            $bundle->update();
+        } catch (DatabaseException|NoSuchBundleException $e) {
+            // Cleanup prior to throwing failure
             Bundle::delete($bundle->getID());
             Seller::delete($seller->getUserID());
             Customer::delete($customer->getUserID());
+
+            // Fail test
+            $this->fail($e->getMessage());
         }
+
+        // Get fresh object from the database
+        $db_bundle = Bundle::load($bundle->getID());
+
+        // Comparing values of object stored in DB to what should be
+        $this->assertEquals($bundle->getStatus(), $db_bundle->getStatus());
+        $this->assertEquals($bundle->getTitle(), $db_bundle->getTitle());
+        $this->assertEquals($bundle->getDetails(), $db_bundle->getDetails());
+        $this->assertEquals($bundle->getRrpGBX(), $db_bundle->getRrpGBX());
+        $this->assertEquals($bundle->getDiscountedPriceGBX(), $db_bundle->getDiscountedPriceGBX());
+        $this->assertEquals($bundle->getSellerID(), $db_bundle->getSellerID());
+        $this->assertEquals($bundle->getPurchaserID(), $db_bundle->getPurchaserID());
+
+        // If successful update, confirm and do cleanup
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+        Customer::delete($customer->getUserID());
+
 
     }
 
     /**
      * Method that tests that all appropriate exceptions are thrown and Bundle creation works on code and db front
-     * @throws DatabaseException|NoSuchCustomerException|NoSuchSellerException
-     * @throws MissingValuesException
+     * @throws DatabaseException|NoSuchCustomerException|NoSuchSellerException|MissingValuesException
      */
     public function testCreateBundle()
     {
@@ -167,8 +185,6 @@ class BundleTest extends TestCase
             "username" => "testingUser",
             "email" => "testCust@gmail.com",
             "password" => "testingPassword123",
-            "name" => "Name Test",
-            "address" => "32 Testing Street",
         );
 
         // Creating seller/customer objects
@@ -219,8 +235,8 @@ class BundleTest extends TestCase
                 }
 
                 // Cleanup if bundle fails to create
-                $customer->delete($customer->getUserID());
-                $seller->delete($seller->getUserID());
+                Customer::delete($customer->getUserID());
+                Seller::delete($seller->getUserID());
 
                 // Force failure as error not thrown as should
                 $this->fail();
@@ -250,8 +266,8 @@ class BundleTest extends TestCase
             }
 
             // Cleanup prior to failure of test
-            $customer->delete($customer->getUserID());
-            $seller->delete($seller->getUserID());
+            Customer::delete($customer->getUserID());
+            Seller::delete($seller->getUserID());
 
             // Forcing test failure
             $this->fail();
@@ -279,8 +295,8 @@ class BundleTest extends TestCase
             }
 
             // Cleanup prior to deletion
-            $customer->delete($customer->getUserID());
-            $seller->delete($seller->getUserID());
+            Customer::delete($customer->getUserID());
+            Seller::delete($seller->getUserID());
 
             // Forcing failure of test
             $this->fail();
@@ -324,11 +340,13 @@ class BundleTest extends TestCase
             Bundle::delete($bundleID);
         }
         // Remove test users
-        $customer->delete($customer->getUserID());
-        $seller->delete($seller->getUserID());
+        Customer::delete($customer->getUserID());
+        Seller::delete($seller->getUserID());
     }
 
-    // TODO: Create test case/s for the load() method
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     */
     public function testLoadBundle() {
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
@@ -368,7 +386,9 @@ class BundleTest extends TestCase
         Seller::delete($seller->getUserID());
     }
 
-    // TODO: Create test case/s for the existsWithID() method
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     */
     public function testExistsWithID() {
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
@@ -400,33 +420,31 @@ class BundleTest extends TestCase
         Seller::delete($seller->getUserID());
     } // Not necessarily needed as should be tested through use in set...ID functions
 
-    public function testDeleteBundle() {
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     */
+    public function testDeleteBundle()
+    {
         /*
-         * Test:
-         * - If a bundle is deleted, it is not in the database
-         * - If a bundle that doesn't exist is tried to be deleted, error thrown
+        * Test:
+        * - If a bundle is deleted, it is not in the database
+        * - If a bundle that doesn't exist is tried to be deleted, error thrown
          */
 
         // Create associative array for test bundle
-        // Create seller to get a seller ID to create a bundle
-        $seller = Seller::create([
-            'email' => 'sellertest@example.com',
-            'password' => 'password',
-            'name' => 'testShop',
-            'address' => '8 test street',
-        ]);
+        $fields =
+            array(
+                "bundleStatus" => BundleStatus::Available,
+                "bundleTitle" => "Delete Bundle Title",
+                "bundleDetails" => "Delete Bundle Details",
+                "bundleRrpGBX" => 0,
+                "bundleDiscountedPriceGBX" => 0,
+                "bundleSellerID" => 0,
+                "bundlePurchaserID" => null,
+            );
 
-        // Create bundle for testing
-        $testDeleteBundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            'sellerID' => $seller->getUserID(),
-        ]);
-
-        // Test if bundle exists
+        // Create test bundle and check it exists
+        $testDeleteBundle = Bundle::create($fields);
         $testDeleteID = $testDeleteBundle->getID();
         $this->assertTrue(Bundle::existsWithID($testDeleteID));
 
@@ -438,7 +456,7 @@ class BundleTest extends TestCase
         $thrown = false;
         try {
             Bundle::delete($testDeleteID);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $thrown = true;
         }
         if (!$thrown) {

@@ -26,7 +26,7 @@ class Bundle extends StoredObject {
 
     /**
      * Take current values of all attributes of the Bundle object
-     * @throws DatabaseException|NoSuchBundleException
+     * @throws DatabaseException|NoSuchBundleException|MissingValuesException
      */
     public function update(): void
     {
@@ -37,8 +37,17 @@ class Bundle extends StoredObject {
             throw new NoSuchBundleException("No such bundle with ID $this->id");
         }
 
+        // Check if current object values are all set
+        if (!isset($this->id) || !isset($this->status) || !isset($this->title) || !isset($this->details) || !isset($this->rrpGBX) ||
+            !isset($this->discountedPriceGBX) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
+
+            // Produce error message if field exists with no content
+            throw new MissingValuesException("Missing information required to create a bundle");
+        }
+
+
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
@@ -256,6 +265,9 @@ class Bundle extends StoredObject {
         $this->purchaserID = $customerID;
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public static function delete(int $id): void {
         // Create SQL command to delete bundle of given ID
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle WHERE bundleID=:bundleID;");
@@ -265,7 +277,7 @@ class Bundle extends StoredObject {
             // Attempt to run SQL statement
             try {
                 $stmt->execute(["bundleID" => $id]);
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
         } else {

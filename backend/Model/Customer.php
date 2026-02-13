@@ -6,8 +6,6 @@ class Customer extends Account {
 
     private string $username;
 
-    private ?int $streak;
-
     public function update(): void {
         // TODO: Implement update() method.
     }
@@ -27,7 +25,6 @@ class Customer extends Account {
         // Create and return a customer object
         $customer = new Customer();
         $customer->username = $fields['username'];
-        $customer->streak = 0;
         $customer->userID = $account->getUserID();
         $customer->setEmail($fields['email']);
         $customer->accountType = "customer";
@@ -66,7 +63,6 @@ class Customer extends Account {
         $customer->email = $account->email;
         $customer->accountType = $account->accountType;
         $customer->username = $customerRow['username'];
-        $customer->streak = $customerRow['streak'];
 
         return $customer;
     }
@@ -96,14 +92,48 @@ class Customer extends Account {
         return $this->username;
     }
 
-    public function getStreak(): ?int {
-        return $this->streak;
+    /**
+     * @param int $customerID
+     * @return Streak|null, where Streak is if there is a streak related to the customer, and null if not
+     */
+    public function getStreak(int $customerID): ?Streak {
+        // Get customer ID
+        $customerID = $this->getUserID();
+
+        // Check database for streak entry using this customer ID
+        // Prepare parameterised statement
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM streak WHERE customerID=:customerID;");
+
+        // Execute statement with given bundle ID
+        $stmt->execute(["customerID" => $customerID]);
+
+        // Get result
+        $streak = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Return Streak if a streak exists with the given ID
+        if ($streak === false) {
+            return null;
+        } else {
+            return $streak;
+        }
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Create SQL command to delete customer of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
 
+        // Check if customer exists
+        if (Customer::existsWithID($id)) {
+            // Attempt to run SQL statement
+            try {
+                $stmt->execute(["customerID" => $id]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            // If customer does not exist, throw error
+            throw new DatabaseException("No customer found with ID $id");
+        }
         // Call superclass method
     }
-
 }

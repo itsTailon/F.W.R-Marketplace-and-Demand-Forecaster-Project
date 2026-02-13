@@ -1,0 +1,105 @@
+table.calendar__table {
+    width: 400px;
+    border-spacing: 0
+}
+
+#calendar td {
+    text-align: center;
+}
+
+td.grey {
+    color: #858383;
+}
+
+.calendar, .calendar__table {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.calendar {
+    width: 450px;
+}
+
+table.calendar__table td, table.calendar__table tr {
+    font-size: 25px;
+    margin: 0px;
+    border-collapse: collapse;
+}
+
+table.calendar__table td {
+    padding: 0px;
+}
+
+div.calendar__menu {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.calendar__menu__header {
+    display: flex;
+    flex-grow: 1;
+    margin-top: 6px;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 25px;
+}
+
+.button.nav {
+    border-radius: 15px;
+    width: 60px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+div.streak {
+    background-color: #ffcb20;
+    width: inherit;
+    height: calc(100% - 5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+div.streak.start {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+div.streak.end {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+div.today {
+    border: 3px solid black;
+    border-radius: 20px;
+    width: inherit;
+    height: 100%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+p.centre {
+    text-align: center;
+}
+
+p.bold {
+    font-weight: bold;
+}
+
+.text-middle {
+    text-align: center;
+}
+
+p.streak__header {
+    font-size: 30px;
+}
+
+p.streak__display {
+    font-size: 50px;
+}

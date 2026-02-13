@@ -27,7 +27,6 @@ CREATE TABLE bundle (
     sellerID INT NOT NULL,
     title VARCHAR(128) NOT NULL, -- formerly `name`
     details TEXT NOT NULL, -- formerly `description`
-    quantity INT NOT NULL DEFAULT 1,
     category ENUM('groceries', 'sandwiches', 'meals', 'sweet_pastries', 'savoury_pastries', 'cakes', 'brownies') NOT NULL, 
     imageURL VARCHAR (256) NOT NULL,
     rrp DECIMAL(8, 2) NOT NULL, -- recommended retail price
