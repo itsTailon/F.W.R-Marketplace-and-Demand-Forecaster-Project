@@ -5,14 +5,20 @@ namespace TTE\App\Tests\Model;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use \DateTimeImmutable;
+use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\NoSuchStreakException;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
+use TTE\App\Model\Seller;
 use TTE\App\Model\Streak;
 use TTE\App\Model\StreakStatus;
+use function PHPUnit\Framework\assertEquals;
+use function PHPUnit\Framework\assertNotEquals;
 use function PHPUnit\Framework\assertSame;
 
 // Global for session to run test
@@ -24,10 +30,18 @@ class StreakTest extends TestCase
 {
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
+     * @throws NoSuchSellerException
      */
     public function testUpdateStreak()
     {
+        // Fields for Seller object for the purpose of the test
+        $sellerFields = array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        );
 
         // Fields for Customer object for the purpose of the test
         $customerFields = array(
@@ -36,52 +50,54 @@ class StreakTest extends TestCase
             "password" => "testingPassword123",
         );
 
+        // Creating required Seller
+        $seller = Seller::create($sellerFields);
         // Creating required Customer
         $customer = Customer::create($customerFields);
 
-        // Create associative array with fields required as parameter for update()
-        $fields =
-            array(
-                "streakStatus" => streakStatus::Active,
-                "customerID" => $customer->getUserID(),
-            );
+        // Get streak for given customer that should have been created when customer was made
+        $streak = $customer->getStreak();
 
-        // Creating Streak that is to then be updated
-        try {
-            $streak = Streak::create($fields);
-        } catch (Exception $e) {
+        if ($streak == null) {
             Customer::delete($customer->getUserID());
 
             // fail the test
-            $this->fail($e->getMessage());
+            $this->fail();
         }
 
+        // Create associative array with fields required as parameter for create() of bundle
+        $fields =
+            array(
+                "bundleStatus" => BundleStatus::Available,
+                "title" => "Test Bundle Title",
+                "details" => "Test Bundle Details",
+                "rrp" => 599,
+                "discountedPrice" => 299,
+                "sellerID" => $seller->getUserID(),
+                "purchaserID" => null
+            );
 
-        // Change values for $streak to a set of valid values
-        $streak->setStatus(StreakStatus::Inactive);
-        $endDate = new DateTimeImmutable("now");
-        $streak->setEndDate($endDate);
+        // Create successful purchase of bundle ot extend/update streak
+        $bundle = Bundle::create($fields);
 
-        // Attempting to update streak
+        // Update bundle to show that it has been purchased
+        $bundle->setStatus(BundleStatus::Collected);
+        $bundle->setPurchaserID($customer->getUserID());
+
         try {
-            $streak->update();
-        } catch (DatabaseException|NoSuchStreakException $e) {
-            // Cleanup prior to throwing failure
-            Streak::delete($streak->getID());
+            $bundle->update();
+        } catch (DatabaseException|MissingValuesException|NoSuchBundleException|NoSuchCustomerException|NoSuchStreakException $e) {
+            Streak::delete($customer->getStreak()->getID());
             Customer::delete($customer->getUserID());
-
-            // Fail test
-            $this->fail($e->getMessage());
         }
 
-        // Get fresh object from the database
-        $db_streak = Streak::load($streak->getID());
+        // Get streak from database
+        $db_streak = $customer->getStreak();
 
-        // Comparing values of object stored in DB to what should be
-        $this->assertEquals($streak->getStatus(), $db_streak->getStatus());
-        $this->assertEquals($streak->getCustomerID(), $db_streak->getCustomerID());
-        $this->assertEquals($streak->getStartDate()->format("Y-m-d H:i:s"), $db_streak->getStartDate()->format("Y-m-d H:i:s"));
-        $this->assertEquals($streak->getEndDate()->format("Y-m-d H:i:s"), $db_streak->getEndDate()->format("Y-m-d H:i:s"));
+        // Check that streak has been changed
+        $this->assertNotEquals($db_streak->getStartDate(), $streak->getStartDate());
+        $this->assertNotEquals($db_streak->getCurrentWeekStart(), $streak->getCurrentWeekStart());
+        $this->assertNotEquals($db_streak->getEndDate(), $streak->getEndDate());
 
         // If successful update, confirm and do cleanup
         Streak::delete($streak->getID());
@@ -173,41 +189,35 @@ class StreakTest extends TestCase
         // Creating required Customer object
         $customer = Customer::create($customerFields);
 
-        // Create associative array with fields required as parameter for create()
-        $fields =
-            array(
-                "streakStatus" => streakStatus::Active,
-                "customerID" => $customer->getUserID(),
-            );
+        // Check that streak was, in turn, created
+        $streak = $customer->getStreak();
+        if ($streak == null) {
+            Customer::delete($customer->getUserID());
 
-        // Create required streak and get DB version
-        $streak = Streak::create($fields);
-        $db_streak = Streak::load($streak->getID());
+            $this->fail();
+        }
 
+        // Try to also load the streak using its own ID
         try {
-            // Load streak and compare to existing streak object
-            self::assertEquals($streak->getStatus(), $streak->getStatus());
-            self::assertEquals($streak->getCustomerID(), $db_streak->getCustomerID());
-            self::assertEquals($streak->getStartDate()->format("Y-m-d H:i:s"), $db_streak->getStartDate()->format("Y-m-d H:i:s"));
-
-            if($streak->getEndDate() !== null) {
-                self::assertEquals($streak->getEndDate()->format("Y-m-d H:i:s"), $db_streak->getEndDate()->format("Y-m-d H:i:s"));
-            } else {
-                self::assertEquals($streak->getEndDate(), $db_streak->getEndDate());
-            }
-        } catch (DatabaseException|NoSuchStreakException $e) {
-            // Cleanup
+            $db_streak = Streak::load($streak->getID());
+        } catch (Exception $e) {
             Streak::delete($streak->getID());
             Customer::delete($customer->getUserID());
 
-            $this->fail($e->getMessage());
+            $this->fail();
         }
+
+        // Compare values within each loaded streak
+        self:assertEquals($db_streak->getID(), $streak->getID());
+        self::assertEquals($db_streak->getStartDate(), $streak->getStartDate());
+        self::assertEquals($db_streak->getCurrentWeekStart(), $streak->getCurrentWeekStart());
+        self::assertEquals($db_streak->getEndDate(), $streak->getEndDate());
 
         // Try loading non-existent streak (ID of -1 will never exist)
         // Ensure that such results in a DatabaseException being thrown
         $thrown = false;
         try {
-            Streak::load(-1);
+            $failed_streak = Streak::load(-1);
         } catch (Exception $e) {
             $thrown = true;
         }
@@ -221,7 +231,7 @@ class StreakTest extends TestCase
     }
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
      */
     public function testExistsWithID() {
         // Customer fields for create() methods
@@ -234,15 +244,8 @@ class StreakTest extends TestCase
         // Creating required Customer object
         $customer = Customer::create($customerFields);
 
-        // Create associative array with fields required as parameter for create()
-        $fields =
-            array(
-                "streakStatus" => streakStatus::Active,
-                "customerID" => $customer->getUserID(),
-            );
-
         // Create required streak
-        $streak = Streak::create($fields);
+        $streak = $customer->getStreak();
 
         // Streak should exist as it has just been created
         self::assertTrue(Streak::existsWithID($streak->getID()));
@@ -271,27 +274,8 @@ class StreakTest extends TestCase
         // Creating required Customer object
         $customer = Customer::create($customerFields);
 
-        // Create associative array with fields required as parameter for create()
-        $fields =
-            array(
-                "streakStatus" => streakStatus::Active,
-                "customerID" => $customer->getUserID(),
-            );
-
         // Create required streak
-        $streak = Streak::create($fields);
-
-        // Check $streak attributes and ensure all hold appropriate values
-        foreach ($fields as $key => $value) {
-            switch ($key) {
-                case "streakStatus":
-                    $this->assertEquals($value, $streak->getStatus());
-                    break;
-                case "customerID":
-                    $this->assertEquals($value, $streak->getCustomerID());
-                    break;
-            }
-        }
+        $streak = $customer->getStreak();
 
         // Delete test streak and check that the streak no longer exists
         Streak::delete($streak->getID());

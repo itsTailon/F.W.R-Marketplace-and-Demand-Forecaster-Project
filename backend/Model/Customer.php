@@ -10,6 +10,9 @@ class Customer extends Account {
         // TODO: Implement update() method.
     }
 
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
+     */
     public static function create(array $fields): Customer {
         // Create the account in the database
         $account = parent::create([
@@ -28,6 +31,11 @@ class Customer extends Account {
         $customer->userID = $account->getUserID();
         $customer->setEmail($fields['email']);
         $customer->accountType = "customer";
+
+        // Create a streak attached to customer, that has null for all current date values
+        Streak::create([$customer->getUserID()]);
+
+        // Return required output
         return $customer;
     }
 
