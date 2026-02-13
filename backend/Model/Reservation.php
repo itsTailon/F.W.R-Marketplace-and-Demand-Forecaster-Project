@@ -94,9 +94,11 @@ class Reservation extends StoredObject
             throw new MissingValuesException("Missing information to create reservation");
         }
 
+        $bundle = Bundle::load($fields['bundleID']);
+
         // Generate claim code for the bundle if the bundle has no claim code
         if(!isset($fields['claimCode'])) {
-            $claimCode = self::generateClaimCode();
+            $claimCode = self::generateClaimCode($fields['bundleID'], $fields['purchaserID'],$bundle->getTitle());
         } else {
             $claimCode = $fields['claimCode'];
         }
@@ -132,20 +134,18 @@ class Reservation extends StoredObject
      *
      * @return string
      */
-    public static function generateClaimCode(): string {
+    public static function generateClaimCode(int $reservationID, int $purchaserID, string $title): string {
         // generate claim code
-        $claimCodeArr =
-            array("0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0");
+        $messg = $reservationID . $purchaserID . $title;
 
-        $i = 0;
-        foreach($claimCodeArr as $claimCode) {
-            $asciiChar = rand(97, 122);
-            $claimCode = chr($asciiChar);
-            $claimCodeArr[$i] = $claimCode;
-            $i++;
-        }
+        // hash had get value
+        $claimCode = hash('sha512', $messg, false);
+        $claimCode = substr($claimCode, 0, self::LENGTH);
 
-        return implode($claimCodeArr);
+
+
+        // return claim code
+        return $claimCode;
     }
 
     /**
