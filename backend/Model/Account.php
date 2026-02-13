@@ -148,6 +148,20 @@ class Account extends StoredObject {
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Create SQL command to delete account of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
+
+        // Check if account exists
+        if (Account::existsWithID($id)) {
+            // Attempt to run SQL statement
+            try {
+                $stmt->execute(["userID" => $id]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            // If account does not exist, throw error
+            throw new DatabaseException("No account found with ID $id");
+        }
     }
 }

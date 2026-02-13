@@ -109,9 +109,21 @@ class Seller extends Account {
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Create SQL command to delete seller of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM seller WHERE sellerID=:sellerID;");
 
+        // Check if seller exists
+        if (Seller::existsWithID($id)) {
+            // Attempt to run SQL statement
+            try {
+                $stmt->execute(["sellerID" => $id]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            // If seller does not exist, throw error
+            throw new DatabaseException("No seller found with ID $id");
+        }
         // Call superclass method
     }
-
 }
