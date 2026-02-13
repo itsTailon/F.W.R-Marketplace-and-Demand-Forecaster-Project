@@ -131,24 +131,36 @@ class Customer extends Account {
         }
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public static function delete(int $id): void {
-        // Create SQL command to delete customer, corresponding account instance, and streak of given ID
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
 
-        // Check if customer exists
-        if (Customer::existsWithID($id)) {
-            // Attempt to run SQL statement
-            try {
-                $stmt->execute(["customerID" => $id]);
-            } catch (\PDOException $e) {
-                throw new DatabaseException($e->getMessage());
-            }
-        } else {
-            // If customer does not exist, throw error
+        // Check customer with given ID exists
+        if (Customer::existsWithID($id) === false) {
             throw new DatabaseException("No customer found with ID $id");
         }
+
+        // Create SQL command to delete customer, corresponding account instance, and streak of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
+        try {
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
+        try {
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
+        try {
+            $stmt->execute(["userID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
         // Call superclass method
     }
 }
