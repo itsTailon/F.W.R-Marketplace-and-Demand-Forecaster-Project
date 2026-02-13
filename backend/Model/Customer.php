@@ -120,9 +120,9 @@ class Customer extends Account {
 
     public static function delete(int $id): void {
         // Create SQL command to delete customer, corresponding account instance, and streak of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE streakID=:streakID;");
 
         // Check if customer exists
         if (Customer::existsWithID($id)) {
