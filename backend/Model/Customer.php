@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use MongoDB\BSON\PackedArray;
+
 class Customer extends Account {
 
     private string $username;
@@ -10,6 +12,9 @@ class Customer extends Account {
         // TODO: Implement update() method.
     }
 
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
+     */
     public static function create(array $fields): Customer {
         // Create the account in the database
         $account = parent::create([
@@ -28,6 +33,13 @@ class Customer extends Account {
         $customer->userID = $account->getUserID();
         $customer->setEmail($fields['email']);
         $customer->accountType = "customer";
+
+        $customerID = array("customerID" => $customer->getUserID());
+
+        // Create a streak attached to customer, that has null for all current date values
+        Streak::create($customerID);
+
+        // Return required output
         return $customer;
     }
 
@@ -94,9 +106,10 @@ class Customer extends Account {
 
     /**
      * @param int $customerID
+     * @throws DatabaseException|NoSuchCustomerException
      * @return Streak|null, where Streak is if there is a streak related to the customer, and null if not
      */
-    public function getStreak(int $customerID): ?Streak {
+    public function getStreak(): ?Streak {
         // Get customer ID
         $customerID = $this->getUserID();
 
@@ -108,13 +121,13 @@ class Customer extends Account {
         $stmt->execute(["customerID" => $customerID]);
 
         // Get result
-        $streak = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        // Return Streak if a streak exists with the given ID
-        if ($streak === false) {
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
             return null;
         } else {
-            return $streak;
+            // Get streakID and load streak object
+            $streakID = $result["streakID"];
+            return Streak::load($streakID);
         }
     }
 

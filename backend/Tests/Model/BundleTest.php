@@ -3,6 +3,8 @@
 namespace TTE\App\Tests\Model;
 
 use Exception;
+use TTE\App\Model\Account;
+use TTE\App\Model\NoSuchStreakException;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Helpers\CurrencyTools;
 use TTE\App\Model\Bundle;
@@ -24,7 +26,7 @@ class BundleTest extends TestCase
 {
 
     /**
-     * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchSellerException
+     * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchStreakException
      */
     public function testUpdateBundle()
     {
