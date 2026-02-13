@@ -117,4 +117,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(http_response_code(403));
         die();
     }
+} else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    try {
+        // Check that there is a valid ID
+        if(!isset($_GET['reservationID'])) throw new MissingValuesException("Missing fields");
+
+        // Load the reservation id
+        $id = $_GET['reservationID'];
+
+        // Check if the id has a corresponding reservation
+        if(!Reservation::existsWithID($id)) throw new NoSuchReservationException("No such reservation");
+
+        // Load reservation with given id
+        $reservation = Reservation::load($id);
+
+        // get current user's ID and the reserved bundle
+        $userID = Authenticator::getCurrentUser()->getUserID();
+        $bundle = Bundle::load($reservation->getBundleID());
+
+        // Check if seller has permission to cancel bundle
+        if($bundle->getSellerID() != $userID) throw new NoSuchPermissionException("Seller " . $userID . " is not allowed to load reservation " . $id);
+
+        // Load reservation
+        $sellerReservation = Reservation::load($id);
+
+        // Return reservation
+        echo json_encode($sellerReservation);
+
+        exit();
+
+    } catch (MissingValuesException $e) {
+        echo json_encode(http_response_code(400));
+        die();
+    } catch (NoSuchReservationException $e) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (NoSuchPermissionException $e) {
+        echo json_encode(http_response_code(403));
+        die();
+    } catch (DatabaseException $e) {
+        echo json_encode(http_response_code(500));
+        die();
+    }
+} else {
+    echo json_encode(http_response_code(405));
+    die();
 }

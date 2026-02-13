@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         die();
     }
 } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    try{
+    try {
         if (!isset($_POST["bundleID"]) || !isset($_POST["purchaserID"])) {
             throw new MissingValuesException("Missing fields");
         }
@@ -87,15 +87,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         $bundleID = $_POST["bundleID"];
         $purchaserID = $_POST["purchaserID"];
 
-        if(!Customer::existsWithID($purchaserID)){
+        if (!Customer::existsWithID($purchaserID)) {
             throw new NoSuchCustomerException("No such customer with ID " . $purchaserID);
         }
 
-        if(!Bundle::existsWithID($bundleID)){
+        if (!Bundle::existsWithID($bundleID)) {
             throw new NoSuchBundleException("No such bundle with ID " . $bundleID);
         }
 
-        if(ctype_digit($bundleID) && ctype_digit($purchaserID)){
+        if (ctype_digit($bundleID) && ctype_digit($purchaserID)) {
             $fields["bundleID"] = intval($bundleID);
             $fields["purchaserID"] = intval($purchaserID);
         } else {
@@ -120,6 +120,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         die();
     } catch (InvalidArgumentException) {
         echo json_encode(http_response_code(400));
+        die();
+    } catch (DatabaseException $e) {
+        echo json_encode(http_response_code(500));
+        die();
+    }
+} else if ($_SERVER["REQUEST_METHOD"] == "GET") {
+    try {
+        // Check that there is a valid ID
+        if(!isset($_GET['reservationID'])) throw new MissingValuesException("Missing fields");
+
+        // Load the reservation id
+        $id = $_GET['reservationID'];
+
+        // Check if the id has a corresponding reservation
+        if(!Reservation::existsWithID($id)) throw new NoSuchReservationException("No such reservation");
+
+        // Load reservation with given id
+        $reservation = Reservation::load($id);
+
+        // get current user's ID and the reserved bundle
+        $userID = Authenticator::getCurrentUser()->getUserID();
+
+        // Check if customer has permission to cancel bundle
+        if($reservation->getPurchaserID() != $userID) throw new NoSuchPermissionException("Consumer " . $userID . " is not allowed to load reservation " . $id);
+
+        // Load reservation
+        $consumerReservation = Reservation::load($id);
+
+        // Return reservation
+        echo json_encode($consumerReservation);
+
+        exit();
+
+    } catch (MissingValuesException $e) {
+        echo json_encode(http_response_code(400));
+        die();
+    } catch (NoSuchReservationException $e) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (NoSuchPermissionException $e) {
+        echo json_encode(http_response_code(403));
         die();
     } catch (DatabaseException $e) {
         echo json_encode(http_response_code(500));
