@@ -1,1 +1,131 @@
 <?php
+
+/*
+ * Handles API 'consumerReservation' request
+ */
+
+use TTE\App\Auth\NoSuchPermissionException;
+use TTE\App\Model\Bundle;
+use TTE\App\Model\Customer;
+use TTE\App\Model\DatabaseException;
+use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBundleException;
+use TTE\App\Model\NoSuchCustomerException;
+use TTE\App\Model\NoSuchReservationException;
+use TTE\App\Model\ReservationStatus;
+use TTE\App\Auth\Authenticator;
+use TTE\App\Model\Reservation;
+
+include '../../../vendor/autoload.php';
+
+session_start();
+
+// Check that user is currently logged in
+if (!Authenticator::isLoggedIn()) {
+    echo json_encode(http_response_code(401));
+    die();
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
+    try {
+        //
+        $_DELETE = array();
+        parse_str(file_get_contents('php://input'), $_DELETE);
+
+        // Check if input contains reservationID
+        if (isset($_DELETE["reservationID"])) {
+            $id = $_DELETE["reservationID"];
+        } else {
+            throw new MissingValuesException("Missing field");
+        }
+
+        // Check if the reservation exists
+        if(Reservation::existsWithID($id)) {
+            // load reservation details
+            $reservationDetails = Reservation::load($id);
+
+            // check if the consumer is allowed to cancel this reservation
+            if(Authenticator::getCurrentUser()->getUserID() != $reservationDetails->getPurchaserID()){
+                throw new NoSuchPermissionException("Consumer " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to cancel reservation " . $id);
+            }
+
+            // mark the reservation as canceled
+            $reservationDetails->setStatus(ReservationStatus::Cancelled);
+
+            // Update the database
+            $reservationDetails->update();
+            exit();
+        } else {
+            throw new NoSuchReservationException("No such reservation with ID " . $id);
+        }
+    } catch (NoSuchReservationException $e) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (DatabaseException $e) {
+        echo json_encode(http_response_code(500));
+        die();
+    } catch (MissingValuesException $e) {
+        echo json_encode(http_response_code(400));
+        die();
+    } catch (NoSuchPermissionException $e) {
+        echo json_encode(http_response_code(403));
+        die();
+    }
+} else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    try{
+        if (!isset($_POST["bundleID"]) || !isset($_POST["purchaserID"])) {
+            throw new MissingValuesException("Missing fields");
+        }
+
+        $fields = array(
+            "bundleID" => 0,
+            "purchaserID" => 0,
+            "status" => ReservationStatus::Active
+        );
+
+        $bundleID = $_POST["bundleID"];
+        $purchaserID = $_POST["purchaserID"];
+
+        if(!Customer::existsWithID($purchaserID)){
+            throw new NoSuchCustomerException("No such customer with ID " . $purchaserID);
+        }
+
+        if(!Bundle::existsWithID($bundleID)){
+            throw new NoSuchBundleException("No such bundle with ID " . $bundleID);
+        }
+
+        if(ctype_digit($bundleID) && ctype_digit($purchaserID)){
+            $fields["bundleID"] = intval($bundleID);
+            $fields["purchaserID"] = intval($purchaserID);
+        } else {
+            throw new InvalidArgumentException("Input contains invalid field type");
+        }
+
+        // Create the reservation
+        $reservation = Reservation::Create($fields);
+
+        // Return created reservation
+        echo json_encode($reservation);
+        exit();
+
+    } catch (MissingValuesException) {
+        echo json_encode(http_response_code(400));
+        die();
+    } catch (NoSuchCustomerException) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (NoSuchBundleException) {
+        echo json_encode(http_response_code(404));
+        die();
+    } catch (InvalidArgumentException) {
+        echo json_encode(http_response_code(400));
+        die();
+    } catch (DatabaseException $e) {
+        echo json_encode(http_response_code(500));
+        die();
+    }
+} else {
+    echo json_encode(http_response_code(405));
+    die();
+}
