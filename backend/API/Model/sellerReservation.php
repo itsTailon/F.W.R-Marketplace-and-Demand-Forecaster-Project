@@ -75,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 } else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     try {
+        $_DELETE = array();
         parse_str(file_get_contents('php://input'), $_DELETE);
 
         // Check if a field has no value

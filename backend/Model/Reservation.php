@@ -239,4 +239,35 @@ class Reservation extends StoredObject
             throw new NoSuchReservationException("No such reservation with ID $id");
         }
     }
+
+    public static function getAllReservationsForUser (int $userID, string $accountType): array{
+        if ($accountType === "seller") {
+            // Prepare SQL statement to get all reservations a seller is involved in
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation WHERE sellerID=:id INNER JOIN bundle ON reservation.bundleID=bundle.bundleID;");
+
+            // Try to execute
+            try {
+                $stmt->execute([":id" => $userID]);
+                // Load all reservation from query and return array
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+        } else if ($accountType === "buyer") {
+            // Prepare SQL statement to get all reservations a buyer has made
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation WHERE purchaserID=:purchaserID;");
+
+            //Try to execute
+            try {
+                $stmt->execute([":purchaserID" => $userID]);
+                // Load all reservations and return them
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            throw new \InvalidArgumentException("Invalid account type");
+        }
+    }
 }

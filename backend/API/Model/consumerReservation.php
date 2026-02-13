@@ -127,31 +127,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     }
 } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
     try {
-        // Check that there is a valid ID
-        if(!isset($_GET['reservationID'])) throw new MissingValuesException("Missing fields");
+        if (!isset($_GET["reservationID"])) {
+            // Load the reservation id
+            $id = $_GET['reservationID'];
 
-        // Load the reservation id
-        $id = $_GET['reservationID'];
+            // Check if the id has a corresponding reservation
+            if (!Reservation::existsWithID($id)) throw new NoSuchReservationException("No such reservation");
 
-        // Check if the id has a corresponding reservation
-        if(!Reservation::existsWithID($id)) throw new NoSuchReservationException("No such reservation");
+            // Load reservation with given id
+            $reservation = Reservation::load($id);
 
-        // Load reservation with given id
-        $reservation = Reservation::load($id);
+            // get current user's ID and the reserved reservation
+            $userID = Authenticator::getCurrentUser()->getUserID();
 
-        // get current user's ID and the reserved bundle
-        $userID = Authenticator::getCurrentUser()->getUserID();
+            // Check if customer has permission to get reservation
+            if ($reservation->getPurchaserID() != $userID) throw new NoSuchPermissionException("Consumer " . $userID . " is not allowed to load reservation " . $id);
 
-        // Check if customer has permission to cancel bundle
-        if($reservation->getPurchaserID() != $userID) throw new NoSuchPermissionException("Consumer " . $userID . " is not allowed to load reservation " . $id);
+            // Load reservation
+            $consumerReservation = Reservation::load($id);
 
-        // Load reservation
-        $consumerReservation = Reservation::load($id);
+            // Return reservation
+            echo json_encode($consumerReservation);
 
-        // Return reservation
-        echo json_encode($consumerReservation);
+            exit();
+        } else if (isset($_GET["consumerID"])) {
+            // Get seller ID
+            $id = $_GET['consumerID'];
 
-        exit();
+            // Check if ID has a consumer record
+            if (!Customer::existsWithID($id)) throw new NoSuchCustomerException("No such customer with ID " . $id);
+
+            // Load all of customer's reservations
+            $reservations = Reservation::getAllReservationsForUser($id, "buyer");
+
+            // Return loaded reservations
+            echo json_encode($reservations);
+
+            exit();
+        } else {
+            throw new MissingValuesException("Missing fields");
+        }
 
     } catch (MissingValuesException $e) {
         echo json_encode(http_response_code(400));
@@ -165,6 +180,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     } catch (DatabaseException $e) {
         echo json_encode(http_response_code(500));
         die();
+    } catch (NoSuchCustomerException $e) {
+        echo json_encode(http_response_code(404));
     }
 } else {
     echo json_encode(http_response_code(405));
