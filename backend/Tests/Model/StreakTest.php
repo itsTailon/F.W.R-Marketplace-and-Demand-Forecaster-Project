@@ -16,7 +16,6 @@ use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Streak;
-use TTE\App\Model\StreakStatus;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertNotEquals;
 use function PHPUnit\Framework\assertSame;
@@ -60,6 +59,8 @@ class StreakTest extends TestCase
 
         if ($streak == null) {
             Customer::delete($customer->getUserID());
+            Seller::delete($seller->getUserID());
+            Streak::delete($streak->getID());
 
             // fail the test
             $this->fail();
@@ -92,16 +93,18 @@ class StreakTest extends TestCase
         }
 
         // Get streak from database
-        $db_streak = $customer->getStreak();
+        $db_streak = Customer::load($customer->getUserID())->getStreak();
 
         // Check that streak has been changed
-        $this->assertNotEquals($db_streak->getStartDate(), $streak->getStartDate());
-        $this->assertNotEquals($db_streak->getCurrentWeekStart(), $streak->getCurrentWeekStart());
-        $this->assertNotEquals($db_streak->getEndDate(), $streak->getEndDate());
+        self::assertNotEquals($db_streak->getStartDate(), $streak->getStartDate());
+        self::assertNotEquals($db_streak->getCurrentWeekStart(), $streak->getCurrentWeekStart());
+        self::assertNotEquals($db_streak->getEndDate(), $streak->getEndDate());
 
         // If successful update, confirm and do cleanup
+        Bundle::delete($bundle->getID());
         Streak::delete($streak->getID());
         Customer::delete($customer->getUserID());
+        Seller::delete($seller->getUserID());
     }
 
     /**
@@ -118,56 +121,20 @@ class StreakTest extends TestCase
             "password" => "testingPassword123",
         );
 
-        // Creating required Customer object
+        // Creating required Customer object that in-hand creates streak
         $customer = Customer::create($customerFields);
+        $streak = $customer->getStreak();
 
-        // Create associative array with fields required as parameter for create()
-        $fields =
-            array(
-                "streakStatus" => streakStatus::Active,
-                "customerID" => $customer->getUserID(),
-            );
+        if ($streak == null) {
+            Customer::delete($customer->getUserID());
 
-        // Iterate through $fields array and unset different values to test functionality
-        foreach($fields as $key => $value) {
-            // Storing previous value of field and updating it
-            $prevValue = $value;
-            unset($fields[$key]);
-
-            // Test create() function
-            $thrown = false;
-            try {
-                $streak = Streak::create($fields);
-
-            } catch (MissingValuesException $e) {
-                $thrown = true;
-            }
-            if (!$thrown) {
-                // Cleanup if streak fails to create
-                Customer::delete($customer->getUserID());
-
-                // Force failure as error not thrown as should
-                $this->fail();
-            }
-
-            // Return $fields to initial state
-            $fields[$key] = $prevValue;
+            $this->fail();
         }
 
-        // Apply creation method and check that Streak is produced
-        $streak = Streak::create($fields);
-
-        // Check $streak attributes and ensure all hold appropriate values
-        foreach ($fields as $key => $value) {
-            switch ($key) {
-                case "streakStatus":
-                    $this->assertEquals($value, $streak->getStatus());
-                    break;
-                case "customerID":
-                    $this->assertEquals($value, $streak->getCustomerID());
-                    break;
-            }
-        }
+        // Check that initialised values are null
+        self::assertTrue($streak->getStartDate() == null);
+        self::assertTrue($streak->getCurrentWeekStart() == null);
+        self::assertTrue($streak->getEndDate() == null);
 
         // Cleanup streak
         Streak::delete($streak->getID());
@@ -208,7 +175,7 @@ class StreakTest extends TestCase
         }
 
         // Compare values within each loaded streak
-        self:assertEquals($db_streak->getID(), $streak->getID());
+        self::assertEquals($db_streak->getID(), $streak->getID());
         self::assertEquals($db_streak->getStartDate(), $streak->getStartDate());
         self::assertEquals($db_streak->getCurrentWeekStart(), $streak->getCurrentWeekStart());
         self::assertEquals($db_streak->getEndDate(), $streak->getEndDate());
@@ -279,7 +246,10 @@ class StreakTest extends TestCase
 
         // Delete test streak and check that the streak no longer exists
         Streak::delete($streak->getID());
-        $this->assertFalse(Streak::existsWithID($streak->getID()));
+        self::assertFalse(Streak::existsWithID($streak->getID()));
+
+        // Delete customer
+        Customer::delete($customer->getUserID());
     }
 
 }

@@ -65,7 +65,7 @@ class Bundle extends StoredObject {
         }
 
         // If bundle is collected by customer and there is a customer attached
-        if ($this->getStatus() == BundleStatus::Collected && isset($fields["purchaserID"])) {
+        if ($this->getStatus() == BundleStatus::Collected && $this->getPurchaserID() != null) {
             // Check if customer has an ongoing streak and create one if not
             $streak = Customer::load($this->getPurchaserID())->getStreak();
             if ($streak == null) {
@@ -76,18 +76,19 @@ class Bundle extends StoredObject {
                 $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
                 $streak->update();
             } else {
+
                 // Start new streak if "current" streak has already ended
                 if ($streak->getEndDate() < new DateTimeImmutable("now")) {
-                    $streak->setStartDate(new DateTimeImmutable("now"));
-                    $streak->setCurrentWeekStart($streak->getStartDate());
-                    $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                    // Get current date
+                    $currentDate = new DateTimeImmutable("now");
+                    $streak->setStartDate($currentDate);
+                    $streak->setCurrentWeekStart($currentDate);
+                    $streak->setEndDate($currentDate->modify("+1 week"));
                     // Update streak
                     $streak->update();
                 } else {
                     // Check if a bundle has already been collected to continue the streak
-                    if ($streak->getCurrentWeekStart() > new DateTimeImmutable("now")) {
-                        // No change to be made here
-                    } elseif ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
+                    if ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
                         // Changing currentWeekStart and endDate to a weeks time signifying update of streak
                         $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
                         $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));

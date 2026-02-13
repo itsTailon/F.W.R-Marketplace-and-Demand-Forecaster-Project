@@ -3,13 +3,10 @@
 namespace TTE\App\Model;
 
 use Exception;
-use TTE\App\Model\StreakStatus;
 use DateTimeImmutable;
 
 class Streak extends StoredObject {
     private int $id;
-
-    private StreakStatus  $status;
 
     private ?DateTimeImmutable $startDate;
 
@@ -37,22 +34,29 @@ class Streak extends StoredObject {
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
-        // Establish values for currentWeekStart and endDate
+        // Establish values for startDate, currentWeekStart and endDate
+        if ($this->getStartDate() == null) {
+            $startDate = null;
+        } else {
+            $startDate = $this->getStartDate()->format("Y-m-d H:i:s");
+        }
         if ($this->getCurrentWeekStart() == null) {
             $currentWeekStart = null;
         } else {
-            $currentWeekStart = (new DateTimeImmutable($this->getCurrentWeekStart()))->format("Y-m-d H:i:s");
+            $currentWeekStart = $this->getCurrentWeekStart()->format("Y-m-d H:i:s");
         }
+
         if ($this->getEndDate() == null) {
             $endDate = null;
         } else {
-            $endDate = (new DateTimeImmutable($this->getEndDate()))->format("Y-m-d H:i:s");
+            $endDate = $this->getEndDate()->format("Y-m-d H:i:s");
         }
+
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakID" => $this->id, ":startDate" => $this->getStartDate()->format("Y-m-d H:i:s"), $this->id, ":currentWeekStart" => $currentWeekStart, ":endDate" => $endDate, ":customerID" => $this->getCustomerID()]);
+            $stmt->execute([":streakID" => $this->id, ":startDate" => $startDate, ":currentWeekStart" => $currentWeekStart, ":endDate" => $endDate, ":customerID" => $this->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -60,7 +64,7 @@ class Streak extends StoredObject {
     }
 
     /**
-     * @param array $fields containing the current status of the streak and the customer it is for
+     * @param array $fields containing the current ID of the customer the streak is for
      * @return Streak returns a created Streak object after a confirmed addition of an active streak in the DB
      *@throws DatabaseException|MissingValuesException|NoSuchCustomerException
      */
@@ -83,14 +87,14 @@ class Streak extends StoredObject {
         $streak->setCustomerID($fields["customerID"]);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (streakStatus, startDate, currentWeekStart, endDate, customerID) 
-            VALUES (:streakStatus, :startDate, :currentWeekStart, :endDate, :customerID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (startDate, currentWeekStart, endDate, customerID) 
+            VALUES (:startDate, :currentWeekStart, :endDate, :customerID);");
 
         // Try-catch block for handling potential database exceptions
         try {
 
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":streakStatus" => $streak->getStatus()->value, ":startDate" => $streak->getStartDate(), ":currentWeekStart" => $streak->getCurrentWeekStart(), ":endDate" => $streak->getEndDate(), ":customerID" => $streak->getCustomerID()]);
+            $stmt->execute([":startDate" => $streak->getStartDate(), ":currentWeekStart" => $streak->getCurrentWeekStart(), ":endDate" => $streak->getEndDate(), ":customerID" => $streak->getCustomerID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -193,10 +197,6 @@ class Streak extends StoredObject {
         return $this->id;
     }
 
-    public function getStatus(): StreakStatus {
-        return $this->status;
-    }
-
     public function getStartDate(): ?DateTimeImmutable
     {
         return $this->startDate;
@@ -216,11 +216,9 @@ class Streak extends StoredObject {
     }
 
     // Setters
-    public function setStatus(StreakStatus $status): void {
-        $this->status = $status;
-    }
 
-    public function setStartDate(DateTimeImmutable $startDate): void {
+
+    public function setStartDate(?DateTimeImmutable $startDate): void {
         $this->startDate = $startDate;
     }
 
@@ -228,7 +226,7 @@ class Streak extends StoredObject {
         $this->endDate = $endDate;
     }
 
-    public function setCurrentWeekStart(DateTimeImmutable $currentWeekStart): void {
+    public function setCurrentWeekStart(?DateTimeImmutable $currentWeekStart): void {
         $this->currentWeekStart = $currentWeekStart;
     }
 
