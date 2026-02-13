@@ -70,9 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 } elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
 
     try {
-        // Get input (streakID) and parse it
-        $input = json_decode(file_get_contents("php://input"), true);
-        $streakID = $input["streakID"];
+        $_DELETE = array();
+        parse_str(file_get_contents('php://input'), $_DELETE);
 
         // Check that streak ID holds valid data
         if (!isset($streakID) || !ctype_digit($streakID)) {
