@@ -133,7 +133,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     <div class="edit-form__btns">
         <button type="button" class="button round green" id="submit-btn">Submit</button>
         <button type="button" class="button round" id="clear-btn">Clear</button>
-        <button type="button" class="button round red" id="clear-btn">Delete</button>    
+        <button type="button" class="button round red" id="delete-btn">Delete</button>    
     </div>
 </section>
 
