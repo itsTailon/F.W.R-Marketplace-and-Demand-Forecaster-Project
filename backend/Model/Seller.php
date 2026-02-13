@@ -109,8 +109,9 @@ class Seller extends Account {
     }
 
     public static function delete(int $id): void {
-        // Create SQL command to delete seller of given ID
+        // Create SQL command to delete seller and corresponding account instance of given ID
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM seller WHERE sellerID=:sellerID;");
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
 
         // Check if seller exists
         if (Seller::existsWithID($id)) {
