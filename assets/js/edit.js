@@ -1,3 +1,7 @@
+// Get ID parameter from URL for submission
+let params = new URLSearchParams(document.location.search);
+let bundleID = params.get("id");
+
 $('#submit-btn').click(() => {
     // Get values in input fields/textboxes
     var bundleName = $("#name").val();
@@ -39,10 +43,6 @@ $('#submit-btn').click(() => {
         return false;
     }
 
-    // Get ID parameter from URL for submission
-    let params = new URLSearchParams(document.location.search);
-    let bundleID = params.get("id");
-
     if (isNaN(bundleID)) { // If the ID is not a number
         $('.error-text').val("Bundle ID is not a number.");
         return false;
@@ -78,4 +78,36 @@ $('#submit-btn').click(() => {
             }
         }
     });
+});
+
+// If clear button is clicked
+$("#clear-btn").click(() => {
+    // Empty all the input boxes
+    $("#name").val('');
+    $("#description").val('');
+    $("#rrp").val('');
+    $("#discount-price").val('');
+});
+
+// If delete button is clicked
+$('#delete-btn').click(() => {
+    // Send DELETE request to API
+    $.ajax({
+        url: "/backend/API/Model/bundle.php",
+        type: 'DELETE',
+        data: {
+            bundleID: bundleID
+        },
+        statusCode: {
+            200: () => { // If deletion successful, go to dashboard
+                location.href = "/dashboard.php";
+            },
+            403: () => { // Seller does not have permission to delete
+                $('.error-text').text("Permission denied");
+            }, 
+            500: () => { // Internal Server Error
+                $('.error-text').text("Internal Server Error");
+            }
+        }
+    })
 });

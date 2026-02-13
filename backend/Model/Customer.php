@@ -127,9 +127,21 @@ class Customer extends Account {
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Create SQL command to delete customer of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
 
+        // Check if customer exists
+        if (Customer::existsWithID($id)) {
+            // Attempt to run SQL statement
+            try {
+                $stmt->execute(["customerID" => $id]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            // If customer does not exist, throw error
+            throw new DatabaseException("No customer found with ID $id");
+        }
         // Call superclass method
     }
-
 }
