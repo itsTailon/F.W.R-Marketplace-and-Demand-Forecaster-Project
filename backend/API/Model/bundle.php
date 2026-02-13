@@ -263,9 +263,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 } elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
 
     try {
+        $_DELETE = array();
+        parse_str(file_get_contents('php://input'), $_DELETE);
+
         // Get input (bundleID) and parse it
-        $input = json_decode(file_get_contents("php://input"), true);
-        $bundleID = $input["bundleID"];
+        $bundleID = $_DELETE["bundleID"];
 
         // Check that bundle ID holds valid data
         if (!isset($bundleID) || !ctype_digit($bundleID)) {
@@ -304,6 +306,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (DatabaseException $db_e) {
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
+        die();
+    } catch (InvalidArgumentException $ia_e) {
+        echo json_encode(http_response_code(400));
         die();
     }
 } else {
