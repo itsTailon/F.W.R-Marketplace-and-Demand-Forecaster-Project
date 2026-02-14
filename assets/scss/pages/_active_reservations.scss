@@ -1,0 +1,103 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+
+
+.active-reservations-wrapper {
+    width: 65vw;
+    margin: 0 auto;
+    padding-top: 7vh;
+}
+
+.active-reservations-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3vh;
+
+}
+.active-reservations-nav ul li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.active-reservations-nav ul li a {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+
+
+
+
+.active-reservations-list-wrapper {
+    width: 100%;
+    border-color: black;
+    border: 2px solid black;
+    margin-top: 7vh;
+}
+
+.active-reservations-list li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    
+}
+
+.active-reservations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8vh;
+    width: 90%;
+    margin: 5vh auto;
+    
+}
+
+
+.active-reservations-bundle-nav ul {
+    padding-top: 4vh;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.active-reservations-bundle-nav-view {
+  border: none;
+  background-color: #D0DCFF;
+  padding: 8px 5vw;
+  border-radius: 1000px;
+  text-decoration: none;
+  color: black;
+}
+
+.active-reservations-bundle-nav-view:hover {
+    transition: all 0.2s ease;
+    color: white;
+    cursor: pointer;
+    background-color: #809FFF;
+}
+
+.active-reservations-bundle-nav-cancel {
+  border: none;
+  background-color: #ff5b5b;
+  padding: 8px 5vw;
+  border-radius: 1000px;
+  text-decoration: none;
+  color: black;
+}
+
+.active-reservations-bundle-nav-cancel:hover {
+    transition: all 0.2s ease;
+    color: white;
+    cursor: pointer;
+    background-color: #ff3838;
+}
+
+
+.active-reservations-bundle-name {
+    padding-bottom: 2vh;
+}
+

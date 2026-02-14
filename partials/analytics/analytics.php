@@ -47,7 +47,7 @@ new Chart(document.getElementById('analytics-salespiechart'), {
     labels,
     datasets: [{
         data: values,
-        backgroundColor: ['#4b90ff', '#ff6565', '#4aff62']
+        backgroundColor: ['#ff6565', '#4aff62', '#4b90ff']
     }]
     },
     options: {
