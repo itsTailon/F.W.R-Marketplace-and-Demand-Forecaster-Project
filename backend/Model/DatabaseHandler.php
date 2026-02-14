@@ -105,7 +105,7 @@ class DatabaseHandler {
                     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
-                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID),
+                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
                     FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
                     );
                 

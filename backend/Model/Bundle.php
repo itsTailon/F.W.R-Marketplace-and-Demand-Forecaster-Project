@@ -262,6 +262,15 @@ class Bundle extends StoredObject {
         }
     }
 
+    public function getAllergens(): array {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT allergen.allergenName FROM allergen JOIN bundle_allergen ON bundle_allergen.bundleID=:bundleID WHERE allergen.allergenName=bundle_allergen.allergenName");
+        $stmt->execute([
+            "bundleID" => $this->getID(),
+        ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     public function getID(): int {
         return $this->id;
     }

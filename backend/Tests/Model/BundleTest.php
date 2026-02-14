@@ -4,6 +4,7 @@ namespace TTE\App\Tests\Model;
 
 use Exception;
 use TTE\App\Model\Account;
+use TTE\App\Model\NoSuchAllergenException;
 use TTE\App\Model\NoSuchStreakException;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Helpers\CurrencyTools;
@@ -483,4 +484,121 @@ class BundleTest extends TestCase
         Seller::delete($seller->getUserID());
     }
 
+    public function testAddAllergen() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Test adding non-existent allergen to bundle
+        $thrown = false;
+        try {
+            $bundle->addAllergen("noAllergenWouldEverHaveThisName");
+        } catch (NoSuchAllergenException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Test adding valid allergen to bundle
+        $bundle->addAllergen("gluten");
+        $this->assertTrue(in_array("gluten", $bundle->getAllergens()));
+
+        // Test adding valid allergen to bundle that already has that allergen
+        $thrown = false;
+        try {
+            $bundle->addAllergen("gluten");
+        } catch (DatabaseException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testRemoveAllergen() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Add allergen to bundle
+        $bundle->addAllergen("gluten");
+
+        // Test removing non-existent (i.e. invalid name) allergen from bundle
+        $thrown = false;
+        try {
+            $bundle->removeAllergen("noAllergenWouldEverHaveThisName");
+        } catch (NoSuchAllergenException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Test removing previously added allergen from bundle
+        $bundle->removeAllergen("gluten");
+        $this->assertFalse(in_array("gluten", $bundle->getAllergens()));
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testGetAllergens() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Add allergens to bundle
+        $bundle->addAllergen("gluten");
+        $bundle->addAllergen("soya");
+
+        // Ensure that the Bundle::getAllergens() returns the expected result
+        $bundleAllergens = $bundle->getAllergens();
+        $this->assertTrue(in_array("gluten", $bundleAllergens) && in_array("soya", $bundleAllergens));
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
 }
