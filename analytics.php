@@ -2,6 +2,7 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Account;
+use TTE\App\Model\Customer;
 // Define document (i.e. tab) title
 $DOCUMENT_TITLE = "Analytics";
 
@@ -18,12 +19,13 @@ $acc = Authenticator::getCurrentUser();
 
 
 if(!$acc) {
-    die('ERROR: Only Sellers can access this page.');
+    die('ERROR: Not logged in!');
 }
 else {
     $acc_id = $acc->getUserID();
     if(!Seller::existsWithID($acc_id)) {
-        die('ERROR: Only Sellers can access this page.');
+        header('Location: /dashboard.php');
+        die("Only sellers can access this page.");
     }
 }
 // Include dashboard header (i.e. 'title bar')

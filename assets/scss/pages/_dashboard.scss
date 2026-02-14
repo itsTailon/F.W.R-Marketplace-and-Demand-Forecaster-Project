@@ -15,18 +15,25 @@
   padding: 40px 32px;
 }
 
-.dashboard-welcome {
-  font-weight: normal;
-  font-family: sans-serif;
+
+.dashboard-nav {
+  display: flex;
+  gap: 16px;
+  margin: 0 auto;
+  margin-top: 5vh;
+  flex-direction: column;
+  width: 80%;
   
 }
 
-.dashboard-nav {
-  display: grid;
-  gap: 16px;
-  margin-top: 5vh;
+.dashboard-nav h1 {
+  font-weight: 500;
 }
+.dashboard-nav h1 {
+  margin: 0 auto; 
+  text-align: center;
 
+}
 
 
 .dashboard-options{
@@ -39,12 +46,15 @@
 
 .dashboard-options li{
   flex: 1;
+
+  align-items: center;
+  text-align: center;
+  justify-content: center;
 }
 
 .dashboard-options li a{
   display: block;
-  width: 100%;
-  background: none;
+  width: 60%;
   text-align: center;
   text-decoration: none;
   color: #000;
@@ -52,19 +62,22 @@
   padding: clamp(15px, 2.5vh, 30px) 0;
   line-height: 1.2;
 
-  border: 2px solid #000;
-  border-radius: 999px;
-  border-color: #484848;
+  background-color: #D0DCFF;
+
+  
+  border-radius: 20px;
+
+  transition: all 0.2s ease;
 
   cursor: pointer;
 
   font-family: sans-serif;
   font-size: clamp(13px, 1.6vw, 22px);
+  margin: 0 auto;
 
 }
 
 .dashboard-options li a:hover{
-  background-color: rgb(0, 0, 0);
+  background-color: #809FFF;
   color:white;
-  transition: background-color 0.7s;
 }
