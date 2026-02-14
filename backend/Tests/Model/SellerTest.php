@@ -69,16 +69,16 @@ class SellerTest extends TestCase
         $testBundleExpiredReservation = Reservation::create(["bundleID" => $testBundleExpired->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Cancelled]);
 
         // Create a collected bundle
-        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10, "discountedPrice" => 8]);
         $testBundleCollectedReservation = Reservation::create(["bundleID" => $testBundleCollected->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
 
         // Create an active bundle
-        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10, "discountedPrice" => 8]);
         $testBundleActiveReservation = Reservation::create(["bundleID" => $testBundleActive->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Active]);
 
         // Create a bundle that should be ignored
-        $testBundleShouldBeIgnored = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Should Be Ignored)", "details" => "Ex Bundle Details (Should Be Ignored)", "rrp" => 10.00, "discountedPrice" => 6.00]);
-        $testBundleShouldBeIgnoredReservation = Reservation::create(["bundleID" => $testBundleActive->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
+        $testBundleShouldBeIgnored = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Should Be Ignored)", "details" => "Ex Bundle Details (Should Be Ignored)", "rrp" => 10, "discountedPrice" => 4]);
+        $testBundleShouldBeIgnoredReservation = Reservation::create(["bundleID" => $testBundleShouldBeIgnored->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
 
         // Do our assertion
         $this->assertEquals(50, $testSeller->getSellThroughRateByDiscountRate(10, 30));

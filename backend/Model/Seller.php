@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Helpers\CurrencyTools;
+
 class Seller extends Account {
 
     private string $name;
@@ -114,25 +116,53 @@ class Seller extends Account {
         // Call superclass method
     }
 
-    public function getSellThroughRate() {
-        return $this->getSellThroughRateByDiscountRate(0, 100);
+    private function filterBundlesByDiscountLevel(array $dbRows, int $minDiscount, int $maxDiscount): array {
+        $dbRowsFiltered = array();
+        $j = 0;
+
+        for ($i = 0; $i < count($dbRows); $i++) {
+            $dbRow = $dbRows[$i];
+            $rrp = CurrencyTools::decimalStringToGBX($dbRow['rrp']);
+            $discountedPrice = CurrencyTools::decimalStringToGBX($dbRow['discountedPrice']);
+            $discountPercentage = 100 * (($rrp - $discountedPrice) / $rrp);
+
+            if ($discountPercentage <= $maxDiscount && $discountPercentage >= $minDiscount) {
+                $dbRowsFiltered[$j++] = $dbRow;
+            }
+        }
+
+        return $dbRowsFiltered;
     }
 
-    public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) {
-        $queryText = "SELECT COUNT(*) FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID AND ((RRP - discountedPrice) / RRP) * 100 BETWEEN :minDiscount AND :maxDiscount ";
+    public function getSellThroughRate() : float {
+        $queryText = "SELECT rrp, discountedPrice FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
 
         $query1 = $queryText . "AND reservationStatus = 'completed';";
         $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
-        $stmt1->execute([":sellerID" => $this->userID, ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
-        $completedRow = $stmt1->fetch(\PDO::FETCH_ASSOC);
-        $completedCount = $completedRow["COUNT(*)"];
+        $stmt1->execute([":sellerID" => $this->userID]);
+        $completedRows = $stmt1->fetchAll(\PDO::FETCH_ASSOC);
 
         $query2 = $queryText . "AND reservationStatus != 'active';";
         $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
-        $stmt2->execute([":sellerID" => $this->userID, ":minDiscount" => $minDiscount, ":maxDiscount" => $maxDiscount]);
-        $notActiveRow= $stmt2->fetch(\PDO::FETCH_ASSOC);
-        $notActiveCount = $notActiveRow["COUNT(*)"];
+        $stmt2->execute([":sellerID" => $this->userID]);
+        $notActiveRows = $stmt2->fetchAll(\PDO::FETCH_ASSOC);
 
-        return 100 * ($completedCount / $notActiveCount);
+        return 100 * (count($completedRows) / count($notActiveRows));
+    }
+
+    public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
+        $queryText = "SELECT rrp, discountedPrice FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
+
+        $query1 = $queryText . "AND reservationStatus = 'completed';";
+        $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
+        $stmt1->execute([":sellerID" => $this->userID]);
+        $completedRows = $this->filterBundlesByDiscountLevel($stmt1->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
+
+        $query2 = $queryText . "AND reservationStatus != 'active';";
+        $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
+        $stmt2->execute([":sellerID" => $this->userID]);
+        $notActiveRows = $this->filterBundlesByDiscountLevel($stmt2->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
+
+        return 100 * (count($completedRows) / count($notActiveRows));
     }
 }
