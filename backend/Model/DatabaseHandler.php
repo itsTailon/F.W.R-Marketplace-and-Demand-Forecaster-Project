@@ -56,8 +56,9 @@ class DatabaseHandler {
             // Have PDO errors communicated by means of exceptions being thrown
             self::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-            // Initialise database schema
+            // Initialise database schema and add base data
             self::initSchema();
+            self::initBaseData();
         }
 
         return self::$pdo;
@@ -67,7 +68,7 @@ class DatabaseHandler {
      * Initialise the database schema — i.e., creates necessary tables, etc. if they do not already exist (e.g., in a fresh installation).
      * @return void
      */
-    private static function initSchema() {
+    private static function initSchema(): void {
         try {
             // Create tables for data model:
 
@@ -104,7 +105,7 @@ class DatabaseHandler {
                     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
-                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID),
+                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
                     FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
                     );
                 
@@ -172,6 +173,41 @@ class DatabaseHandler {
         } catch (\PDOException $e) {
             echo $e->getMessage();
         }
+    }
+
+    /**
+     * Initialises database by inserting 'base' data (i.e. RBAC roles, allergens, etc).
+     * @return void
+     */
+    private static function initBaseData(): void {
+
+        // Initialise database with allergen data
+        $allergens = [
+            "celery",
+            "gluten",
+            "crustaceans",
+            "eggs",
+            "fish",
+            "lupin",
+            "milk",
+            "molluscs",
+            "mustard",
+            "nuts",
+            "peanuts",
+            "sesame-seeds",
+            "soya",
+            "sulphites"
+        ];
+
+        // Add each allergen if it does not already exist (IGNORE).
+        foreach ($allergens as $allergen) {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT IGNORE INTO allergen (allergenName) VALUES (:allergenName);");
+            $stmt->execute(["allergenName" => $allergen]);
+        }
+
+
+        // TODO: Add RBAC rules if not already added
+
     }
 
 }

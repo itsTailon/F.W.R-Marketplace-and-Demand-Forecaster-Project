@@ -214,6 +214,63 @@ class Bundle extends StoredObject {
         return !($row === false);
     }
 
+    public function addAllergen(string $allergenName): void {
+        // Ensure that allergen exists
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
+        try {
+            $stmt->execute(["allergenName" => $allergenName]);
+        } catch (\PDOException  $e) {
+            throw new DatabaseException("Could not load allergen with name '" . $allergenName . "'.");
+        }
+        if ($stmt->fetch() === false) {
+            throw new NoSuchAllergenException("No allergen exists with name '" . $allergenName . "'.");
+        }
+
+        // Allergen does exist, so add it to the bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle_allergen (bundleID, allergenName) VALUES (:bundleID, :allergenName);");
+        try {
+            $stmt->execute([
+               "bundleID" => $this->getID(),
+               "allergenName" => $allergenName,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not add allergen with name '" . $allergenName . "' to bundle with ID " . $this->getID() . ".");
+        }
+    }
+
+    public function removeAllergen(string $allergenName): void {
+        // Ensure that allergen exists
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
+        try {
+            $stmt->execute(["allergenName" => $allergenName]);
+        } catch (\PDOException  $e) {
+            throw new DatabaseException("Error attempting to load allergen with name '" . $allergenName . "'.");
+        }
+        if ($stmt->fetch() === false) {
+            throw new NoSuchAllergenException("No allergen exists with name '" . $allergenName . "'.");
+        }
+
+        // Allergen does exist, so remove it from bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle_allergen WHERE bundleID=:bundleID AND allergenName=:allergenName;");
+        try {
+            $stmt->execute([
+                "bundleID" => $this->getID(),
+                "allergenName" => $allergenName,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not remove allergen with name '" . $allergenName . "' from bundle with ID " . $this->getID() . " (it may not have been assigned to the bundle).");
+        }
+    }
+
+    public function getAllergens(): array {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT allergen.allergenName FROM allergen JOIN bundle_allergen ON bundle_allergen.bundleID=:bundleID WHERE allergen.allergenName=bundle_allergen.allergenName");
+        $stmt->execute([
+            "bundleID" => $this->getID(),
+        ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     public function getID(): int {
         return $this->id;
     }

@@ -119,13 +119,13 @@ class Seller extends Account {
         try {
             $stmt->execute(["sellerID" => $id]);
         } catch (\PDOException $e) {
-            throw new DkatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
         try {
             $stmt->execute(["userID" => $id]);
         } catch (\PDOException $e) {
-            throw new DkatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
 
     }
