@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
+use TTE\App\Model\DatabaseException;
 use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\NoSuchReservationException;
@@ -22,6 +23,10 @@ class ReservationTest extends TestCase
      * @return bool
      */
     private function slimeTables() : bool {
+      
+    }
+  
+    private function emptyTables() : bool {
         try {
             $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
             $stmt->execute();
@@ -62,6 +67,7 @@ class ReservationTest extends TestCase
     public function testUpdateReservation(){
         // Ensure all used tables are fresh
         self::slimeTables();
+        self::emptyTables();
 
         // Create customer to get customer ID to create reservation
         $purchaser = Customer::create([
@@ -128,6 +134,7 @@ class ReservationTest extends TestCase
         } catch (\Exception $e) {
             //  Clean up and fail the test
             self::slimeTables();
+            self::emptyTables();
             $this->fail($e->getMessage());
         }
 
@@ -143,6 +150,7 @@ class ReservationTest extends TestCase
 
         // cleans up all tables
         self::slimeTables();
+        self::emptyTables();
     }
 
     /**
@@ -166,6 +174,7 @@ class ReservationTest extends TestCase
 
         // Ensure all used tables are fresh
         self::slimeTables();
+        self::emptyTables();
 
         // Create customer to get customer ID to create reservation
         $purchaser = Customer::create([
@@ -218,6 +227,23 @@ class ReservationTest extends TestCase
         } catch (\Exception $e) {
             // Clean up and fail the test
             self::slimeTables();
+            self::emptyTables();
+
+            self::fail($e->getMessage());
+        }
+
+        // Test that making a reservation without a claim code will cause a claim code to be generated
+        try {
+            $reservationClaimCodeTest = Reservation::create([
+                'purchaserID' => $purchaser->getUserID(),
+                'bundleID' => $bundle->getID(),
+                'status' => ReservationStatus::Active,
+            ]);
+            $claimCode = $reservationClaimCodeTest->getClaimCode();
+            self::assertTrue(isset($claimCode));
+        } catch (DatabaseException $e) {
+            // If it is not there, fail test and clean up
+            self::emptyTables();
 
             self::fail($e->getMessage());
         }
@@ -228,6 +254,7 @@ class ReservationTest extends TestCase
         } catch (NoSuchReservationException $e) {
             // If it is not there, fail test and clean up
             self::slimeTables();
+            self::emptyTables();
 
             self::fail($e->getMessage());
         }
@@ -247,6 +274,7 @@ class ReservationTest extends TestCase
 
         // Clean up
         self::slimeTables();
+        self::emptyTables();
     }
 
     /**
@@ -269,6 +297,7 @@ class ReservationTest extends TestCase
 
         // Ensure all used tables are fresh
         self::slimeTables();
+        self::emptyTables();
 
         // Create customer to get customer ID to create reservation
         $purchaser = Customer::create([
@@ -316,6 +345,7 @@ class ReservationTest extends TestCase
 
         // clean up
         self::slimeTables();
+        self::emptyTables();
     }
 
     /**
@@ -337,6 +367,7 @@ class ReservationTest extends TestCase
 
         // Ensure all used tables are fresh
         self::slimeTables();
+        self::emptyTables();
 
         // Create customer to get customer ID to create reservation
         $purchaser = Customer::create([
@@ -378,6 +409,7 @@ class ReservationTest extends TestCase
 
         // Clean up
         self::slimeTables();
+        self::emptyTables();
     }
 
     /**
@@ -400,6 +432,7 @@ class ReservationTest extends TestCase
 
         // Ensure all used tables are fresh
         self::slimeTables();
+        self::emptyTables();
 
         // Create customer to get customer ID to create reservation
         $purchaser = Customer::create([
@@ -449,6 +482,7 @@ class ReservationTest extends TestCase
         } catch (\PDOException $e) {
             // If it is not there, fail test and clean up
             self::slimeTables();
+            self::emptyTables();
 
             self::fail($e->getMessage());
         }
@@ -496,5 +530,30 @@ class ReservationTest extends TestCase
         Bundle::delete($bundle->getID());
         Customer::delete($customer->getUserID());
         Seller::delete($seller->getUserID());
+        self::emptyTables();
+    }
+
+    public function testGenerateClaimCode() {
+        /*
+         * tests:
+         * - Check that claim code is of correct length
+         * - Check that same parameters will generate the same claim code
+         */
+
+        // Generate 3 claim codes
+        $claimCode1 = Reservation::generateClaimCode(0, 0, "bundleTitle");
+        $claimCode2 = Reservation::generateClaimCode(1, 6, "bundle with title");
+        $claimCode3 = Reservation::generateClaimCode(50, 1, "pastry bundle");
+
+        // Check lengths of claim codes
+        self::assertTrue(strlen($claimCode1) == Reservation::LENGTH);
+        self::assertTrue(strlen($claimCode2) == Reservation::LENGTH);
+        self::assertTrue(strlen($claimCode3) == Reservation::LENGTH);
+
+        // Generate new claim code using same parameters as claim code 1
+        $claimCode4 = Reservation::generateClaimCode(0, 0, "bundleTitle");
+
+        // Check if claim code 1 = claim code 2
+        self::assertEquals($claimCode1, $claimCode4);
     }
 }

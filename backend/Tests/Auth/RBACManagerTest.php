@@ -1,12 +1,21 @@
 <?php
 
+namespace TTE\App\Tests\Auth;
+
 use PHPUnit\Framework\TestCase;
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
+use TTE\App\Model\DatabaseException;
 use TTE\App\Model\NoSuchAccountException;
+use TTE\App\Model\NoSuchCustomerException;
+use TTE\App\Model\Seller;
+use ValueError;
 
-class RBACManagerTest extends TestCase {
+$_SESSION = array();
+
+class RBACManagerTest extends TestCase
+{
 
     // Note that RBACManager::isCurrentUserPermitted() is not tested, as
     // it can be seen as a mere alias for RBACManager::isUserPermitted()
@@ -14,7 +23,8 @@ class RBACManagerTest extends TestCase {
     // Authenticator::getCurrentUser()->getUserID(), which will already
     // be unit tested in isolation.
 
-    public function testCreateRole(): void {
+    public function testCreateRole(): void
+    {
         /*
          * Things to test:
          * - if title too long, ValueError is thrown
@@ -35,7 +45,8 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole($title);
     }
 
-    public function testDeleteRole(): void {
+    public function testDeleteRole(): void
+    {
         /*
          * Things to test:
          * - if role exists, it is successfully deleted
@@ -61,7 +72,8 @@ class RBACManagerTest extends TestCase {
 
     }
 
-    public function testCreatePermission(): void {
+    public function testCreatePermission(): void
+    {
         /*
          * Things to test:
          * - if title too long, ValueError is thrown
@@ -83,7 +95,8 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole($titleInvalid);
     }
 
-    public function testDeletePermission(): void {
+    public function testDeletePermission(): void
+    {
         /*
          * Things to test:
          * - if permission exists, it is successfully deleted
@@ -108,7 +121,8 @@ class RBACManagerTest extends TestCase {
         RBACManager::deletePermission($permissionTitle);
     }
 
-    public function testRoleExists(): void {
+    public function testRoleExists(): void
+    {
         /*
          * Things to test:
          * - if role does not exist, it returns false
@@ -130,7 +144,8 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole("aRoleWouldNeverExistWithThisTitle");
     }
 
-    public function testPermissionExists(): void {
+    public function testPermissionExists(): void
+    {
         /*
          * Things to test:
          * - if permission does not exist, it returns false
@@ -153,7 +168,8 @@ class RBACManagerTest extends TestCase {
         RBACManager::deletePermission($title);
     }
 
-    public function testAssignPermissionToRole(): void {
+    public function testAssignPermissionToRole(): void
+    {
         /**
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -204,7 +220,8 @@ class RBACManagerTest extends TestCase {
 
     }
 
-    public function testRemovePermissionFromRole(): void {
+    public function testRemovePermissionFromRole(): void
+    {
         /**
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -253,7 +270,11 @@ class RBACManagerTest extends TestCase {
         RBACManager::deletePermission($permissionTitle);
     }
 
-    public function testAssignRoleToUser(): void {
+    /**
+     * @throws DatabaseException|NoSuchAccountException|NoSuchRoleException
+     */
+    public function testAssignRoleToUser(): void
+    {
         /**
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -261,6 +282,15 @@ class RBACManagerTest extends TestCase {
          * - if the user-role assignment already exists, false is returned
          * - if the user-role assignment does not already exist, it is created, and true is returned
          */
+
+        // Creating dummy seller to assign roles to
+        $sellerFields = array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        );
+        $seller = Seller::create($sellerFields);
 
         $roleTitle = "aRoleWouldNeverExistWithThisTitle";
 
@@ -278,7 +308,7 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole($roleTitle); // Delete role
         $thrown = false;
         try {
-            RBACManager::assignRoleToUser(1, $roleTitle); // TODO: Create user in this test, rather than using user with ID 1
+            RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle);
         } catch (NoSuchRoleException $e) {
             $thrown = true;
         }
@@ -286,18 +316,25 @@ class RBACManagerTest extends TestCase {
 
         // Test when role-permission assignment does not already exist
         RBACManager::createRole($roleTitle); // Create role
-        $this->assertTrue(RBACManager::assignRoleToUser(1, $roleTitle)); // TODO: Create user in this test, rather than using user with ID 1
-        $this->assertTrue(RBACManager::hasRole(1, $roleTitle));
+        $this->assertTrue(RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle));
+        $this->assertTrue(RBACManager::hasRole($seller->getUserID(), $roleTitle));
 
         // Test when assignment already exists
-        $this->assertFalse(RBACManager::assignRoleToUser(1, $roleTitle)); // TODO: Create user in this test, rather than using user with ID 1
+        $this->assertFalse(RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle));
 
         // Cleanup
-        RBACManager::removeRoleFromUser(1, $roleTitle);
+        RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle);
         RBACManager::deleteRole($roleTitle);
+        Seller::delete($seller->getUserID());
     }
 
-    public function testRemoveRoleFromUser(): void {
+    /**
+     * @throws DatabaseException
+     * @throws NoSuchRoleException
+     * @throws NoSuchAccountException
+     */
+    public function testRemoveRoleFromUser(): void
+    {
         /*
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -306,8 +343,15 @@ class RBACManagerTest extends TestCase {
          * - if the user-role assignment does exist, it is removed, and true is returned
          */
 
-        // TODO: Change test to create user, rather than using whatever user has ID 1
-        $userID = 1;
+        // Creating dummy seller to assign roles to
+        $sellerFields = array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        );
+        $seller = Seller::create($sellerFields);
+
         $roleTitle = "aRoleWouldNeverExistWithThisTitle";
 
         // Test with non-existent account (user ID)
@@ -324,7 +368,7 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole($roleTitle); // Delete role
         $thrown = false;
         try {
-            RBACManager::removeRoleFromUser($userID, $roleTitle);
+            RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle);
         } catch (NoSuchRoleException $e) {
             $thrown = true;
         }
@@ -332,19 +376,21 @@ class RBACManagerTest extends TestCase {
 
         // Test when user-role assignment does not exist
         RBACManager::createRole($roleTitle);
-        $this->assertFalse(RBACManager::removeRoleFromUser($userID, $roleTitle));
+        $this->assertFalse(RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle));
 
         // Test when user-role assignment already exists
-        RBACManager::assignRoleToUser($userID, $roleTitle);
-        $result = RBACManager::removeRoleFromUser($userID, $roleTitle);
+        RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle);
+        $result = RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle);
         $this->assertTrue($result);
-        $this->assertFalse(RBACManager::hasRole($userID, $roleTitle));
+        $this->assertFalse(RBACManager::hasRole($seller->getUserID(), $roleTitle));
 
         // Cleanup
         RBACManager::deleteRole($roleTitle);
+        Seller::delete($seller->getUserID());
     }
 
-    public function testIsRolePermitted(): void {
+    public function testIsRolePermitted(): void
+    {
         /**
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -393,7 +439,13 @@ class RBACManagerTest extends TestCase {
         RBACManager::deletePermission($permissionTitle);
     }
 
-    public function testHasRole(): void {
+    /**
+     * @throws DatabaseException
+     * @throws NoSuchRoleException
+     * @throws NoSuchAccountException
+     */
+    public function testHasRole(): void
+    {
         /**
          * Things to test:
          * - if the role does not exist, a NoSuchRoleException is thrown
@@ -402,8 +454,15 @@ class RBACManagerTest extends TestCase {
          * - if the user does not have the role, false is returned
          */
 
-        // TODO: Create user rather than using whichever user has ID 1
-        $userID = 1;
+        // Creating dummy seller to assign roles to
+        $sellerFields = array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        );
+        $seller = Seller::create($sellerFields);
+
         $roleTitle = "aRoleWouldNeverExistWithThisTitle";
 
         // Test with non-existent account (user ID)
@@ -421,7 +480,7 @@ class RBACManagerTest extends TestCase {
         RBACManager::deleteRole($roleTitle); // Delete role
         $thrown = false;
         try {
-            RBACManager::hasRole($userID, $roleTitle); // TODO: Create user in this test, rather than using user with ID 1
+            RBACManager::hasRole($seller->getUserID(), $roleTitle);
         } catch (NoSuchRoleException $e) {
             $thrown = true;
         }
@@ -429,18 +488,25 @@ class RBACManagerTest extends TestCase {
 
         // Test when user does have role
         RBACManager::createRole($roleTitle);
-        RBACManager::assignRoleToUser($userID, $roleTitle); // Assign role to user
-        $this->assertTrue(RBACManager::hasRole($userID, $roleTitle));
+        RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle); // Assign role to user
+        $this->assertTrue(RBACManager::hasRole($seller->getUserID(), $roleTitle));
 
         // Test when user does not have role
-        RBACManager::removeRoleFromUser($userID, $roleTitle);
-        $this->assertFalse(RBACManager::hasRole($userID, $roleTitle));
+        RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle);
+        $this->assertFalse(RBACManager::hasRole($seller->getUserID(), $roleTitle));
 
         // Cleanup
         RBACManager::deleteRole($roleTitle);
     }
 
-    public function testIsUserPermitted(): void {
+    /**
+     * @throws DatabaseException
+     * @throws NoSuchPermissionException
+     * @throws NoSuchAccountException
+     * @throws NoSuchRoleException
+     */
+    public function testIsUserPermitted(): void
+    {
         /**
          * Things to test:
          * - if the permission does not exist, a NoSuchPermissionException is thrown
@@ -449,8 +515,16 @@ class RBACManagerTest extends TestCase {
          * - if the user does not have the permission, false is returned
          */
 
-        // TODO: Create user rather than using whichever user has ID 1
-        $userID = 1;
+        // Creating dummy seller to assign roles to
+        $sellerFields = array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        );
+        $seller = Seller::create($sellerFields);
+
+
         $roleTitle = "aRoleWouldNeverExistWithThisTitle";
         $permissionTitle = "aPermissionWouldNeverExistWithThisTitle";
 
@@ -468,7 +542,7 @@ class RBACManagerTest extends TestCase {
         RBACManager::deletePermission($permissionTitle); // Delete permission
         $thrown = false;
         try {
-            RBACManager::isUserPermitted($userID, $permissionTitle);
+            RBACManager::isUserPermitted($seller->getUserID(), $permissionTitle);
         } catch (NoSuchPermissionException $e) {
             $thrown = true;
         }
@@ -480,17 +554,18 @@ class RBACManagerTest extends TestCase {
         RBACManager::assignPermissionToRole($roleTitle, $permissionTitle);
 
         // Test when user does have permission
-        RBACManager::assignRoleToUser($userID, $roleTitle);
-        $this->assertTrue(RBACManager::isUserPermitted($userID, $permissionTitle));
+        RBACManager::assignRoleToUser($seller->getUserID(), $roleTitle);
+        $this->assertTrue(RBACManager::isUserPermitted($seller->getUserID(), $permissionTitle));
 
         // Test when user does not have permission
         RBACManager::removePermissionFromRole($roleTitle, $permissionTitle);
-        $this->assertFalse(RBACManager::isUserPermitted($userID, $permissionTitle));
+        $this->assertFalse(RBACManager::isUserPermitted($seller->getUserID(), $permissionTitle));
 
         // Cleanup
-        RBACManager::removeRoleFromUser($userID, $roleTitle);
+        RBACManager::removeRoleFromUser($seller->getUserID(), $roleTitle);
         RBACManager::deletePermission($permissionTitle);
         RBACManager::deleteRole($roleTitle);
+        Seller::delete($seller->getUserID());
 
     }
 

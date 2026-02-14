@@ -73,6 +73,11 @@ class Reservation extends StoredObject
         // Attempt to execute the statement
         try{
             $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode]);
+            SET bundleID = :bundleID, purchaserID = :purchaserID, reservationStatus = :reservationStatus, claimCode = :claimCode WHERE reservationID = :id");
+
+        // Attempt to execute the statement
+        try{
+            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -97,6 +102,21 @@ class Reservation extends StoredObject
         // Generate claim code for the bundle if the bundle has no claim code
         if(!isset($fields['claimCode'])) {
             $claimCode = self::generateClaimCode();
+        $bundle = Bundle::load($fields['bundleID']);
+
+        // Update bundle's method
+        try {
+            $bundle->setStatus(BundleStatus::Reserved);
+            $bundle->update();
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+        } catch (NoSuchBundleException $e) {
+        }
+
+        // Generate claim code for the bundle if the bundle has no claim code
+        if(!isset($fields['claimCode'])) {
+            $claimCode = self::generateClaimCode($fields['bundleID'], $fields['purchaserID'],$bundle->getTitle());
         } else {
             $claimCode = $fields['claimCode'];
         }
@@ -146,6 +166,20 @@ class Reservation extends StoredObject
         }
 
         return implode($claimCodeArr);
+    }    
+        
+    public static function generateClaimCode(int $reservationID, int $purchaserID, string $title): string {
+        // generate claim code
+        $messg = $reservationID . $purchaserID . $title;
+
+        // hash had get value
+        $claimCode = hash('sha512', $messg, false);
+        $claimCode = substr($claimCode, 0, self::LENGTH);
+
+
+
+        // return claim code
+        return $claimCode;
     }
 
     /**
@@ -259,5 +293,61 @@ class Reservation extends StoredObject
     public static function markCollected(int $id): void {
         self::markStatus($id, ReservationStatus::Completed);
         self::markAssociatedBundleStatus($id, BundleStatus::Collected);
+    public static function getAllReservationsForUser (int $userID, string $accountType): array{
+        if ($accountType === "seller") {
+            // Prepare SQL statement to get all reservations a seller is involved in
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation INNER JOIN bundle ON reservation.bundleID=bundle.bundleID WHERE sellerID=:id;");
+
+            // Try to execute
+            try {
+                $stmt->execute([":id" => $userID]);
+                // Load all reservation from query and return array
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+        } else if ($accountType === "buyer") {
+            // Prepare SQL statement to get all reservations a buyer has made
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation WHERE purchaserID=:purchaserID;");
+
+            //Try to execute
+            try {
+                $stmt->execute([":purchaserID" => $userID]);
+                // Load all reservations and return them
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        } else {
+            throw new \InvalidArgumentException("Invalid account type");
+        }
+    }
+
+    /**
+     * Claim bundle and update statuses
+     *
+     * @param string $claimCode
+     *
+     * @return void
+     *
+     * @throws DatabaseException
+     * @throws NoSuchBundleException
+     * @throws invalidClaimCodeExeption
+     */
+    public function claimReservation (string $claimCode): void {
+        // Check if claim codes match
+        if($claimCode != $this->claimCode) {
+            throw new invalidClaimCodeExeption("Given claim code does not match with bundles claim code");
+        }
+
+        // Set and update reservation status
+        $this->setStatus(ReservationStatus::Completed);
+        $this->update();
+
+        // Update bundle status
+        $bundle = Bundle::load($this->bundleID);
+        $bundle->setStatus(BundleStatus::Collected);
+        $bundle->update();
     }
 }

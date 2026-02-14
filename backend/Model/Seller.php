@@ -111,10 +111,24 @@ class Seller extends Account {
     }
 
     public static function delete(int $id): void {
-        // TODO: Implement delete() method.
+        // Check seller with ID exists
+        if (Seller::existsWithID($id) === false) {
+            throw new DatabaseException("Seller with ID $id does not exist");
+        }
 
-        // Call superclass method
-    }
+        // Create SQL command to delete seller and corresponding account instance of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM seller WHERE sellerID=:sellerID;");
+        try {
+            $stmt->execute(["sellerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
+        try {
+            $stmt->execute(["userID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
 
     private function filterBundlesByDiscountLevel(array $dbRows, int $minDiscount, int $maxDiscount): array {
         $dbRowsFiltered = array();

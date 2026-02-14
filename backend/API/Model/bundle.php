@@ -31,9 +31,6 @@ if (!Authenticator::isLoggedIn()) {
     die();
 }
 
-// JSON heading for all JSON-encoded messages
-header('Content-Type: application/json');
-
 // if-elseif...-else statement block branching on the basis of request method
 if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     // Handling PUT request that calls the update() method for the Bundle class
@@ -226,7 +223,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_GET["bundleID"];
 
         // Checking validity of passed bandle ID
-        if (!isset($bundleID['bundleID']) || !ctype_digit((string)$bundleID['bundleID'])) {
+        if (!isset($bundleID['bundleID']) || !ctype_digit($bundleID['bundleID'])) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -266,12 +263,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 } elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
 
     try {
+        $_DELETE = array();
+        parse_str(file_get_contents('php://input'), $_DELETE);
+
         // Get input (bundleID) and parse it
-        $input = json_decode(file_get_contents("php://input"), true);
-        $bundleID = $input["bundleID"];
+        $bundleID = $_DELETE["bundleID"];
 
         // Check that bundle ID holds valid data
-        if (!isset($bundleID['bundleID']) || !ctype_digit((string)$bundleID['bundleID'])) {
+        if (!isset($bundleID) || !ctype_digit($bundleID)) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -307,6 +306,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (DatabaseException $db_e) {
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
+        die();
+    } catch (InvalidArgumentException $ia_e) {
+        echo json_encode(http_response_code(400));
         die();
     }
 } else {
