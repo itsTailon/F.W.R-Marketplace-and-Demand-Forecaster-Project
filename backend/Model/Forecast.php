@@ -150,37 +150,37 @@ class Forecast
                 // Check what day it is and add the stats to that day & increment days
                 switch ($row[0]) {
                     case "Monday":
-                        $collected["Monday"] += $row[5] - $row[6];
-                        $totalNoShow["Monday"] += $row[6];
+                        $collected["Monday"] += $row[6] - $row[7];
+                        $totalNoShow["Monday"] += $row[7];
                         $daysCounted["Monday"] += 1;
                         break;
                     case "Tuesday":
-                        $collected["Tuesday"] += $row[5] - $row[6];
-                        $totalNoShow["Tuesday"] += $row[6];
+                        $collected["Tuesday"] += $row[6] - $row[7];
+                        $totalNoShow["Tuesday"] += $row[7];
                         $daysCounted["Tuesday"] += 1;
                         break;
                     case "Wednesday":
-                        $collected["Wednesday"] += $row[5] - $row[6];
-                        $totalNoShow["Wednesday"] += $row[6];
+                        $collected["Wednesday"] += $row[6] - $row[7];
+                        $totalNoShow["Wednesday"] += $row[7];
                         $daysCounted["Wednesday"] += 1;
                         break;
                     case "Thursday":
-                        $collected["Thursday"] += $row[5] - $row[6];
-                        $totalNoShow["Thursday"] += $row[6];
+                        $collected["Thursday"] += $row[6] - $row[7];
+                        $totalNoShow["Thursday"] += $row[7];
                         $daysCounted["Thursday"] += 1;
                     case "Friday":
-                        $collected["Friday"] += $row[5] - $row[6];
-                        $totalNoShow["Friday"] += $row[6];
+                        $collected["Friday"] += $row[6] - $row[7];
+                        $totalNoShow["Friday"] += $row[7];
                         $daysCounted["Friday"] += 1;
                         break;
                     case "Saturday":
-                        $collected["Saturday"] += $row[5] - $row[6];
-                        $totalNoShow["Saturday"] += $row[6];
+                        $collected["Saturday"] += $row[6] - $row[7];
+                        $totalNoShow["Saturday"] += $row[7];
                         $daysCounted["Saturday"] += 1;
                         break;
                     case "Sunday":
-                        $collected["Sunday"] += $row[5] - $row[6];
-                        $totalNoShow["Sunday"] += $row[6];
+                        $collected["Sunday"] += $row[6] - $row[7];
+                        $totalNoShow["Sunday"] += $row[7];
                         $daysCounted["Sunday"] += 1;
                         break;
                 }
