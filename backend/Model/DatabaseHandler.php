@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Auth\RBACManager;
 use TTE\App\Global\AppConfig;
 
 /**
@@ -206,7 +207,44 @@ class DatabaseHandler {
         }
 
 
-        // TODO: Add RBAC rules if not already added
+        // Initialise DB with RBAC roles and permissions
+        $rbac = [
+            "seller" => [
+                "bundle_update",
+                "bundle_create",
+                "bundle_load",
+                "bundle_delete",
+            ],
+
+            "customer" => [
+                "bundle_load",
+                "streak_load",
+                "streak_delete",
+            ],
+        ];
+
+        // Create roles and permissions
+        foreach ($rbac as $role => $permissions) {
+            // Create role if it does not exist
+            if (!RBACManager::roleExists($role)) {
+                RBACManager::createRole($role);
+            }
+
+            // Add permissions to role
+            foreach ($permissions as $permission) {
+                // If the permission does not already exist, create it
+                if (!RBACManager::permissionExists($permission)) {
+                    RBACManager::createPermission($permission);
+                }
+
+                // If the role does not already have the permission, add it
+                if (!RBACManager::isRolePermitted($role, $permission)){
+                    RBACManager::assignPermissionToRole($role, $permission);
+                }
+            }
+        }
+
+
 
     }
 
