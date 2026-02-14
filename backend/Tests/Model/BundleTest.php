@@ -3,11 +3,14 @@
 namespace TTE\App\Tests\Model;
 
 use Exception;
+use TTE\App\Model\Account;
+use TTE\App\Model\NoSuchStreakException;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Helpers\CurrencyTools;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
+use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\Seller;
 use TTE\App\Model\DatabaseException;
@@ -24,7 +27,7 @@ class BundleTest extends TestCase
 {
 
     /**
-     * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchSellerException
+     * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchStreakException
      */
     public function testUpdateBundle()
     {
@@ -421,47 +424,63 @@ class BundleTest extends TestCase
     } // Not necessarily needed as should be tested through use in set...ID functions
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * test delete bundle method
+     * @return void
+     * @throws DatabaseException
+     * @throws MissingValuesException
+     * @throws NoSuchBundleException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException
      */
-    public function testDeleteBundle()
-    {
+    public function testDelete() {
         /*
-        * Test:
-        * - If a bundle is deleted, it is not in the database
-        * - If a bundle that doesn't exist is tried to be deleted, error thrown
+         * Tests:
+         * - Deleting bundle that does not exist will throw NoSuchReservationException
+         * - Deleting a bundle removes it from the database
          */
 
-        // Create associative array for test bundle
-        $fields =
-            array(
-                "bundleStatus" => BundleStatus::Available,
-                "bundleTitle" => "Delete Bundle Title",
-                "bundleDetails" => "Delete Bundle Details",
-                "bundleRrpGBX" => 0,
-                "bundleDiscountedPriceGBX" => 0,
-                "bundleSellerID" => 0,
-                "bundlePurchaserID" => null,
-            );
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'sellertest@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
 
-        // Create test bundle and check it exists
-        $testDeleteBundle = Bundle::create($fields);
-        $testDeleteID = $testDeleteBundle->getID();
-        $this->assertTrue(Bundle::existsWithID($testDeleteID));
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
 
-        // Delete test bundle and check that the bundle no longer exists
-        Bundle::delete($testDeleteID);
-        $this->assertFalse(Bundle::existsWithID($testDeleteID));
-
-        // Test deleting a bundle that does not exist
+        // Check that when deleting a bundle that does not exist, NoSuchBundleException is thrown
         $thrown = false;
         try {
-            Bundle::delete($testDeleteID);
+            bundle::delete(-1);
+        } catch (NoSuchBundleException $e) {
+            $thrown  = true;
+        }
+        self::assertTrue($thrown);
+
+        // Check that calling the delete method deletes a record from the database
+        self::assertTrue(Bundle::existsWithID($bundle->getID()));
+        try{
+            Bundle::delete($bundle->getID());
         } catch (\PDOException $e) {
-            $thrown = true;
+            // If it is not there, fail test and clean up
+            Seller::delete($seller->getUserID());
+
+            self::fail($e->getMessage());
         }
-        if (!$thrown) {
-            $this->fail();
-        }
+
+        self::assertFalse(Bundle::existsWithID($bundle->getID()));
+
+        // Clean up
+        Seller::delete($seller->getUserID());
     }
 
 }
