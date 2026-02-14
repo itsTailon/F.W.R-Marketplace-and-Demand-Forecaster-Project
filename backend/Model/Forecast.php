@@ -14,13 +14,13 @@ class Forecast
 
     public static function getData() : array {
         // Open file and prepare array
-        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/forecast.csv'));
+        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/testData.csv'));
         return $records;
     }
 
     public static function getBundleData() : array {
         // Open file and prepare array
-        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/forecast.csv'));
+        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/bundles.csv'));
         return $records;
     }
 
@@ -29,6 +29,7 @@ class Forecast
         $forecastData = Forecast::getForecastInformation();
         // Load the link data
         $linkData = Forecast::getData();
+        array_shift($linkData);
         // Load the bundle data
         $bundleData = Forecast::getBundleData();
 
@@ -39,7 +40,7 @@ class Forecast
             $bundle = $bundleData[$dataPoint[0]];
 
             // Check if the bundle belongs to the logged in seller
-            if($bundle[2] == $sellerID) {
+            if($bundle[2] == $sellerID || $sellerID == -1) {
                 // get values from dataset
                 $dpDate = $dataPoint[2];
                 $dpCategory = $bundle[5];
@@ -53,7 +54,7 @@ class Forecast
                 $dpEndTime = $dpet[0] . $dpet[1];
 
                 // Calculate discount on bundle to the nearest 10%
-                $dpDiscount = (int)round((($bundle[7] - $dpStartTime[8]) / $bundle[7] * 100), -1);
+                $dpDiscount = (int)round((((int)$bundle[7] - (int)$dpStartTime[8]) / (int)$bundle[7] * 100), -1);
 
                 // Discount cant be 100 or 0
                 if ($dpDiscount == 0) $dpDiscount = 10;
@@ -75,7 +76,7 @@ class Forecast
                 $percentageDiscount =  explode("%", $dataPoint[4])[0];
 
                 // Separate times
-                $times = explode(":", $dataPoint[3]);
+                $times = explode("-", $dataPoint[3]);
                 // Convert times to integer form
                 $dpStart = explode(":", $times[0]);
                 $dpStartTime = $dpStart[0] . $dpStart[1];
@@ -95,6 +96,7 @@ class Forecast
                     // If it matches, then give the datum matching forecast information
                     $data[$j][6] = $dataPoint[5];
                     $data[$j][7] = $dataPoint[6];
+                    break;
                 }
             }
             $j += 1;
