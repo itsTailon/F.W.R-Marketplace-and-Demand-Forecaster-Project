@@ -307,6 +307,7 @@ class Bundle extends StoredObject {
 
     /**
      * @throws DatabaseException
+     * @throws NoSuchBundleException
      */
     public static function delete(int $id): void {
         // Create SQL command to delete bundle of given ID
@@ -322,7 +323,7 @@ class Bundle extends StoredObject {
             }
         } else {
             // If bundle does not exist, throw error
-            throw new DatabaseException("No bundle found with ID $id");
+            throw new NoSuchBundleException("No bundle found with ID $id");
         }
     }
 }
