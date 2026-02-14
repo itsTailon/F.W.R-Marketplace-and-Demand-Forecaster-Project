@@ -214,11 +214,11 @@ class Bundle extends StoredObject {
         return !($row === false);
     }
 
-    public function addAllergen(string $allergenName) {
+    public function addAllergen(string $allergenName): void {
         // Ensure that allergen exists
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
         try {
-            $stmt->execute($allergenName);
+            $stmt->execute(["allergenName" => $allergenName]);
         } catch (\PDOException  $e) {
             throw new DatabaseException("Could not load allergen with name '" . $allergenName . "'.");
         }
@@ -238,11 +238,11 @@ class Bundle extends StoredObject {
         }
     }
 
-    public function removeAllergen(string $allergenName) {
+    public function removeAllergen(string $allergenName): void {
         // Ensure that allergen exists
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
         try {
-            $stmt->execute($allergenName);
+            $stmt->execute(["allergenName" => $allergenName]);
         } catch (\PDOException  $e) {
             throw new DatabaseException("Error attempting to load allergen with name '" . $allergenName . "'.");
         }
