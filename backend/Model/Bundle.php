@@ -383,4 +383,26 @@ class Bundle extends StoredObject {
             throw new NoSuchBundleException("No bundle found with ID $id");
         }
     }
+
+    public static function searchBundles(string $withWhatQuery) : array {
+        $pattern = "%" . $withWhatQuery . "%";
+        $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
+
+        $stmt = DatabaseHandler::getPDO()->prepare($query);
+        $stmt->execute([":pattern" => $pattern, ":status" => "available"]);
+
+        $rowsRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $rows = array();
+
+        for ($i = 0; $i < count($rowsRaw); $i++)
+        {
+            try {
+                $rows[$i] = Bundle::load($rowsRaw[$i]["bundleID"]);
+            } catch (DatabaseException $e) {
+                echo "Something went very wrong loading a bundle";
+            }
+        }
+
+        return $rows;
+    }
 }

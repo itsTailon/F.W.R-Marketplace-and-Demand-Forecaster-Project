@@ -497,4 +497,44 @@ class ReservationTest extends TestCase
         // Check if claim code 1 = claim code 2
         self::assertEquals($claimCode1, $claimCode4);
     }
+
+    public function testMarkNoShow() {
+        $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
+        $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
+
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
+
+        Reservation::markNoShow($reservation->getID());
+
+        $reservationLoaded = Reservation::load($reservation->getID());
+        $this->assertEquals(ReservationStatus::NoShow, $reservationLoaded->getStatus());
+
+        Reservation::delete($reservation->getID());
+        Bundle::delete($bundle->getID());
+        Customer::delete($customer->getUserID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testMarkCollected() {
+        $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
+        $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
+
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
+
+        Reservation::markCollected($reservation->getID());
+
+        $reservationLoaded = Reservation::load($reservation->getID());
+        $this->assertEquals(ReservationStatus::Completed, $reservationLoaded->getStatus());
+
+        $bundleLoaded = Bundle::load($bundle->getID());
+        $this->assertEquals(BundleStatus::Collected, $bundleLoaded->getStatus());
+
+        Reservation::delete($reservation->getID());
+        Bundle::delete($bundle->getID());
+        Customer::delete($customer->getUserID());
+        Seller::delete($seller->getUserID());
+        self::emptyTables();
+    }
 }

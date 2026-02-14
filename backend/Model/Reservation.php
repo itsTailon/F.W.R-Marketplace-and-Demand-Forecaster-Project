@@ -307,4 +307,25 @@ class Reservation extends StoredObject
         $bundle->setStatus(BundleStatus::Collected);
         $bundle->update();
     }
+
+    private static function markStatus(int $id, ReservationStatus $status): void {
+        $queryText = "UPDATE reservation SET reservationStatus = :status WHERE reservationID = :id;";
+        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+        $stmt->execute([":status" => $status->value, ":id" => $id]);
+    }
+
+    private static function markAssociatedBundleStatus(int $id, BundleStatus $status): void {
+        $queryText = "UPDATE bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID SET bundleStatus = :status WHERE reservationID = :id;";
+        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+        $stmt->execute([":status" => $status->value, ":id" => $id]);
+    }
+
+    public static function markNoShow(int $id): void {
+        self::markStatus($id, ReservationStatus::NoShow);
+    }
+
+    public static function markCollected(int $id): void {
+        self::markStatus($id, ReservationStatus::Completed);
+        self::markAssociatedBundleStatus($id, BundleStatus::Collected);
+    }
 }

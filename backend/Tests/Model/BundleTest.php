@@ -601,4 +601,23 @@ class BundleTest extends TestCase
         Bundle::delete($bundle->getID());
         Seller::delete($seller->getUserID());
     }
+
+    public function testSearchBundle() {
+        $testSeller = Seller::create(["email" => "testsearchbundle@example.com", "password" => "password",
+            "name" => "ex name", "address" => "ex address"]);
+        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available,
+            "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
+            "discountedPrice" => 8.00]);
+
+        $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
+        $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
+        $shouldNotFind = Bundle::searchBundles($testBundle->getTitle() . " except no");
+
+        $this->assertCount(1, $shouldFindFromTitle);
+        $this->assertCount(1, $shouldFindFromDetails);
+        $this->assertCount(0, $shouldNotFind);
+
+        Bundle::delete($testBundle->getID());
+        Seller::delete($testSeller->getUserID());
+    }
 }
