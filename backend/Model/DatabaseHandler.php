@@ -174,4 +174,13 @@ class DatabaseHandler {
         }
     }
 
+    /**
+     * Initialises database by inserting 'base' data (i.e. RBAC roles, allergens, etc).
+     * @return void
+     */
+    private function initBaseData() {
+        // TODO: Add RBAC rules if not already added
+        // TODO: Add allergens if not already added
+    }
+
 }
