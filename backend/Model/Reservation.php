@@ -96,6 +96,16 @@ class Reservation extends StoredObject
 
         $bundle = Bundle::load($fields['bundleID']);
 
+        // Update bundle's method
+        try {
+            $bundle->setStatus(BundleStatus::Reserved);
+            $bundle->update();
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        } catch (DatabaseException $e) {
+        } catch (NoSuchBundleException $e) {
+        }
+
         // Generate claim code for the bundle if the bundle has no claim code
         if(!isset($fields['claimCode'])) {
             $claimCode = self::generateClaimCode($fields['bundleID'], $fields['purchaserID'],$bundle->getTitle());
