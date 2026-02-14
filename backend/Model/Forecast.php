@@ -24,16 +24,21 @@ class Forecast
         return $records;
     }
 
-    public static function forcastWeeklyReservationNoShow(int $sellerID, string $category, string $weather, string $startTime, string $endTime, int $minDiscount, int $maxDiscount) : array {
-        // Load the data
+    public static function sellerWeeklyForecast(int $sellerID, string $category, string $weather, string $startTime, string $endTime, int $minDiscount, int $maxDiscount) : array {
+        // Load forecast predictions
         $forecastData = Forecast::getForecastInformation();
+        // Load the link data
         $linkData = Forecast::getData();
+        // Load the bundle data
         $bundleData = Forecast::getBundleData();
 
+        // create array of seller data to forecast
         $data = array();
-        foreach ($forecastData as $dataPoint) {
+        foreach ($linkData as $dataPoint) {
+            // Get the bundle related to
             $bundle = $bundleData[$dataPoint[0]];
 
+            // Check if the bundle belongs to the logged in seller
             if($bundle[2] == $sellerID) {
                 // get values from dataset
                 $dpDate = $dataPoint[2];
@@ -54,11 +59,49 @@ class Forecast
                 if ($dpDiscount == 0) $dpDiscount = 10;
                 if ($dpDiscount == 100) $dpDiscount = 90;
 
-                $data
+                // Create record
+                $dpData = array($dpDate, $dpCategory, $dpWeather, $dpStartTime, $dpEndTime, $dpDiscount);
+
+                // Add it to the array of data
+                array_push($data, $dpData);
             }
         }
 
-        $totalcollected = array(
+        // Give each data piece it's predicted values
+        $j = 0;
+        foreach ($data as $datum) {
+            foreach ($forecastData as $dataPoint) {
+                // Remove % from the discount
+                $percentageDiscount =  explode("%", $dataPoint[4])[0];
+
+                // Separate times
+                $times = explode(":", $dataPoint[3]);
+                // Convert times to integer form
+                $dpStart = explode(":", $times[0]);
+                $dpStartTime = $dpStart[0] . $dpStart[1];
+
+                $dpEnd = explode(":", $times[1]);
+                $dpEndTime = $dpEnd[0] . $dpEnd[1];
+
+                // Compare to the datum
+                if(
+                    $datum[0] == $dataPoint[0]
+                    && $datum[1] == $dataPoint[1]
+                    && $datum[2] == $dataPoint[2]
+                    && $datum[3] == $dpStartTime
+                    && $datum[4] == $dpEndTime
+                    && $datum[5] == $percentageDiscount
+                ) {
+                    // If it matches, then give the datum matching forecast information
+                    $data[$j][6] = $dataPoint[5];
+                    $data[$j][7] = $dataPoint[6];
+                }
+            }
+            $j += 1;
+        }
+
+        // prepare collected array
+        $collected = array(
             "Monday" => 0,
             "Tuesday" => 0,
             "Wednesday" => 0,
@@ -68,6 +111,7 @@ class Forecast
             "Sunday" => 0
         );
 
+        // prepare no-show array
         $totalNoShow = array(
             "Monday" => 0,
             "Tuesday" => 0,
@@ -78,6 +122,7 @@ class Forecast
             "Sunday" => 0
         );
 
+        // prepare days counted array
         $daysCounted = array(
             "Monday" => 0,
             "Tuesday" => 0,
@@ -91,64 +136,56 @@ class Forecast
         // Calculate average amount of collections & no-shows for each day of the week
         $i = 0;
         foreach($data as $row) {
-            // Make sure to skip the first row as this does not contain data
-            if($i != 0) {
-                // Split row time into start time and end time
-                $time = explode("-", $row[3]);
-                $startHourMins = explode(":", $time[0]);
-                $endHourMins = explode(":", $time[1]);
-
-                // Remove the % from the discount
-                $discount = explode("%", $row[4]);
-                if(
-                    ($row[1] == $category || $category == "")
-                    && ($row[2] == $weather || $weather == "")
-                    && (int)$startHourMins[0] >= $startTime
-                    && (int)$endHourMins[0] <= $endTime
-                    && (int)$discount[0] >= $minDiscount
-                    && (int)$discount[0] <= $maxDiscount
-                ) {
-                    // Check what day it is and add the stats to that day
-                    switch ($row[0]) {
-                        case "Monday":
-                            $totalcollected["Monday"] += $row[5] - $row[6];
-                            $totalNoShow["Monday"] += $row[6];
-                            $daysCounted["Monday"] += 1;
-                            break;
-                        case "Tuesday":
-                            $totalcollected["Tuesday"] += $row[5] - $row[6];
-                            $totalNoShow["Tuesday"] += $row[6];
-                            $daysCounted["Tuesday"] += 1;
-                            break;
-                        case "Wednesday":
-                            $totalcollected["Wednesday"] += $row[5] - $row[6];
-                            $totalNoShow["Wednesday"] += $row[6];
-                            $daysCounted["Wednesday"] += 1;
-                            break;
-                        case "Thursday":
-                            $totalcollected["Thursday"] += $row[5] - $row[6];
-                            $totalNoShow["Thursday"] += $row[6];
-                            $daysCounted["Thursday"] += 1;
-                        case "Friday":
-                            $totalcollected["Friday"] += $row[5] - $row[6];
-                            $totalNoShow["Friday"] += $row[6];
-                            $daysCounted["Friday"] += 1;
-                            break;
-                        case "Saturday":
-                            $totalcollected["Saturday"] += $row[5] - $row[6];
-                            $totalNoShow["Saturday"] += $row[6];
-                            $daysCounted["Saturday"] += 1;
-                            break;
-                        case "Sunday":
-                            $totalcollected["Sunday"] += $row[5] - $row[6];
-                            $totalNoShow["Sunday"] += $row[6];
-                            $daysCounted["Sunday"] += 1;
-                            break;
-                    }
+            if(
+                // Check if datum needs to be filtered out
+                ($row[1] == $category || $category == "")
+                && ($row[2] == $weather || $weather == "")
+                && (int)$row[3] >= $startTime
+                && (int)$row[4] <= $endTime
+                && (int)$row[5] >= $minDiscount
+                && (int)$row[5] <= $maxDiscount
+            ) {
+                // Check what day it is and add the stats to that day & increment days
+                switch ($row[0]) {
+                    case "Monday":
+                        $collected["Monday"] += $row[5] - $row[6];
+                        $totalNoShow["Monday"] += $row[6];
+                        $daysCounted["Monday"] += 1;
+                        break;
+                    case "Tuesday":
+                        $collected["Tuesday"] += $row[5] - $row[6];
+                        $totalNoShow["Tuesday"] += $row[6];
+                        $daysCounted["Tuesday"] += 1;
+                        break;
+                    case "Wednesday":
+                        $collected["Wednesday"] += $row[5] - $row[6];
+                        $totalNoShow["Wednesday"] += $row[6];
+                        $daysCounted["Wednesday"] += 1;
+                        break;
+                    case "Thursday":
+                        $collected["Thursday"] += $row[5] - $row[6];
+                        $totalNoShow["Thursday"] += $row[6];
+                        $daysCounted["Thursday"] += 1;
+                    case "Friday":
+                        $collected["Friday"] += $row[5] - $row[6];
+                        $totalNoShow["Friday"] += $row[6];
+                        $daysCounted["Friday"] += 1;
+                        break;
+                    case "Saturday":
+                        $collected["Saturday"] += $row[5] - $row[6];
+                        $totalNoShow["Saturday"] += $row[6];
+                        $daysCounted["Saturday"] += 1;
+                        break;
+                    case "Sunday":
+                        $collected["Sunday"] += $row[5] - $row[6];
+                        $totalNoShow["Sunday"] += $row[6];
+                        $daysCounted["Sunday"] += 1;
+                        break;
                 }
             }
-            $i += 1;
         }
+
+
 
         // Check if any of the days = 0 and set to 1 so don't divide by 0
         if($daysCounted["Monday"] == 0) $daysCounted["Monday"] = 1;
@@ -161,13 +198,13 @@ class Forecast
 
         // Construct weekly forecast array
         $weeklyForecast = array(
-            "AvgMondayCollected" => (int)round($totalcollected["Monday"] / $daysCounted["Monday"]),
-            "AvgTuesdayCollected" => (int)round($totalcollected["Tuesday"] / $daysCounted["Tuesday"]),
-            "AvgWednesdayCollected" => (int)round($totalcollected["Wednesday"] / $daysCounted["Wednesday"]),
-            "AvgThursdayCollected" => (int)round($totalcollected["Thursday"] / $daysCounted["Thursday"]),
-            "AvgFridayCollected" => (int)round($totalcollected["Friday"] / $daysCounted["Friday"]),
-            "AvgSaturdayCollected" => (int)round($totalcollected["Saturday"] / $daysCounted["Saturday"]),
-            "AvgSundayCollected" => (int)round($totalcollected["Sunday"] / $daysCounted["Sunday"]),
+            "AvgMondayCollected" => (int)round($collected["Monday"] / $daysCounted["Monday"]),
+            "AvgTuesdayCollected" => (int)round($collected["Tuesday"] / $daysCounted["Tuesday"]),
+            "AvgWednesdayCollected" => (int)round($collected["Wednesday"] / $daysCounted["Wednesday"]),
+            "AvgThursdayCollected" => (int)round($collected["Thursday"] / $daysCounted["Thursday"]),
+            "AvgFridayCollected" => (int)round($collected["Friday"] / $daysCounted["Friday"]),
+            "AvgSaturdayCollected" => (int)round($collected["Saturday"] / $daysCounted["Saturday"]),
+            "AvgSundayCollected" => (int)round($collected["Sunday"] / $daysCounted["Sunday"]),
             "AvgMondayNoShow" => (int)round($totalNoShow["Monday"] / $daysCounted["Monday"]),
             "AvgTuesdayNoShow" => (int)round($totalNoShow["Tuesday"] / $daysCounted["Tuesday"]),
             "AvgWednesdayNoShow" => (int)round($totalNoShow["Wednesday"] / $daysCounted["Wednesday"]),
