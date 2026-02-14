@@ -280,4 +280,30 @@ class Reservation extends StoredObject
             throw new \InvalidArgumentException("Invalid account type");
         }
     }
+
+    /**
+     * Claim bundle and update statuses
+     *
+     * @param string $claimCode
+     *
+     * @return void
+     *
+     * @throws DatabaseException
+     * @throws NoSuchBundleException
+     * @throws invalidClaimCodeExeption
+     */
+    public function claimReservation (string $claimCode): void {
+        // Check if claim codes match
+        if($claimCode != $this->claimCode) {
+            throw new invalidClaimCodeExeption("Given claim code does not match with bundles claim code");
+        }
+
+        // Set and update reservation status
+        $this->setStatus(ReservationStatus::Completed);
+
+        // Update bundle status
+        $bundle = Bundle::load($this->bundleID);
+        $bundle->setStatus(BundleStatus::Collected);
+        $bundle->update();
+    }
 }

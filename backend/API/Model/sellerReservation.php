@@ -6,6 +6,7 @@
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\DatabaseException;
+use TTE\App\Model\InvalidClaimCodeExeption;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\NoSuchReservationException;
 use TTE\App\Model\ReservationStatus;
@@ -24,42 +25,63 @@ if (!Authenticator::isLoggedIn()) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try{
-        // Check if necessary values are set
-        if(!isset($_POST['reservationStatus']) || !isset($_POST['reservationID'])){
-            throw new MissingValuesException("Missing fields");
+        if(!isset($_POST['claimCode'])) {
+            // Check if necessary values are set
+            if (!isset($_POST['reservationStatus']) || !isset($_POST['reservationID'])) {
+                throw new MissingValuesException("Missing fields");
+            }
+
+            // Get id of reservation and the status to update it with
+            $id = $_POST['ReservationID'];
+            $status = $_POST['reservationStatus'];
+
+            // Check if the given status is valid
+            switch ($status) {
+                case "Completed":
+                    $rStatus = ReservationStatus::Completed;
+                    break;
+                case "NoShow":
+                    $rStatus = ReservationStatus::NoShow;
+                    break;
+                default:
+                    throw new InvalidArgumentException("Invalid status");
+            }
+
+            // Check if reservation with given exists
+            if (!Reservation::existsWithID($id)) {
+                throw new NoSuchReservationException("No such reservation");
+            }
+
+            // Load reservation
+            $reservation = Reservation::load($id);
+
+            // Set reservation status to new status
+            $reservation->setStatus($rStatus);
+
+            // Update database with new values
+            $reservation->update();
+            exit();
+        } elseif (isset($_POST['claimCode'])) {
+            // Check if a reservation status is set
+            if (!isset($_POST['reservationID'])) {
+                throw new MissingValuesException("Missing fields");
+            }
+
+            // get values
+            $id = $_POST['ReservationID'];
+            $claimCode = $_POST['claimCode'];
+
+            // Check if reservation with given exists
+            if (!Reservation::existsWithID($id)) {
+                throw new NoSuchReservationException("No such reservation");
+            }
+
+            // Claim reservation
+            $reservation = Reservation::load($id);
+            $reservation->claimReservation($claimCode);
+
+            exit();
         }
-
-        // Get id of reservation and the status to update it with
-        $id = $_POST['ReservationID'];
-        $status = $_POST['reservationStatus'];
-
-        // Check if the given status is valid
-        switch ($status){
-            case "Completed":
-                $rStatus = ReservationStatus::Completed;
-                break;
-            case "NoShow":
-                $rStatus = ReservationStatus::NoShow;
-                break;
-            default:
-                throw new InvalidArgumentException("Invalid status");
-        }
-
-        // Check if reservation with given exists
-        if(!Reservation::existsWithID($id)){
-            throw new NoSuchReservationException("No such reservation");
-        }
-
-        // Load reservation
-        $reservation = Reservation::load($id);
-
-        // Set reservation status to new status
-        $reservation->setStatus($rStatus);
-
-        // Update database with new values
-        $reservation->update();
-        exit();
-
     } catch (MissingValuesException $e) {
         echo json_encode(http_response_code(400));
         die();
@@ -71,6 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die();
     } catch (DatabaseException $e) {
         echo json_encode(http_response_code(500));
+        die();
+    } catch (InvalidClaimCodeExeption $e) {
+        echo json_encode(http_response_code(400));
         die();
     }
 } else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
