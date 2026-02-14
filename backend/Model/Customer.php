@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use MongoDB\BSON\PackedArray;
+
 class Customer extends Account {
 
     private string $username;
@@ -10,6 +12,9 @@ class Customer extends Account {
         // TODO: Implement update() method.
     }
 
+    /**
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
+     */
     public static function create(array $fields): Customer {
         // Create the account in the database
         $account = parent::create([
@@ -28,6 +33,13 @@ class Customer extends Account {
         $customer->userID = $account->getUserID();
         $customer->setEmail($fields['email']);
         $customer->accountType = "customer";
+
+        $customerID = array("customerID" => $customer->getUserID());
+
+        // Create a streak attached to customer, that has null for all current date values
+        Streak::create($customerID);
+
+        // Return required output
         return $customer;
     }
 
@@ -94,9 +106,10 @@ class Customer extends Account {
 
     /**
      * @param int $customerID
+     * @throws DatabaseException|NoSuchCustomerException
      * @return Streak|null, where Streak is if there is a streak related to the customer, and null if not
      */
-    public function getStreak(int $customerID): ?Streak {
+    public function getStreak(): ?Streak {
         // Get customer ID
         $customerID = $this->getUserID();
 
@@ -108,32 +121,46 @@ class Customer extends Account {
         $stmt->execute(["customerID" => $customerID]);
 
         // Get result
-        $streak = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        // Return Streak if a streak exists with the given ID
-        if ($streak === false) {
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($result === false) {
             return null;
         } else {
-            return $streak;
+            // Get streakID and load streak object
+            $streakID = $result["streakID"];
+            return Streak::load($streakID);
         }
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public static function delete(int $id): void {
-        // Create SQL command to delete customer of given ID
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
 
-        // Check if customer exists
-        if (Customer::existsWithID($id)) {
-            // Attempt to run SQL statement
-            try {
-                $stmt->execute(["customerID" => $id]);
-            } catch (\PDOException $e) {
-                throw new DatabaseException($e->getMessage());
-            }
-        } else {
-            // If customer does not exist, throw error
+        // Check customer with given ID exists
+        if (Customer::existsWithID($id) === false) {
             throw new DatabaseException("No customer found with ID $id");
         }
+
+        // Create SQL command to delete customer, corresponding account instance, and streak of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
+        try {
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");
+        try {
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
+        try {
+            $stmt->execute(["userID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
         // Call superclass method
     }
 }
