@@ -160,8 +160,6 @@ class Seller extends Account {
         $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
         $expired = count($this->getBundlesByStatus(BundleStatus::Expired));
 
-        var_dump(["collect" => $collected, "expired" => $expired]);
-
         return 100 * ($collected / ($collected + $expired));
     }
 
