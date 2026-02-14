@@ -8,6 +8,7 @@ use TTE\App\Model\ReservationStatus;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Reservation;
 use TTE\App\Model\Customer;
+use TTE\App\Helpers\CurrencyTools;
 
 class SellerTest extends TestCase
 {

@@ -1,6 +1,7 @@
 <?php
-
 namespace TTE\App\Model;
+
+use TTE\App\Helpers\CurrencyTools;
 
 class Seller extends Account {
 
@@ -165,14 +166,14 @@ class Seller extends Account {
     }
 
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
-        $queryText = "SELECT rrp, discountedPrice FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
+        $queryText = "SELECT rrp, discountedPrice FROM bundle LEFT JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
 
         $query1 = $queryText . "AND reservationStatus = 'completed';";
         $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
         $stmt1->execute([":sellerID" => $this->userID]);
         $completedRows = $this->filterBundlesByDiscountLevel($stmt1->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
 
-        $query2 = $queryText . "AND reservationStatus != 'active';";
+        $query2 = $queryText . "AND reservationStatus != 'active' AND bundleStatus != 'available';";
         $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
         $stmt2->execute([":sellerID" => $this->userID]);
         $notActiveRows = $this->filterBundlesByDiscountLevel($stmt2->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
