@@ -1,0 +1,103 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+
+
+.active-bundles-wrapper {
+    width: 65vw;
+    margin: 0 auto;
+    padding-top: 7vh;
+}
+
+.active-bundles-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3vh;
+
+}
+.active-bundles-nav ul li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.active-bundles-nav ul li a {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+
+
+
+
+.active-bundles-list-wrapper {
+    width: 100%;
+    border-color: black;
+    border: 2px solid black;
+    margin-top: 7vh;
+}
+
+.active-bundles-list li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    
+}
+
+.active-bundles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8vh;
+    width: 90%;
+    margin: 5vh auto;
+    
+}
+
+
+.active-bundles-bundle-nav ul {
+    padding-top: 4vh;
+    display: flex;
+    gap: 32px;
+    align-items: center;
+}
+
+.active-bundles-bundle-nav-view {
+  border: none;
+  background-color: #D0DCFF;
+  padding: 8px 5vw;
+  border-radius: 1000px;
+  text-decoration: none;
+  color: black;
+}
+
+.active-bundles-bundle-nav-view:hover {
+    transition: all 0.2s ease;
+    color: white;
+    cursor: pointer;
+    background-color: #809FFF;
+}
+
+.active-bundles-bundle-nav-cancel {
+  border: none;
+  background-color: #ff5b5b;
+  padding: 8px 5vw;
+  border-radius: 1000px;
+  text-decoration: none;
+  color: black;
+}
+
+.active-bundles-bundle-nav-cancel:hover {
+    transition: all 0.2s ease;
+    color: white;
+    cursor: pointer;
+    background-color: #ff3838;
+}
+
+
+.active-bundles-bundle-name {
+    padding-bottom: 2vh;
+}
+

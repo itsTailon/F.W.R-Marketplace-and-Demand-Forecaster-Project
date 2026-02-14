@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             // get values
-            $id = $_POST['ReservationID'];
+            $id = $_POST['reservationID'];
             $claimCode = $_POST['claimCode'];
 
             // Check if reservation with given exists

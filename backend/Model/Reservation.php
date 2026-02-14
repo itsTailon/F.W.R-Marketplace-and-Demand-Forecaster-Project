@@ -68,11 +68,11 @@ class Reservation extends StoredObject
 
         // Create SQL statement to update reservation record
         $stmt = DatabaseHandler::getPDO()->prepare("UPDATE reservation 
-            SET bundleID = :bundleID, purchaserID = :purchaserID, reservationStatus = :reservationStatus, claimCode = :claimCode");
+            SET bundleID = :bundleID, purchaserID = :purchaserID, reservationStatus = :reservationStatus, claimCode = :claimCode WHERE reservationID = :id");
 
         // Attempt to execute the statement
         try{
-            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode]);
+            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -253,7 +253,7 @@ class Reservation extends StoredObject
     public static function getAllReservationsForUser (int $userID, string $accountType): array{
         if ($accountType === "seller") {
             // Prepare SQL statement to get all reservations a seller is involved in
-            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation WHERE sellerID=:id INNER JOIN bundle ON reservation.bundleID=bundle.bundleID;");
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation INNER JOIN bundle ON reservation.bundleID=bundle.bundleID WHERE sellerID=:id;");
 
             // Try to execute
             try {
@@ -300,6 +300,7 @@ class Reservation extends StoredObject
 
         // Set and update reservation status
         $this->setStatus(ReservationStatus::Completed);
+        $this->update();
 
         // Update bundle status
         $bundle = Bundle::load($this->bundleID);
