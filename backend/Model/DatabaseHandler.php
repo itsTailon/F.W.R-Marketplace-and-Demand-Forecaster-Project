@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Auth\RBACManager;
 use TTE\App\Global\AppConfig;
 
 /**
@@ -56,8 +57,9 @@ class DatabaseHandler {
             // Have PDO errors communicated by means of exceptions being thrown
             self::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-            // Initialise database schema
+            // Initialise database schema and add base data
             self::initSchema();
+            self::initBaseData();
         }
 
         return self::$pdo;
@@ -67,34 +69,34 @@ class DatabaseHandler {
      * Initialise the database schema — i.e., creates necessary tables, etc. if they do not already exist (e.g., in a fresh installation).
      * @return void
      */
-    private static function initSchema() {
+    private static function initSchema(): void {
         try {
             // Create tables for data model:
 
             self::$pdo->exec(
                 <<<END
-                 CREATE TABLE account ( -- formerly `user`
+                 CREATE TABLE IF NOT EXISTS account ( -- formerly `user`
                     userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     email VARCHAR(128) NOT NULL UNIQUE,
                     passwordHash VARCHAR(256) NOT NULL,
                     accountType ENUM('seller', 'customer') NOT NULL
                     );
                 
-                CREATE TABLE customer (
+                CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
                     streak INT DEFAULT 0,
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                     );
                 
-                CREATE TABLE seller (
+                CREATE TABLE IF NOT EXISTS seller (
                     sellerID INT NOT NULL PRIMARY KEY,
                     sellerName VARCHAR(128) NOT NULL, -- formerly `name`
                     sellerAddress VARCHAR(256) NOT NULL,
                     FOREIGN KEY (sellerID) REFERENCES account(userID)
                     );
                 
-                CREATE TABLE bundle (
+                CREATE TABLE IF NOT EXISTS bundle (
                     bundleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     bundleStatus ENUM('available', 'reserved', 'collected', 'cancelled') NOT NULL,
                     title VARCHAR(128) NOT NULL, -- formerly `name`
@@ -104,15 +106,15 @@ class DatabaseHandler {
                     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
-                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID),
+                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
                     FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
                     );
                 
-                CREATE TABLE allergen (
+                CREATE TABLE IF NOT EXISTS allergen (
                     allergenName VARCHAR (64) NOT NULL PRIMARY KEY
                 );
                 
-                CREATE TABLE bundle_allergen (
+                CREATE TABLE IF NOT EXISTS bundle_allergen (
                     bundleID INT NOT NULL,
                     allergenName VARCHAR (64) NOT NULL,
                     PRIMARY KEY (bundleID, allergenName),
@@ -120,7 +122,7 @@ class DatabaseHandler {
                     FOREIGN KEY (allergenName) REFERENCES allergen(allergenName) ON DELETE CASCADE
                 );
                 
-                CREATE TABLE reservation (
+                CREATE TABLE IF NOT EXISTS reservation (
                     reservationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     bundleID INT NOT NULL,
                     purchaserID INT NOT NULL,
@@ -130,7 +132,7 @@ class DatabaseHandler {
                     FOREIGN KEY (purchaserID) REFERENCES customer (customerID) ON DELETE CASCADE
                 );
                 
-                CREATE TABLE issue (
+                CREATE TABLE IF NOT EXISTS issue (
                     issueID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     customerID INT NOT NULL,
                     bundleID INT NOT NULL,
@@ -143,12 +145,12 @@ class DatabaseHandler {
                     FOREIGN KEY (bundleID) REFERENCES bundle (bundleID) ON DELETE CASCADE
                 );
                 
-                CREATE TABLE streak (
+                CREATE TABLE IF NOT EXISTS streak (
                     streakID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     customerID INT NOT NULL, 
-                    streakStatus ENUM ('active', 'inactive') NOT NULL,
-                    startDate DATETIME NOT NULL,
+                    startDate DATETIME DEFAULT NULL,
                     endDate DATETIME DEFAULT NULL,
+                    currentWeekStart DATETIME DEFAULT NULL, 
                     FOREIGN KEY (customerID) REFERENCES customer (customerID) ON DELETE CASCADE
                 );
                 END
@@ -172,6 +174,78 @@ class DatabaseHandler {
         } catch (\PDOException $e) {
             echo $e->getMessage();
         }
+    }
+
+    /**
+     * Initialises database by inserting 'base' data (i.e. RBAC roles, allergens, etc).
+     * @return void
+     */
+    private static function initBaseData(): void {
+
+        // Initialise database with allergen data
+        $allergens = [
+            "celery",
+            "gluten",
+            "crustaceans",
+            "eggs",
+            "fish",
+            "lupin",
+            "milk",
+            "molluscs",
+            "mustard",
+            "nuts",
+            "peanuts",
+            "sesame-seeds",
+            "soya",
+            "sulphites"
+        ];
+
+        // Add each allergen if it does not already exist (IGNORE).
+        foreach ($allergens as $allergen) {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT IGNORE INTO allergen (allergenName) VALUES (:allergenName);");
+            $stmt->execute(["allergenName" => $allergen]);
+        }
+
+
+        // Initialise DB with RBAC roles and permissions
+        $rbac = [
+            "seller" => [
+                "bundle_update",
+                "bundle_create",
+                "bundle_load",
+                "bundle_delete",
+            ],
+
+            "customer" => [
+                "bundle_load",
+                "streak_load",
+                "streak_delete",
+            ],
+        ];
+
+        // Create roles and permissions
+        foreach ($rbac as $role => $permissions) {
+            // Create role if it does not exist
+            if (!RBACManager::roleExists($role)) {
+                RBACManager::createRole($role);
+            }
+
+            // Add permissions to role
+            foreach ($permissions as $permission) {
+                // If the permission does not already exist, create it
+                if (!RBACManager::permissionExists($permission)) {
+                    RBACManager::createPermission($permission);
+                }
+
+                // If the role does not already have the permission, add it
+                if (!RBACManager::isRolePermitted($role, $permission)){
+                    RBACManager::assignPermissionToRole($role, $permission);
+                }
+            }
+        }
+
+
+
     }
 
 }

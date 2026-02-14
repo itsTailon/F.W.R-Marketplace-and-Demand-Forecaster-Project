@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use DateTimeImmutable;
 use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
 
@@ -26,7 +27,9 @@ class Bundle extends StoredObject {
 
     /**
      * Take current values of all attributes of the Bundle object
-     * @throws DatabaseException|NoSuchBundleException
+     * @throws DatabaseException|NoSuchBundleException|MissingValuesException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchStreakException
      */
     public function update(): void
     {
@@ -37,8 +40,17 @@ class Bundle extends StoredObject {
             throw new NoSuchBundleException("No such bundle with ID $this->id");
         }
 
+        // Check if current object values are all set
+        if (!isset($this->id) || !isset($this->status) || !isset($this->title) || !isset($this->details) || !isset($this->rrpGBX) ||
+            !isset($this->discountedPriceGBX) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
+
+            // Produce error message if field exists with no content
+            throw new MissingValuesException("Missing information required to create a bundle");
+        }
+
+
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID WHERE bundleID = :id";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
@@ -46,10 +58,47 @@ class Bundle extends StoredObject {
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":id" => $this->id]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID() ,":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
+        }
+
+        // If bundle is collected by customer and there is a customer attached
+        if ($this->getStatus() == BundleStatus::Collected && $this->getPurchaserID() != null) {
+            // Check if customer has an ongoing streak and create one if not
+            $streak = Customer::load($this->getPurchaserID())->getStreak();
+            if ($streak == null) {
+                // Create streak
+                $streak = Streak::create([$this->getPurchaserID()]);
+                // Update end-date of streak to a week from now
+                $streak->setCurrentWeekStart($streak->getStartDate());
+                $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                $streak->update();
+            } else {
+
+                // Start new streak if "current" streak has already ended
+                if ($streak->getEndDate() < new DateTimeImmutable("now")) {
+                    // Get current date
+                    $currentDate = new DateTimeImmutable("now");
+                    $streak->setStartDate($currentDate);
+                    $streak->setCurrentWeekStart($currentDate);
+                    $streak->setEndDate($currentDate->modify("+1 week"));
+                    // Update streak
+                    $streak->update();
+                } else {
+                    // Check if a bundle has already been collected to continue the streak
+                    if ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
+                        // Changing currentWeekStart and endDate to a weeks time signifying update of streak
+                        $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
+                        $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                        // Applying update
+                        $streak->update();
+                    }
+
+
+                }
+            }
         }
 
     }
@@ -165,6 +214,63 @@ class Bundle extends StoredObject {
         return !($row === false);
     }
 
+    public function addAllergen(string $allergenName): void {
+        // Ensure that allergen exists
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
+        try {
+            $stmt->execute(["allergenName" => $allergenName]);
+        } catch (\PDOException  $e) {
+            throw new DatabaseException("Could not load allergen with name '" . $allergenName . "'.");
+        }
+        if ($stmt->fetch() === false) {
+            throw new NoSuchAllergenException("No allergen exists with name '" . $allergenName . "'.");
+        }
+
+        // Allergen does exist, so add it to the bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle_allergen (bundleID, allergenName) VALUES (:bundleID, :allergenName);");
+        try {
+            $stmt->execute([
+               "bundleID" => $this->getID(),
+               "allergenName" => $allergenName,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not add allergen with name '" . $allergenName . "' to bundle with ID " . $this->getID() . ".");
+        }
+    }
+
+    public function removeAllergen(string $allergenName): void {
+        // Ensure that allergen exists
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
+        try {
+            $stmt->execute(["allergenName" => $allergenName]);
+        } catch (\PDOException  $e) {
+            throw new DatabaseException("Error attempting to load allergen with name '" . $allergenName . "'.");
+        }
+        if ($stmt->fetch() === false) {
+            throw new NoSuchAllergenException("No allergen exists with name '" . $allergenName . "'.");
+        }
+
+        // Allergen does exist, so remove it from bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle_allergen WHERE bundleID=:bundleID AND allergenName=:allergenName;");
+        try {
+            $stmt->execute([
+                "bundleID" => $this->getID(),
+                "allergenName" => $allergenName,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not remove allergen with name '" . $allergenName . "' from bundle with ID " . $this->getID() . " (it may not have been assigned to the bundle).");
+        }
+    }
+
+    public function getAllergens(): array {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT allergen.allergenName FROM allergen JOIN bundle_allergen ON bundle_allergen.bundleID=:bundleID WHERE allergen.allergenName=bundle_allergen.allergenName");
+        $stmt->execute([
+            "bundleID" => $this->getID(),
+        ]);
+
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     public function getID(): int {
         return $this->id;
     }
@@ -256,6 +362,10 @@ class Bundle extends StoredObject {
         $this->purchaserID = $customerID;
     }
 
+    /**
+     * @throws DatabaseException
+     * @throws NoSuchBundleException
+     */
     public static function delete(int $id): void {
         // Create SQL command to delete bundle of given ID
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle WHERE bundleID=:bundleID;");
@@ -265,12 +375,12 @@ class Bundle extends StoredObject {
             // Attempt to run SQL statement
             try {
                 $stmt->execute(["bundleID" => $id]);
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
         } else {
             // If bundle does not exist, throw error
-            throw new DatabaseException("No bundle found with ID $id");
+            throw new NoSuchBundleException("No bundle found with ID $id");
         }
     }
 }
