@@ -30,13 +30,13 @@ class SellerTest extends TestCase
         $testSeller = Seller::create(["email" => "sellthroughrate@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
-        // Create a cancelled bundle
-        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Cancelled)", "details" => "Ex Bundle Details (Cancelled)", "rrp" => 10.00, "discountedPrice" => 8.00]);
-        $testBundleExpiredReservation = Reservation::create(["bundleID" => $testBundleExpired->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Cancelled]);
+        // Create an expired bundle
+        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
 
         // Create a collected bundle
         $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
         $testBundleCollectedReservation = Reservation::create(["bundleID" => $testBundleCollected->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
+        Reservation::markCollected($testBundleCollectedReservation->getID());
 
         // Create an active bundle
         $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00]);
@@ -45,17 +45,7 @@ class SellerTest extends TestCase
         // Do our assertion
         $this->assertEquals(50, $testSeller->getSellThroughRate());
 
-        // Delete the reservations
-        Reservation::delete($testBundleExpiredReservation->getID());
-        Reservation::delete($testBundleCollectedReservation->getID());
-        Reservation::delete($testBundleActiveReservation->getID());
-
-        // Delete the bundles themselves
-        Bundle::delete($testBundleExpired->getID());
-        Bundle::delete($testBundleCollected->getID());
-        Bundle::delete($testBundleActive->getID());
-
-        // Delete the users involved
+        // Delete the users involved (will cause cascade)
         Customer::delete($testPurchaser->getUserID());
         Seller::delete($testSeller->getUserID());
     }
@@ -65,16 +55,16 @@ class SellerTest extends TestCase
         $testSeller = Seller::create(["email" => "sellthroughrate@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
-        // Create a cancelled bundle
-        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Cancelled)", "details" => "Ex Bundle Details (Cancelled)", "rrp" => 10.00, "discountedPrice" => 8.00]);
-        $testBundleExpiredReservation = Reservation::create(["bundleID" => $testBundleExpired->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Cancelled]);
+        // Create an expired bundle
+        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
 
         // Create a collected bundle
-        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10, "discountedPrice" => 8]);
+        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
         $testBundleCollectedReservation = Reservation::create(["bundleID" => $testBundleCollected->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
+        Reservation::markCollected($testBundleCollectedReservation->getID());
 
         // Create an active bundle
-        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10, "discountedPrice" => 8]);
+        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00]);
         $testBundleActiveReservation = Reservation::create(["bundleID" => $testBundleActive->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Active]);
 
         // Create a bundle that should be ignored
@@ -83,18 +73,6 @@ class SellerTest extends TestCase
 
         // Do our assertion
         $this->assertEquals(50, $testSeller->getSellThroughRateByDiscountRate(10, 30));
-
-        // Delete the reservations
-        Reservation::delete($testBundleExpiredReservation->getID());
-        Reservation::delete($testBundleCollectedReservation->getID());
-        Reservation::delete($testBundleActiveReservation->getID());
-        Reservation::delete($testBundleShouldBeIgnoredReservation->getID());
-
-        // Delete the bundles themselves
-        Bundle::delete($testBundleExpired->getID());
-        Bundle::delete($testBundleCollected->getID());
-        Bundle::delete($testBundleActive->getID());
-        Bundle::delete($testBundleShouldBeIgnored->getID());
 
         // Delete the users involved
         Customer::delete($testPurchaser->getUserID());

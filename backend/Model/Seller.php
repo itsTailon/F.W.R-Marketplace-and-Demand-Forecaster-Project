@@ -149,35 +149,26 @@ class Seller extends Account {
         return $dbRowsFiltered;
     }
 
+    private function getBundlesByStatus(BundleStatus $status) : array {
+        $queryText = "SELECT rrp, discountedPrice FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
+        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+        $stmt->execute([":sellerID" => $this->getUserID(), ":status" => $status->value]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
     public function getSellThroughRate() : float {
-        $queryText = "SELECT rrp, discountedPrice FROM bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
+        $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
+        $expired = count($this->getBundlesByStatus(BundleStatus::Expired));
 
-        $query1 = $queryText . "AND reservationStatus = 'completed';";
-        $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
-        $stmt1->execute([":sellerID" => $this->userID]);
-        $completedRows = $stmt1->fetchAll(\PDO::FETCH_ASSOC);
+        var_dump(["collect" => $collected, "expired" => $expired]);
 
-        $query2 = $queryText . "AND reservationStatus != 'active';";
-        $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
-        $stmt2->execute([":sellerID" => $this->userID]);
-        $notActiveRows = $stmt2->fetchAll(\PDO::FETCH_ASSOC);
-
-        return 100 * (count($completedRows) / count($notActiveRows));
+        return 100 * ($collected / ($collected + $expired));
     }
 
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
-        $queryText = "SELECT rrp, discountedPrice FROM bundle LEFT JOIN reservation ON bundle.bundleID = reservation.bundleID WHERE sellerID = :sellerID ";
+        $collected = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Collected), $minDiscount, $maxDiscount));
+        $expired = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Expired), $minDiscount, $maxDiscount));
 
-        $query1 = $queryText . "AND reservationStatus = 'completed';";
-        $stmt1 = DatabaseHandler::getPDO()->prepare($query1);
-        $stmt1->execute([":sellerID" => $this->userID]);
-        $completedRows = $this->filterBundlesByDiscountLevel($stmt1->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
-
-        $query2 = $queryText . "AND reservationStatus != 'active' AND bundleStatus != 'available';";
-        $stmt2 = DatabaseHandler::getPDO()->prepare($query2);
-        $stmt2->execute([":sellerID" => $this->userID]);
-        $notActiveRows = $this->filterBundlesByDiscountLevel($stmt2->fetchAll(\PDO::FETCH_ASSOC), $minDiscount, $maxDiscount);
-
-        return 100 * (count($completedRows) / count($notActiveRows));
+        return 100 * ($collected / ($collected + $expired));
     }
 }
