@@ -2,5 +2,47 @@ canvas.graph-2d {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 50px;
+}
+
+div.forecast-variables {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 1000px;
     border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+div.forecast-variables__var {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+div.forecast-variables__var label {
+    display: flex;
+    flex-basis: 150px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    margin-right: 100px;
+}
+
+div.forecast-variables__var select {
+    border: 1px solid grey;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 250px;
+}
+
+div.forecast-variables__var input[type="number"] {
+    border: 1px solid grey;
+    border-radius: 5px;
+    min-width: 50px;
+    max-width: fit-content;
+    height: 50px;
+    font-size: 20px;
+    text-align: center;
 }
