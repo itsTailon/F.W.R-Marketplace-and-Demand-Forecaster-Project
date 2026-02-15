@@ -13,6 +13,7 @@ $("#reserve-btn").click(function() {
         statusCode: {
             200: () => {
                 alert("Bundle successfully reserved!");
+                location.reload();
             },
             400: () => {
                 alert("Error — please try again. (Bad Request)");
