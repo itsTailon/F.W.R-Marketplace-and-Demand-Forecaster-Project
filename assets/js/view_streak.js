@@ -238,7 +238,7 @@ $.ajax({
             let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
             streakStart = new Date(sqlStartSplit[0], sqlStartSplit[1]-1, sqlStartSplit[2]);
 
-            let sqlEndDate = dates["endDate"]["date"];
+            let sqlEndDate = dates["currentWeekStart"]["date"];
             let sqlEndSplit = sqlEndDate.replace(' ', '-').split("-");
             streakEnd = new Date(sqlEndSplit[0], sqlEndSplit[1]-1, sqlEndSplit[2]);
 
