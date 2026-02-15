@@ -8,7 +8,6 @@ use TTE\App\Model\Seller;
 
 require 'partials/head.php';
 
-session_start();
 
 // If user is not logged in, briefly display an error
 // and then redirect to login
@@ -140,3 +139,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 <script src="/assets/js/components/text-inputs.js"></script>
 <script src="/assets/js/bundle_form.js"></script>
 <script src="/assets/js/edit.js"></script>
+
+
+<?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+

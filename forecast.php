@@ -4,7 +4,6 @@ use TTE\App\Model\Customer;
 
 require 'partials/head.php';
 
-session_start();
 
 // If user is not logged in, briefly display an error
 // and then redirect to login
@@ -84,3 +83,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 <script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>
 <script src="/assets/js/forecast.js"></script>
+
+
+<?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+

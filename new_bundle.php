@@ -64,4 +64,9 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 <script src="/assets/js/components/text-inputs.js"></script>
 <script src="/assets/js/bundle_form.js"></script>
 <script src="/assets/js/create.js"></script>
+
 <?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+
