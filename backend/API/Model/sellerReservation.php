@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
 
             // Get id of reservation and the status to update it with
-            $id = $_POST['ReservationID'];
+            $id = $_POST['reservationID'];
             $status = $_POST['reservationStatus'];
 
             // Check if the given status is valid
