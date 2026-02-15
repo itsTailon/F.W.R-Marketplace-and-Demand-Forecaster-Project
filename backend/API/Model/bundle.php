@@ -76,6 +76,8 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         if(isset($_PUT['purchaserID'])) {
             $bundle->setPurchaserID(intval($_PUT['purchaserID']));
+        } else {
+            $bundle->setPurchaserID(null);
         }
 
         // Calling update() method as checks have been fulfilled
