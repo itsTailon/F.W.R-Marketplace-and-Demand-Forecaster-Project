@@ -21,22 +21,29 @@ require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 ?>
 
-    <form id = "searchform" method = "GET">
-        <label for = "searchbar">
-            <input id = "searchbar" name = "searchbar">
-            <input type = "submit" value = "Search">
-    </form>
+<div class="dashboard-wrapper">
+    <div class="dashboard">
+        <form id = "searchform" method = "GET">
+            <label for = "searchbar">
+                <input id = "searchbar" name = "searchbar">
+                <input type = "submit" value = "Search">
+        </form>
+
+        <?php
+        $query = $_GET['searchbar'] ?? '';
+
+        $results = Bundle::searchBundles($query);
+
+        for ($i = 0; $i < count($results); $i++) {
+            echo "Displaying an item";
+            $results[$i]->display();
+        }
+        ?>
+    </div>
+</div>
+
 
 <?php
-$query = $_GET['searchbar'] ?? '';
-
-$results = Bundle::searchBundles($query);
-
-for ($i = 0; $i < count($results); $i++) {
-    echo "Displaying an item";
-    $results[$i]->display();
-}
-
 // Include page footer and closing tags
 require_once 'partials/footer.php';
 ?>
