@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             throw new NoSuchPermissionException("User has no permission to create reservations");
         }
 
-            if (ctype_digit($bundleID) && ctype_digit($purchaserID)) {
+        if (ctype_digit($bundleID) && ctype_digit($purchaserID)) {
             $fields["bundleID"] = intval($bundleID);
             $fields["purchaserID"] = intval($purchaserID);
         } else {

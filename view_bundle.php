@@ -45,6 +45,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 ?>
 
+<input type="hidden" id="bundleID" value="<?php echo $bundleID; ?>">
+<input type="hidden" id="purchaserID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
+
+
 <div class="single-bundle-container">
     <div class="single-bundle-wrapper">
         <div class="bundle-dashboard-buttons">
@@ -81,7 +85,16 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                             if ($user instanceof Seller && $bundle->getSellerID() == $user->getUserID()) {
                                 ?><a href="" class="bundle-view__edit-btn button button--rounded button--green">Edit</a><?php
                             } else if ($user instanceof \TTE\App\Model\Customer) {
-                                ?><a href="" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</a><?php
+                                if ($bundle->getStatus() == \TTE\App\Model\BundleStatus::Available) {
+                                    ?>
+                                    <button id="reserve-btn" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</button>
+                                    <script src="assets/js/bundle_reserve.js"></script>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <span>RESERVED</span>
+                                    <?php
+                                }
                             }
                         ?>
                     </div>

@@ -42,15 +42,15 @@ $('#submit-btn').click(() => {
     }
 
 
-    // Send PUT request to bundle API
+    // Send POST request to bundle API
     $.ajax({
         url: "/backend/API/Model/bundle.php",
         type: 'POST',
         data: {
             title: bundleName,
             details: bundleDesc,
-            rrp: bundleRRP,
-            discountedPrice: bundleDiscountPrice,
+            rrp: bundleRRP * 100,
+            discountedPrice: bundleDiscountPrice * 100,
         },
         statusCode: {
             200: () => { // Edit successful

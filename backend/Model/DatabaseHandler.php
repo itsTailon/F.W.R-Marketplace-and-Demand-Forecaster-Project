@@ -219,6 +219,7 @@ class DatabaseHandler {
                 "bundle_load",
                 "streak_load",
                 "streak_delete",
+                "reservation_create",
             ],
         ];
 
