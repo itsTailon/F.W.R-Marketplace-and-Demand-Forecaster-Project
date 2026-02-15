@@ -28,15 +28,13 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     </form>
 
 <?php
-if (isset($_GET['searchbar'])) {
-    $results = Bundle::searchBundles($_GET['searchbar']);
+$query = $_GET['searchbar'] ?? '';
 
-    for ($i = 0; $i < count($results); $i++) {
-        echo "Displaying an item";
-        $results[$i]->display();
-    }
-} else {
-    echo "<div><i>Results will be shown here</i></div>";
+$results = Bundle::searchBundles($query);
+
+for ($i = 0; $i < count($results); $i++) {
+    echo "Displaying an item";
+    $results[$i]->display();
 }
 
 // Include page footer and closing tags
