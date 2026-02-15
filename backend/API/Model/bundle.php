@@ -118,20 +118,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     try {
 
         // Ensuring all required values are set
-        if (!isset($_POST["bundleStatus"]) || !isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST["purchaserID"])) {
+        if (!isset($_POST["title"]) || !isset($_POST["details"])
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"])) {
+
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
         }
 
         // Get array of fields for bundle to create
         $fields = array(
-            $_POST["bundleStatus"],
-            $_POST["title"],
-            $_POST["details"],
-            $_POST["rrp"],
-            $_POST["discountedPrice"],
-            $_POST["purchaserID"]
+            "title" => $_POST["title"],
+            "details" => $_POST["details"],
+            "rrp" => $_POST["rrp"],
+            "discountedPrice" => $_POST["discountedPrice"],
+            "sellerID" => Authenticator::getCurrentUser()->getUserID(),
+            "bundleStatus" => BundleStatus::Available,
         );
 
         // Checking that current user has permissions to create a Bundle
@@ -144,46 +145,22 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             // Switch-case confirming field type
             // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
-                case "bundleStatus":
-                    // Switch-case checking value to additionally update it to non-string
-                    $fields["bundleStatus"] = match ($value) {
-                        "Available" => BundleStatus::Available,
-                        "Reserved" => BundleStatus::Reserved,
-                        "Collected" => BundleStatus::Collected,
-                        "Cancelled" => BundleStatus::Cancelled,
-                        default => throw new InvalidArgumentException("Invalid field type for $field"),
-                    };
-                    break;
-
                 case "rrp":
                 case "discountedPrice":
                 case "sellerID":
                     // Check string contains only [0,9] digits and no '.'
-                    if (!ctype_digit($value)) {
+                    if (!is_int(filter_var($value, FILTER_VALIDATE_INT))) {
                         throw new InvalidArgumentException("Invalid field type for $field");
                     }
                     // Convert string to integer
                     $fields[$field] = intval($value);
                     break;
 
-                case "purchaserID":
-                    // If not [0,9] or null, throw exception
-                    if (!empty($value) || !ctype_digit($value)) {
-                        throw new InvalidArgumentException("Invalid field type for $field");
-                    }
-
-                    // Convert type and store if integer
-                    if (ctype_digit($value)) {
-                        $fields[$field] = intval($value);
-                    } else {
-                        // If empty then store as null
-                        $fields[$field] = null;
-                    }
-                    break;
-
             }
 
         }
+
+
 
         // Calling create() method, storing Bundle object produced as $bundle
         $bundle = Bundle::create($fields);
@@ -196,27 +173,27 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchPermissionException $nsp_e) {
         // Permission denied thus "forbidden" to access content and produce JSON-encoded message
         echo json_encode(http_response_code(403));
-        die();
+        die("NSP");
     } catch (DatabaseException $e) {
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (MissingValuesException $mv_e) {
         // Bad request not in the form required as input and produce JSON-encoded message
         echo json_encode(http_response_code(400));
-        die();
+        die("MVE");
     } catch (NoSuchCustomerException $nsc_e) {
         // Customer not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
-        die();
+        die("NCE");
     } catch (NoSuchSellerException $nss_e) {
         // Seller not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
-        die();
+        die("NSE");
     } catch (InvalidArgumentException $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
-        die();
+        die("IAE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
