@@ -1,6 +1,7 @@
 <?php
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
+use TTE\App\Model\Bundle;
 use TTE\App\Model\Account;
 // Define document (i.e. tab) title
 $DOCUMENT_TITLE = "Active Bundles";
@@ -33,8 +34,8 @@ require_once 'partials/dashboard/dashboard_header.php';
 // Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
 
-$bundles = 1;
-$testCount = 5;
+$bundles = Seller::getAllBundlesForUser($acc->getUserID());
+
 
 ?>
 
@@ -59,15 +60,22 @@ $testCount = 5;
     <h1>Active bundles</h1>   
     <div class="active-bundles-list-wrapper">
         <ul class="active-bundles-list">
-            <?php for ($i = 1; $i <= $testCount; $i++): ?>
+            <?php foreach ($bundles as $b): ?>
+                <?php
+                if($b['bundleStatus'] != 'available' && $b['bundleStatus'] != 'reserved') {
+                    continue;
+                }
+                $bundle = Bundle::load($b['bundleID']);
+                ?>
             <li>
-                <h1 class="active-bundles-bundle-name">Bundle Name</h1>
-                <p class="active-bundles-bundle-description">Bundle description</p>
+                <h1 class="active-bundles-bundle-name"><?php echo $bundle->getTitle() ?></h1>
+                <p class="active-bundles-bundle-description">Bundle Status: <?php echo $bundle->getStatus()->value ?></p>
+                <p class="active-bundles-bundle-description">Bundle description: <?php echo $bundle->getDetails() ?></p>
                 <p class="active-bundles-bundle-date"><i>Bundle Date posted</i></p>
 
                 <nav class="active-bundles-bundle-nav">
                     <ul>
-                        <li><h2>£12</h2></li>
+                        <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
                         <li><a class="active-bundles-bundle-nav-view">View</a></li>
                         <li><a class="active-bundles-bundle-nav-view">Edit</a></li>
                         <li><a class="active-bundles-bundle-nav-cancel">Cancel</a></li>
@@ -75,7 +83,7 @@ $testCount = 5;
                 </nav>
 
             </li>
-            <?php endfor; ?>
+            <?php endforeach; ?>
         </ul>
     </div>
     <?php endif; ?>

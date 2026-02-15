@@ -7,6 +7,7 @@
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Auth\RBACManager;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
@@ -61,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
             // Update the database
             $reservationDetails->update();
+            $bundle = Bundle::load($reservationDetails->getBundleID());
+            $bundle->setStatus(BundleStatus::Available);
+            $bundle->update();
+
             exit();
         } else {
             throw new NoSuchReservationException("No such reservation with ID " . $id);

@@ -72,7 +72,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
         console.log(reservationID);
         $.ajax({
             type: 'DELETE',
-            url: '/backend/API/Model/consumerReservation.php',
+            url: '/backend/API/Model/sellerReservation.php',
             data: {reservationID: reservationID},
             success: function() {
                 // redirect
