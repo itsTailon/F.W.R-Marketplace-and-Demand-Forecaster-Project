@@ -213,6 +213,9 @@ class DatabaseHandler {
                 "bundle_create",
                 "bundle_load",
                 "bundle_delete",
+                "reservation_load",
+                "reservation_claim",
+                "reservation_cancel",
             ],
 
             "customer" => [
@@ -220,6 +223,8 @@ class DatabaseHandler {
                 "streak_load",
                 "streak_delete",
                 "reservation_create",
+                "reservation_cancel",
+                "reservation_load",
             ],
         ];
 

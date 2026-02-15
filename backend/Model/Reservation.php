@@ -305,6 +305,7 @@ class Reservation extends StoredObject
         // Update bundle status
         $bundle = Bundle::load($this->bundleID);
         $bundle->setStatus(BundleStatus::Collected);
+        $bundle->setPurchaserID($this->getPurchaserID());
         $bundle->update();
     }
 

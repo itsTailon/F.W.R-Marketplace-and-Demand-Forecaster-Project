@@ -53,7 +53,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     <div class="single-bundle-wrapper">
         <div class="bundle-dashboard-buttons">
             <!-- TODO: Add symbols  -->
-            <a href="" class="button button--rounded">Listings</a>
+            <a href="browse.php" class="button button--rounded">Listings</a>
             <a href="dashboard.php" class="button button--rounded">Home</a>
         </div>
 
@@ -77,7 +77,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     ?>
 
                     <span class="bundle-view__seller"><?php echo (Seller::load($bundle->getSellerID()))->getName(); ?></span>
-                    <span class="bundle-view__date">Posted on DATE at TIME</span>
+                    <span class="bundle-view__date"></span>
                     <div class="bundle-view__price">
                         <span>£<?php echo $priceStr; ?></span>
                         <?php
@@ -102,7 +102,26 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
             </div>
 
             <div class="bundle-view__desc-wrapper">
-                <span class="bundle-view__allergens">Allergens listed: XX, XX</span>
+                <?php
+                if (!empty($bundle->getAllergens())) {
+                    ?>
+                        <span class="bundle-view__allergens">
+                        Allergens listed:
+                        <?php
+                        $allergens = $bundle->getAllergens();
+
+                        for ($i = 0; $i < count($allergens); $i++) {
+                            echo $allergens[$i];
+
+                            if ($i != count($allergens) - 1) {
+                                echo ', ';
+                            }
+                        }
+                        ?>
+                        </span>
+                    <?php
+                }
+                ?>
                 <p class="bundle-view__desc"><?php echo $bundle->getDetails(); ?></p>
             </div>
 
