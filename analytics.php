@@ -16,7 +16,6 @@ if (!Authenticator::isLoggedIn()) {
 
 // Ensure that user is a Seller (Seller-only page)
 $acc = Authenticator::getCurrentUserSubclass();
-
 if (!($acc instanceof Seller)) {
     header('Location: /dashboard.php');
     die('');

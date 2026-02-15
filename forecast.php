@@ -1,25 +1,21 @@
 <?php
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Customer;
+use TTE\App\Model\Seller;
 
 require 'partials/head.php';
 
-
-// If user is not logged in, briefly display an error
-// and then redirect to login
+// Redirect user to login page if they are not logged in.
 if (!Authenticator::isLoggedIn()) {
-    echo <<<XYZ
-    <p>ERROR: Not logged in!</p>
-    <script>
-        function redirectToLogin() {
-            location.href = "/login.php"
-        }
+    header('Location: /login.php');
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
+}
 
-        setTimeout(redirectToLogin, 3000);
-
-    </script>
-    XYZ;
-    die();
+// Ensure that user is a Seller (Seller-only page)
+$acc = Authenticator::getCurrentUserSubclass();
+if (!($acc instanceof Seller)) {
+    header('Location: /dashboard.php');
+    die('');
 }
 
 // Include dashboard header (i.e. 'title bar')
