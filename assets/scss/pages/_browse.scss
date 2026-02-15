@@ -1,0 +1,18 @@
+#searchform {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 80% 20%;
+}
+
+#searchbarlabel {
+  width: 100%;
+}
+
+#searchbar, #searchsubmitbutton {
+  margin: 5px;
+}
+
+.displayedbundle {
+  background-color: gray;
+  padding: 5px;
+}
