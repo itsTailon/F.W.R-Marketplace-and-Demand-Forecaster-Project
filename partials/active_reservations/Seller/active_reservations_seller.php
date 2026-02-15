@@ -53,7 +53,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
                             <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID ?>">View</a></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID ?>">Edit</a></li>
-                            <li><button class="active-reservations-bundle-nav-cancel" value="<?php echo $reservationID ?>">Cancel</button></li>
+                            <li><a class="active-reservations-bundle-nav-cancel" data-res-id="<?php echo $reservationID ?>">Cancel</a></li>
                         </ul>
                     </nav>
 
@@ -66,11 +66,13 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
 </div>
 
 <script>
-    $('.active-reservations-bundle-nav-cancel').on('click', function() {
-        const reservationID = this.value;
+    $('.active-reservations-bundle-nav-cancel').on('click', function(e) {
+        e.preventDefault();
+        const reservationID = $(this).data('res-id');
+        console.log(reservationID);
         $.ajax({
             type: 'DELETE',
-            url: '/backend/API/Model/sellerReservation.php',
+            url: '/backend/API/Model/consumerReservation.php',
             data: {reservationID: reservationID},
             success: function() {
                 // redirect

@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $bundle = Bundle::load($reservation->getBundleID());
 
         // Check if user has permission to delete reservations
-        if (!RBACManager::isCurrentuserPermitted("reservations_cancel")){
+        if (!RBACManager::isCurrentuserPermitted("reservation_cancel")){
             throw new NoSuchPermissionException("User does not have permission to cancel reservations");
         }
 
