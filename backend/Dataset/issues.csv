@@ -1,0 +1,151 @@
+issueID,issueStatus,customerID,issueDescription,sellerResponse,bundleID
+1,ongoing,31,Does this bundle contain gluten?,,1
+2,resolved,32,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",3
+3,ongoing,33,What can I expect to receive from this bundle?,,5
+4,resolved,34,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",7
+5,ongoing,35,Is this bundle halal?,,9
+6,resolved,36,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",11
+7,ongoing,37,Does this bundle contain gluten?,,13
+8,resolved,38,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",15
+9,ongoing,39,What can I expect to receive from this bundle?,,17
+10,resolved,40,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",19
+11,ongoing,41,Is this bundle halal?,,21
+12,resolved,42,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",23
+13,ongoing,43,Is this bundle suitable for vegetarians?,,25
+14,resolved,44,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",27
+15,ongoing,45,Is this bundle halal?,,29
+16,resolved,46,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",31
+17,ongoing,47,Is this bundle halal?,,33
+18,resolved,48,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",35
+19,ongoing,49,Does this bundle contain gluten?,,37
+20,resolved,50,Where can I find my claim code?,Your claim code can be found in the reservations section.,39
+21,ongoing,51,Is this bundle suitable for vegetarians?,,41
+22,resolved,52,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",43
+23,ongoing,53,What can I expect to receive from this bundle?,,45
+24,resolved,54,Where can I find my claim code?,Your claim code can be found in the reservations section.,47
+25,ongoing,55,Is this bundle halal?,,49
+26,resolved,56,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",51
+27,ongoing,57,What can I expect to receive from this bundle?,,53
+28,resolved,58,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",55
+29,ongoing,59,Is this bundle suitable for vegetarians?,,57
+30,resolved,60,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",59
+31,ongoing,31,Is this bundle suitable for vegetarians?,,61
+32,resolved,32,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",63
+33,ongoing,33,Is this bundle suitable for vegetarians?,,65
+34,resolved,34,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",67
+35,ongoing,35,Does this bundle contain gluten?,,69
+36,resolved,36,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",71
+37,ongoing,37,Is this bundle halal?,,73
+38,resolved,38,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",75
+39,ongoing,39,Is this bundle halal?,,77
+40,resolved,40,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",79
+41,ongoing,41,Does this bundle contain gluten?,,81
+42,resolved,42,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",83
+43,ongoing,43,What can I expect to receive from this bundle?,,85
+44,resolved,44,Where can I find my claim code?,Your claim code can be found in the reservations section.,87
+45,ongoing,45,Is this bundle halal?,,89
+46,resolved,46,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",91
+47,ongoing,47,Does this bundle contain gluten?,,93
+48,resolved,48,Where can I find my claim code?,Your claim code can be found in the reservations section.,95
+49,ongoing,49,Does this bundle contain gluten?,,97
+50,resolved,50,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",99
+51,ongoing,51,Is this bundle suitable for vegetarians?,,101
+52,resolved,52,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",103
+53,ongoing,53,Does this bundle contain gluten?,,105
+54,resolved,54,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",107
+55,ongoing,55,Is this bundle halal?,,109
+56,resolved,56,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",111
+57,ongoing,57,What can I expect to receive from this bundle?,,113
+58,resolved,58,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",115
+59,ongoing,59,Is this bundle suitable for vegetarians?,,117
+60,resolved,60,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",119
+61,ongoing,31,Is this bundle halal?,,121
+62,resolved,32,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",123
+63,ongoing,33,Is this bundle halal?,,125
+64,resolved,34,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",127
+65,ongoing,35,Is this bundle suitable for vegetarians?,,129
+66,resolved,36,Where can I find my claim code?,Your claim code can be found in the reservations section.,131
+67,ongoing,37,Is this bundle suitable for vegetarians?,,133
+68,resolved,38,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",135
+69,ongoing,39,Does this bundle contain gluten?,,137
+70,resolved,40,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",139
+71,ongoing,41,Is this bundle suitable for vegans?,,141
+72,resolved,42,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",143
+73,ongoing,43,Is this bundle suitable for vegans?,,145
+74,resolved,44,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",147
+75,ongoing,45,Is this bundle suitable for vegans?,,149
+76,resolved,46,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",151
+77,ongoing,47,What can I expect to receive from this bundle?,,153
+78,resolved,48,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",155
+79,ongoing,49,Is this bundle suitable for vegetarians?,,157
+80,resolved,50,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",159
+81,ongoing,51,Is this bundle suitable for vegetarians?,,161
+82,resolved,52,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",163
+83,ongoing,53,Is this bundle halal?,,165
+84,resolved,54,Is this bundle suitable for vegans?,"No, our ingredients include animal produce such as eggs and milk.",167
+85,ongoing,55,Is this bundle halal?,,169
+86,resolved,56,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",171
+87,ongoing,57,Is this bundle suitable for vegetarians?,,173
+88,resolved,58,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",175
+89,ongoing,59,Is this bundle suitable for vegetarians?,,177
+90,resolved,60,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",179
+91,ongoing,31,Is this bundle suitable for vegetarians?,,181
+92,resolved,32,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",183
+93,ongoing,33,Does this bundle contain gluten?,,185
+94,resolved,34,Where can I find my claim code?,Your claim code can be found in the reservations section.,187
+95,ongoing,35,What can I expect to receive from this bundle?,,189
+96,resolved,36,Where can I find my claim code?,Your claim code can be found in the reservations section.,191
+97,ongoing,37,Is this bundle suitable for vegetarians?,,193
+98,resolved,38,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",195
+99,ongoing,39,Is this bundle suitable for vegetarians?,,197
+100,resolved,40,Where can I find my claim code?,Your claim code can be found in the reservations section.,199
+101,ongoing,41,Is this bundle halal?,,201
+102,resolved,42,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",203
+103,ongoing,43,Is this bundle suitable for vegans?,,205
+104,resolved,44,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",207
+105,ongoing,45,Is this bundle suitable for vegetarians?,,209
+106,resolved,46,Where can I find my claim code?,Your claim code can be found in the reservations section.,211
+107,ongoing,47,Is this bundle halal?,,213
+108,resolved,48,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",214
+109,ongoing,49,Does this bundle contain gluten?,,215
+110,resolved,50,Where can I find my claim code?,Your claim code can be found in the reservations section.,217
+111,ongoing,51,Is this bundle suitable for vegetarians?,,219
+112,resolved,52,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",221
+113,ongoing,53,Is this bundle suitable for vegetarians?,,223
+114,resolved,54,Is this bundle suitable for vegans?,"No, our ingredients include animal produce such as eggs and milk.",225
+115,ongoing,55,Is this bundle halal?,,227
+116,resolved,56,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",229
+117,ongoing,57,Is this bundle halal?,,231
+118,resolved,58,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",235
+119,ongoing,59,What can I expect to receive from this bundle?,,237
+120,resolved,60,Where can I find my claim code?,Your claim code can be found in the reservations section.,239
+121,ongoing,31,Is this bundle suitable for vegetarians?,,241
+122,resolved,32,Where can I find my claim code?,Your claim code can be found in the reservations section.,243
+123,ongoing,33,Is this bundle suitable for vegetarians?,,245
+124,resolved,34,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",247
+125,ongoing,35,Do I need to bring my own bag to collect this bundle?,,249
+126,resolved,36,Is this bundle safe for people with a peanut allergy?,"No, we cannot guarantee that the food in this bundle is free from peanuts.",251
+127,ongoing,37,Is this bundle suitable for vegetarians?,,253
+128,resolved,38,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",255
+129,ongoing,39,Is this bundle suitable for vegetarians?,,257
+130,resolved,40,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",259
+131,ongoing,41,Does this bundle contain gluten?,,261
+132,resolved,42,Do I need to bring my own bag to collect this bundle?,"No, we provide a bag for you to carry your bundle in.",263
+133,ongoing,43,Does this bundle contain gluten?,,265
+134,resolved,44,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",267
+135,ongoing,45,What can I expect to receive from this bundle?,,269
+136,resolved,46,Is this bundle halal?,"Yes, all our food is halal certified.",271
+137,ongoing,47,Is this bundle suitable for vegetarians?,,273
+138,resolved,48,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",275
+139,ongoing,49,Is this bundle halal?,,277
+140,resolved,50,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",279
+141,ongoing,51,What can I expect to receive from this bundle?,,281
+142,resolved,52,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",283
+143,ongoing,53,Is this bundle suitable for vegetarians?,,285
+144,resolved,54,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",287
+145,ongoing,55,What can I expect to receive from this bundle?,,289
+146,resolved,56,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",291
+147,ongoing,57,What can I expect to receive from this bundle?,,293
+148,resolved,58,Is this bundle vegan?,"No, our ingredients include animal produce such as eggs and milk.",295
+149,ongoing,59,Does this bundle contain gluten?,,297
+150,resolved,60,May I please cancel my reservation?,"I have cancelled your reservation, you will be refunded shortly.",299

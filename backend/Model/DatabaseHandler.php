@@ -85,7 +85,6 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
-                    streak INT DEFAULT 0,
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                     );
                 
@@ -169,7 +168,7 @@ class DatabaseHandler {
             self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_pa (roleTitle VARCHAR(128) NOT NULL, permissionTitle VARCHAR(128) NOT NULL, PRIMARY KEY (roleTitle, permissionTitle), FOREIGN KEY (roleTitle) REFERENCES rbac_roles(title), FOREIGN KEY (permissionTitle) REFERENCES rbac_permissions(title));");
 
             // Create RBAC UA table
-            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_ua (userID INT NOT NULL, roleTitle VARCHAR(128) NOT NULL, PRIMARY KEY (userID, roleTitle), FOREIGN KEY (userID) REFERENCES account(userID), FOREIGN KEY (roleTitle) REFERENCES rbac_roles(title));");
+            self::$pdo->exec("CREATE TABLE IF NOT EXISTS rbac_ua (userID INT NOT NULL, roleTitle VARCHAR(128) NOT NULL, PRIMARY KEY (userID, roleTitle), FOREIGN KEY (userID) REFERENCES account(userID) ON DELETE CASCADE, FOREIGN KEY (roleTitle) REFERENCES rbac_roles(title));");
 
         } catch (\PDOException $e) {
             echo $e->getMessage();

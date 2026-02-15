@@ -23,11 +23,13 @@ if (!$acc) {
 
 
 
+
+
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
-
-// Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
+
+
 
 
 if(Seller::existsWithID($acc->getUserID())) {

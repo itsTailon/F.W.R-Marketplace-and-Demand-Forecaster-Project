@@ -5,7 +5,9 @@
  */
 
 use TTE\App\Auth\NoSuchPermissionException;
+use TTE\App\Auth\RBACManager;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
@@ -45,6 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             // load reservation details
             $reservationDetails = Reservation::load($id);
 
+            // Check if the consumer is allowed to cancel reservations
+            if (!RBACManager::isCurrentuserPermitted("reservation_cancel")) {
+                throw new NoSuchPermissionException("Consumer " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to cancel reservations");
+            }
+
             // check if the consumer is allowed to cancel this reservation
             if(Authenticator::getCurrentUser()->getUserID() != $reservationDetails->getPurchaserID()){
                 throw new NoSuchPermissionException("Consumer " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to cancel reservation " . $id);
@@ -55,6 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
             // Update the database
             $reservationDetails->update();
+            $bundle = Bundle::load($reservationDetails->getBundleID());
+            $bundle->setStatus(BundleStatus::Available);
+            $bundle->update();
+
             exit();
         } else {
             throw new NoSuchReservationException("No such reservation with ID " . $id);
@@ -95,7 +106,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             throw new NoSuchBundleException("No such bundle with ID " . $bundleID);
         }
 
-        if (ctype_digit($bundleID) && ctype_digit($purchaserID)) {
+        // Check if user can create reservations
+        if (!RBACManager::isCurrentuserPermitted("reservation_create")) {
+            throw new NoSuchPermissionException("User has no permission to create reservations");
+        }
+
+            if (ctype_digit($bundleID) && ctype_digit($purchaserID)) {
             $fields["bundleID"] = intval($bundleID);
             $fields["purchaserID"] = intval($purchaserID);
         } else {
@@ -124,6 +140,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
     } catch (DatabaseException $e) {
         echo json_encode(http_response_code(500));
         die();
+    } catch (NoSuchPermissionException) {
+        echo json_encode(http_response_code(403));
+        die();
     }
 } else if ($_SERVER["REQUEST_METHOD"] == "GET") {
     try {
@@ -139,6 +158,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
             // get current user's ID and the reserved reservation
             $userID = Authenticator::getCurrentUser()->getUserID();
+
+            if (!RBACManager::isCurrentuserPermitted("reservation_load")){
+                throw new NoSuchPermissionException("Consumer $userID has not the permission to load reservation");
+            }
 
             // Check if customer has permission to get reservation
             if ($reservation->getPurchaserID() != $userID) throw new NoSuchPermissionException("Consumer " . $userID . " is not allowed to load reservation " . $id);
@@ -182,6 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         die();
     } catch (NoSuchCustomerException $e) {
         echo json_encode(http_response_code(404));
+    } catch (NoSuchBundleException $e) {
+        echo json_encode(http_response_code(403));
     }
 } else {
     echo json_encode(http_response_code(405));

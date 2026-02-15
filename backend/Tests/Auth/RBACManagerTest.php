@@ -497,6 +497,7 @@ class RBACManagerTest extends TestCase
 
         // Cleanup
         RBACManager::deleteRole($roleTitle);
+        Seller::delete($seller->getUserID());
     }
 
     /**

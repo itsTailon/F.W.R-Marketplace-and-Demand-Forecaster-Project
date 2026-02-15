@@ -93,6 +93,26 @@ class Seller extends Account {
         return !($row === false);
     }
 
+
+    /**
+     * Summary of getAllBundlesForUser
+     * @param int $id ID of seller 
+     * @throws DatabaseException
+     * @return array Returns array of Bundles that are owned by Seller provided.
+     */
+    public static function getAllBundlesForUser(int $id) {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM bundle WHERE sellerID=:id;");
+
+        // Try to execute
+        try {
+            $stmt->execute([":id" => $id]);
+            // Load all bundles from query and return array
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
     public function getName(): string {
         return $this->name;
     }
@@ -128,6 +148,8 @@ class Seller extends Account {
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
+
+
 
     }
 
