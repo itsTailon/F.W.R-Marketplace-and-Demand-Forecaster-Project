@@ -1,5 +1,5 @@
-const streakStart = new Date(2026, 1, 3)
-const streakEnd = new Date(2026, 1, 13)
+var streakStart = new Date(2026, 1, 3)
+var streakEnd = new Date(2026, 1, 13)
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -225,4 +225,25 @@ $('#next-btn').click(() => {
     }
 
     updateCalendar();
+});
+
+$.ajax({
+    url: "/backend/API/Model/streak.php",
+    type: 'GET',
+    success: dates => {
+        let sqlStartDate = dates["startDate"]["date"];
+        let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
+        streakStart = new Date(sqlStartSplit[0], sqlStartSplit[1]-1, sqlStartSplit[2]);
+
+        let sqlEndDate = dates["endDate"]["date"];
+        let sqlEndSplit = sqlEndDate.replace(' ', '-').split("-");
+        streakEnd = new Date(sqlEndSplit[0], sqlEndSplit[1]-1, sqlEndSplit[2]);
+
+        let weeks = 0;
+
+        for (let d = new Date(streakStart.getFullYear(), streakStart.getMonth(), streakStart.getDate()); d <= streakEnd; d.setDate(d.getDate() + 7), weeks++);
+
+        $("#weeks").text(weeks);
+        updateCalendar();
+    }
 });
