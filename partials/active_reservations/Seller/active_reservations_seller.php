@@ -50,7 +50,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
 
                     <nav class="active-reservations-bundle-nav">
                         <ul>
-                            <li><h2>£<?php echo $bundle->getDiscountedPriceGBX() ?></h2></li>
+                            <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID ?>">View</a></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID ?>">Edit</a></li>
                             <li><a class="active-reservations-bundle-nav-cancel">Cancel</a></li>
