@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         parse_str(file_get_contents('php://input'), $_DELETE);
 
         // Check that streak ID holds valid data
-        if (!isset($streakID) || !ctype_digit($streakID)) {
+        if (!isset($streakID) || !!is_int(filter_var($streakID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid streak ID");
     }
 
