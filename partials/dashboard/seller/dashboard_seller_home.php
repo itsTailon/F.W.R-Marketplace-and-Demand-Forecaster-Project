@@ -4,7 +4,7 @@
         <h1>Listings</h1>
         <ul class="dashboard-options">
             <li>
-                <a>Listings</a>
+                <a href="/active_bundles.php">Listings</a>
             </li>
             <li>
                 <a href="/new_bundle.php">New Listing</a>
@@ -17,7 +17,7 @@
                 <a href="/active_reservations.php">Reservations</a>
             </li>
             <li>
-                <a href="/active_bundles.php">Active Bundles</a>
+                <a href="/coming_soon.php">Issues</a>
             </li>
         </ul>
         <br>
