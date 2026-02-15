@@ -27,6 +27,8 @@ $_SESSION = array();
 class BundleTest extends TestCase
 {
 
+    // TODO (for AT): add unit tests for setRrpGBX and setDiscountedPriceGBX
+
     /**
      * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchStreakException
      */
