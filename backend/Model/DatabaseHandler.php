@@ -85,7 +85,6 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
-                    streak INT DEFAULT 0,
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                     );
                 
