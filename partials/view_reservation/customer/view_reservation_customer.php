@@ -44,7 +44,7 @@ if($reservation->getPurchaserID() != $userID) {
         <div class="view-reservation-info-box">
             <h3 class="view-reservation-info-box-info">Collecting at XX:XX on XX/XX/XXXX</h3>
             <h3 class="view-reservation-info-box-info">Code: <?php echo $reservation->getClaimCode() ?></h3>
-            <h3 class="view-reservation-info-box-price">£<?php echo $bundle->getDiscountedPriceGBX() ?></h3>
+            <h3 class="view-reservation-info-box-price">£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h3>
         </div>
         <ul class="view-reservation-buttons">
             <li>

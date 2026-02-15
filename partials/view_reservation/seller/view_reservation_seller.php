@@ -47,7 +47,7 @@ $purchaserAcc = Customer::load($purchaserID);
         <div class="view-reservation-info-box">
             <h3 class="view-reservation-info-box-info">Collecting at XX:XX on XX/XX/XXXX</h3>
             <h3 class="view-reservation-info-box-info">Email: <?php echo $purchaserAcc->getEmail() ?></h3>
-            <h3 class="view-reservation-info-box-price">£<?php echo $bundle->getDiscountedPriceGBX() ?></h3>
+            <h3 class="view-reservation-info-box-price">£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h3>
         </div>
         <form class="view-reservation-form" method="POST" action="/backend/API/Model/sellerReservation.php">
              <input type="hidden" name="reservationID" value="<?php echo $reservationID; ?>">
