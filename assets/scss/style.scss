@@ -26,3 +26,5 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'pages/active_bundles';
 @use 'pages/view_reservation';
 @use 'pages/browse';
+@use 'pages/http404';
+

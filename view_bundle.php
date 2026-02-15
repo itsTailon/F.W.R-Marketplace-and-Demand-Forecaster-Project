@@ -13,12 +13,13 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 if (!Authenticator::isLoggedIn()) {
     // Not logged-in, so redirect to login page
     header('Location: login.php');
+    die();
 }
 
 // Ensure that bundle ID was passed in request
 if (!isset($_GET['id'])) {
-    // TODO: Remove die call. Instead, redirect to 404 or somewhere else.
-    die("ERROR: No ID given. (TODO: Redirect to 404 or elsewhere)");
+    header('Location: 404.php');
+    die();
 }
 
 // Get bundle ID
@@ -26,8 +27,8 @@ $bundleID = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 
 // Check ensure that bundle ID given is valid (i.e. it is an integer and corresponds to an actual record)
 if (!is_int($bundleID) || !Bundle::existsWithID($bundleID)) {
-    // TODO: Remove die call. Instead, redirect to 404 page
-    die("ERROR: Invalid bundle ID (TODO: Redirect to 404)");
+    header('Location: 404.php');
+    die();
 }
 
 // Instantiate Bundle object to get bundle data
