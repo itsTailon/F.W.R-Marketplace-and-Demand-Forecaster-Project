@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_PUT["bundleID"];
 
         // check data is set and of the right form before using
-        if (!isset($bundleID) || !ctype_digit($bundleID)) {
+        if (!isset($bundleID) || !!is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -205,7 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_GET["bundleID"];
 
         // Checking validity of passed bandle ID
-        if (!isset($bundleID['bundleID']) || !ctype_digit($bundleID['bundleID'])) {
+        if (!isset($bundleID['bundleID']) || !!is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -264,7 +264,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_DELETE["bundleID"];
 
         // Check that bundle ID holds valid data
-        if (!isset($bundleID) || !ctype_digit($bundleID)) {
+        if (!isset($bundleID) || !is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
