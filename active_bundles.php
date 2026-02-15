@@ -76,9 +76,9 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
                 <nav class="active-bundles-bundle-nav">
                     <ul>
                         <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
-                        <li><a class="active-bundles-bundle-nav-view">View</a></li>
-                        <li><a class="active-bundles-bundle-nav-view">Edit</a></li>
-                        <li><a class="active-bundles-bundle-nav-cancel">Cancel</a></li>
+                        <li><a class="active-bundles-bundle-nav-view" href="/view_bundle.php?id=<?php echo $bundle->getID() ?>">View</a></li>
+                        <li><a class="active-bundles-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundle->getID() ?>">Edit</a></li>
+                        <li><a class="active-bundles-bundle-nav-cancel" data-bndle-id="<?php echo $bundle->getID() ?>">Delete</a></li>
                     </ul>
                 </nav>
 
@@ -91,6 +91,29 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
 </div>
 
 
+<script>
+    $('.active-bundles-bundle-nav-cancel').on('click', function(e) {
+        e.preventDefault();
+        const bundleID = $(this).data('bndle-id');
+        console.log(bundleID);
+        $.ajax({
+            type: 'DELETE',
+            url: '/backend/API/Model/bundle.php',
+            data: {bundleID: bundleID},
+            success: function() {
+                // redirect
+                window.location.href = '/active_bundles.php';
+            },
+            error: function(err) {
+                console.log('Failed to Cancel: ' + err.status);
+            }
+        });
+
+    });
+
+    
+
+</script>
 
 <?php
 // Include page footer and closing tags
