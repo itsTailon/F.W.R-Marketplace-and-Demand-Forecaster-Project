@@ -407,7 +407,7 @@ class Bundle extends StoredObject {
     }
 
     public function display(): void {
-        $format = "<div><a href='view_bundle.php?id=%s'><h2>%s</h2><p>%s</p></a></div>";
+        $format = "<div><a class = 'displayedbundle' href='view_bundle.php?id=%s'><h2>%s</h2><p>%s</p></a></div>";
         echo sprintf($format, $this->id, $this->title, $this->details);
     }
 }
