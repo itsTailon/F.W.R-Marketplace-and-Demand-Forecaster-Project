@@ -6,6 +6,7 @@
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Auth\RBACManager;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\InvalidClaimCodeExeption;
 use TTE\App\Model\MissingValuesException;
@@ -150,6 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Mark reservation canceled
         $reservation->setStatus(ReservationStatus::Cancelled);
         $reservation->update();
+
+        $bundle->setStatus(BundleStatus::Available);
+        $bundle->update();
 
         exit();
 

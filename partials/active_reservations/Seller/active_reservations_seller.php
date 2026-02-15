@@ -53,7 +53,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
                             <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID ?>">View</a></li>
                             <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID ?>">Edit</a></li>
-                            <li><a class="active-reservations-bundle-nav-cancel">Cancel</a></li>
+                            <li><button class="active-reservations-bundle-nav-cancel" value="<?php echo $reservationID ?>">Cancel</button></li>
                         </ul>
                     </nav>
 
@@ -65,3 +65,24 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
 
 </div>
 
+<script>
+    $('.active-reservations-bundle-nav-cancel').on('click', function() {
+        const reservationID = this.value;
+        $.ajax({
+            type: 'DELETE',
+            url: '/backend/API/Model/sellerReservation.php',
+            data: {reservationID: reservationID},
+            success: function() {
+                // redirect
+                window.location.href = '/active_reservations.php';
+            },
+            error: function(err) {
+                console.log('Failed to Cancel: ' + err.status);
+            }
+        });
+
+    });
+
+    
+
+</script>

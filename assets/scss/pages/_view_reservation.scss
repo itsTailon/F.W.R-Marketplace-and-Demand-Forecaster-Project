@@ -136,6 +136,42 @@
 
 }
 
+.view-reservation-buttons li button {
+    border: none;
+    text-decoration: none;
+    font-size: smaller;
+    font-weight: normal;
+    border-radius: 1000px;
+    background-color: rgb(154, 0, 0);
+    color: white;
+    width: 100%;
+    display: block;
+    padding: 1.5vh 0;
+    transition: all 0.2s ease;
+
+    
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2vw;
+
+    cursor: pointer;
+
+}
+.view-reservation-buttons li button:hover {
+    color: black;
+    background-color: rgb(230, 0, 0);
+}
+
+.view-reservation-buttons li button svg {
+    transition: fill 0.2s ease;
+}
+
+.view-reservation-buttons li button:hover svg {
+    fill: black;
+}
+
 .view-reservation-buttons li a:hover {
     color: black;
     background-color: rgb(230, 0, 0);
