@@ -8,6 +8,23 @@ use TTE\App\Model\Seller;
 
 require 'partials/head.php';
 
+// If user is not logged in, briefly display an error
+// and then redirect to login
+if (!Authenticator::isLoggedIn()) {
+    echo <<<XYZ
+    <p>ERROR: Not logged in!</p>
+    <script>
+        function redirectToLogin() {
+            location.href = "/login.php"
+        }
+
+        setTimeout(redirectToLogin, 3000);
+
+    </script>
+    XYZ;
+    die();
+}
+
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 
