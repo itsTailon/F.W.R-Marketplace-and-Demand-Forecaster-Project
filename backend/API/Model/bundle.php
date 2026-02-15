@@ -247,8 +247,20 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Calling load() and storing resultant Bundle under $bundle
         $bundle = Bundle::load($bundleID);
 
+        // Create associative array to encode for return
+        $bundle_fields = array(
+            "id" => $bundle->getID(),
+            "title" => $bundle->getTitle(),
+            "details" => $bundle->getDetails(),
+            "status" => $bundle->getStatus(),
+            "rrpGBX" => $bundle->getRrpGBX(),
+            "discountedPriceGBX" => $bundle->getDiscountedPriceGBX(),
+            "sellerID" => $bundle->getSellerID(),
+            "purchaserID" => $bundle->getPurchaserID(),
+        );
+
         // Return Bundle through a JSON-encoded message
-        echo json_encode($bundle);
+        echo json_encode($bundle_fields);
         die();
 
     } catch (DatabaseException $db_e) {
