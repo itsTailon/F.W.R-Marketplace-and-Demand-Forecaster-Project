@@ -8,8 +8,6 @@ use TTE\App\Model\Seller;
 
 require 'partials/head.php';
 
-session_start();
-
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 
@@ -35,3 +33,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 <script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>
 <script src="/assets/js/view_streak.js"></script>
+
+
+<?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+

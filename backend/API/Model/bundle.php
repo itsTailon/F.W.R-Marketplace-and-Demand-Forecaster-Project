@@ -73,7 +73,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundle->setDetails($_PUT['details']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
-        $bundle->setPurchaserID(intval($_PUT['purchaserID']));
+
+        if(isset($_PUT['purchaserID'])) {
+            $bundle->setPurchaserID(intval($_PUT['purchaserID']));
+        } else {
+            $bundle->setPurchaserID(null);
+        }
 
         // Calling update() method as checks have been fulfilled
         $bundle->update();

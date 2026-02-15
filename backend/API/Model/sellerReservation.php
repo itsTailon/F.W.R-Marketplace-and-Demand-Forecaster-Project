@@ -4,10 +4,13 @@
  */
 
 use TTE\App\Auth\NoSuchPermissionException;
+use TTE\App\Auth\RBACManager;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\InvalidClaimCodeExeption;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\NoSuchReservationException;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Auth\Authenticator;
@@ -25,6 +28,7 @@ if (!Authenticator::isLoggedIn()) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try{
+        // Check if claim code is passed
         if(!isset($_POST['claimCode'])) {
             // Check if necessary values are set
             if (!isset($_POST['reservationStatus']) || !isset($_POST['reservationID'])) {
@@ -52,7 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new NoSuchReservationException("No such reservation");
             }
 
-            // Load reservation
+            if (!RBACManager::isCurrentuserPermitted("reservation_load")) {
+                throw new NoSuchPermissionException("User not have permission to load reservations");
+            }
+
+                // Load reservation
             $reservation = Reservation::load($id);
 
             // Set reservation status to new status
@@ -76,7 +84,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new NoSuchReservationException("No such reservation");
             }
 
-            // Claim reservation
+            // Check if user is allowed to claim bundles
+            if (!RBACManager::isCurrentuserPermitted("reservation_claim")){
+                throw new NoSuchPermissionException("User does not have permission to claim reservations");
+            }
+
+                // Claim reservation
             $reservation = Reservation::load($id);
             $reservation->claimReservation($claimCode);
 
@@ -96,6 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         die();
     } catch (InvalidClaimCodeExeption $e) {
         echo json_encode(http_response_code(400));
+        die();
+    } catch (NoSuchPermissionException $e) {
+        echo json_encode(http_response_code(403));
+        die();
+    } catch (NoSuchBundleException $e) {
+        echo json_encode(http_response_code(404));
         die();
     }
 } else if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
@@ -121,12 +140,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $userID = Authenticator::getCurrentUser()->getUserID();
         $bundle = Bundle::load($reservation->getBundleID());
 
-        // Check if seller has permission to cancel bundle
+        // Check if user has permission to delete reservations
+        if (!RBACManager::isCurrentuserPermitted("reservation_cancel")){
+            throw new NoSuchPermissionException("User does not have permission to cancel reservations");
+        }
+
+            // Check if seller has permission to cancel bundle
         if($bundle->getSellerID() != $userID) throw new NoSuchPermissionException("Seller " . $userID . " is not allowed to cancel reservation " . $id);
 
         // Mark reservation canceled
         $reservation->setStatus(ReservationStatus::Cancelled);
         $reservation->update();
+
+        $bundle->setStatus(BundleStatus::Available);
+        $bundle->update();
 
         exit();
 
@@ -161,7 +188,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $userID = Authenticator::getCurrentUser()->getUserID();
         $bundle = Bundle::load($reservation->getBundleID());
 
-        // Check if seller has permission to cancel bundle
+        if (!RBACManager::isCurrentuserPermitted("reservation_cancel")){
+            throw new NoSuchPermissionException("User does not have permission to cancel reservations");
+        }
+
+            // Check if seller has permission to cancel bundle
         if($bundle->getSellerID() != $userID) throw new NoSuchPermissionException("Seller " . $userID . " is not allowed to load reservation " . $id);
 
         // Load reservation

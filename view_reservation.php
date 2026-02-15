@@ -18,6 +18,17 @@ if (!Authenticator::isLoggedIn()) {
     die('ERROR: Not logged in! <br> TODO: redirect to login page');
 }
 
+$acc = Authenticator::getCurrentUser();
+$accType = $acc->getAccountType();
+
+if($accType == 'seller') {
+    require_once 'partials/dashboard/seller/dashboard_sidebar.php';
+}
+else if ($accType == 'customer') {
+    require_once 'partials/dashboard/customer/dashboard_sidebar.php';
+}
+
+
 $reservationID = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 
 if (empty($reservationID)) {
@@ -33,9 +44,10 @@ if (!$reservation || $reservation->getStatus() != ReservationStatus::Active) {
 
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
-
-// Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
+
+
+
 
 $acc = Authenticator::getCurrentUser();
 
