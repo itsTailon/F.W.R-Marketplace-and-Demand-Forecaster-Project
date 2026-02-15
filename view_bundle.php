@@ -13,7 +13,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 if (!Authenticator::isLoggedIn()) {
     // Not logged-in, so redirect to login page
     header('Location: login.php');
-    die();
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
 }
 
 // Ensure that bundle ID was passed in request
