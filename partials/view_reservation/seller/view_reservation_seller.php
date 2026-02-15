@@ -91,6 +91,27 @@ $purchaserAcc = Customer::load($purchaserID);
     </div>
 </div>
 
+<script>
+$('.view-reservation-form').on('submit', function (e) {
+    e.preventDefault();
+
+    const statusMessage = document.getElementById('status-message');
+
+    $.ajax({
+        type: 'POST',
+        url: '/backend/API/Model/sellerReservation.php',
+        data: $(this).serialize(),
+    success: function () {
+        window.location.href = '/dashboard.php';
+    },
+    error: function (err) {
+        statusMessage.textContent = 'Incorrect claim code.';
+    }
+    });
+});
+</script>
+
+
 
 <script>
     const cb = document.getElementById('cancel-button');
