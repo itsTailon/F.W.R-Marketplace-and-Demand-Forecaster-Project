@@ -245,8 +245,8 @@ $.ajax({
             let weeks = 0;
 
             for (let d = new Date(streakStart.getFullYear(), streakStart.getMonth(), streakStart.getDate()); d <= streakEnd; d.setDate(d.getDate() + 7), weeks++);
-            
-            $("#weeks").text(weeks);
+
+            $("#weeks").text(weeks.toString() + " " + (weeks == 1 ? "week" : "weeks"));
         }
 
         updateCalendar();

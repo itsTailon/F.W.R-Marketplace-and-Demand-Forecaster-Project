@@ -35,7 +35,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 <p class="text-middle streak__header">Your streak</span></p>
 <br>
-<p class="text-middle streak__display"><img src="/assets/icons/streak_icon.png"><span id="weeks">0</span> weeks</p>
+<p class="text-middle streak__display"><img src="/assets/icons/streak_icon.png"><span id="weeks">0</span></p>
 <br>
 
 <div class="calendar">
