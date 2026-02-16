@@ -51,8 +51,10 @@ $('#submit-btn').click(() => {
     // Get allergens
     var allergens = [];
     $('.allergen-list__item__selector').each(function () {
-        if ($(this).val() !== null) {
-            allergens.push($(this).val());
+        let allergen = $(this).val();
+        // If allergen isn't null and hasn't already been counted
+        if (allergen !== null && !allergens.includes(allergen)) {
+            allergens.push(allergen);
         }
     });
 
