@@ -121,7 +121,8 @@ $('.view-reservation-form').on('submit', function (e) {
         url: '/backend/API/Model/sellerReservation.php',
         data: $(this).serialize(),
     success: function () {
-        window.location.href = '/dashboard.php';
+        alert("Bundle successfully marked as collected!");
+        window.location.href = '/active_reservations.php';
     },
     error: function (err) {
         statusMessage.textContent = 'Incorrect claim code.';
