@@ -145,14 +145,27 @@ class Reservation extends StoredObject
      * @return string
      */
     public static function generateClaimCode(int $reservationID, int $purchaserID, string $title): string {
-        // generate claim code
-        $messg = $reservationID . $purchaserID . $title;
+        $validClaimCode = false;
 
-        // hash had get value
-        $claimCode = hash('sha512', $messg, false);
-        $claimCode = substr($claimCode, 0, self::LENGTH);
+        // repeat until generated unique claim code
+        while (!$validClaimCode) {
+            // generate claim code message
+            $messg = $reservationID . $purchaserID . $title . date('m/d/Y h:i:s a', time());
 
+            // hash had get value
+            $claimCode = hash('sha512', $messg, false);
+            $claimCode = substr($claimCode, 0, self::LENGTH);
 
+            // Check if the claim code is unique
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation WHERE claimCode = :claimCode");
+            $stmt->execute([":claimCode" => $claimCode]);
+
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if($row === false) {
+                $validClaimCode = true;
+            }
+        }
 
         // return claim code
         return $claimCode;
