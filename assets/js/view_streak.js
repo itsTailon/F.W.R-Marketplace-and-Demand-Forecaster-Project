@@ -233,6 +233,7 @@ $.ajax({
         if (dates["startDate"] == null || dates["endDate"] == null || dates["currentWeekStart"] == null) {
             streakStart = null;
             streakEnd = null;
+            $("#weeks").text("0 weeks");
         } else {
             let sqlStartDate = dates["startDate"]["date"];
             let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
