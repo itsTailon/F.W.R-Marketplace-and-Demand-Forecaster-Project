@@ -2,7 +2,8 @@
 
 namespace TTE\App\Model;
 
-use MongoDB\BSON\PackedArray;
+use TTE\App\Auth\RBACManager;
+use TTE\App\Auth\NoSuchRoleException;
 
 class Customer extends Account {
 
