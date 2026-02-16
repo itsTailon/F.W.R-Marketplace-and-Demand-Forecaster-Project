@@ -61,7 +61,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         <div class="bundle-view">
 
             <div class="bundle-view__main">
-                <img src="" alt="" class="bundle-view__img">
+                <img src="/assets/img/bundle_placeholder.jpg" alt="" class="bundle-view__img">
                 <div class="bundle-view__info">
                     <h1 class="bundle-view__title"><?php echo $bundle->getTitle(); ?></h1>
 
