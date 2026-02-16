@@ -17,15 +17,19 @@ $("#reserve-btn").click(function() {
             },
             400: () => {
                 alert("Error — please try again. (Bad Request)");
+                location.reload();
             },
             403: () => {
                 alert("Permission denied.");
+                location.reload();
             },
             404: () => {
                 alert("Error — please try again. (Bundle not found)");
+                location.reload();
             },
             500: () => {
                 alert("Error — please try again. (Server Error)");
+                location.reload();
             }
         }
     });
