@@ -38,7 +38,7 @@ if($reservation->getPurchaserID() != $userID) {
 
 <div class="view-reservation-wrapper">
     <h1><?php echo $bundle->getTitle() ?></h1>
-    <p><i>reservation date posted...</i></p>
+<!--    <p><i>reservation date posted...</i></p>-->
 
     <div class="view-reservation-info">
         <div id="status-message" style="color: red;"></div>
@@ -80,7 +80,7 @@ if($reservation->getPurchaserID() != $userID) {
         }
         ?>
         <br>
-        <p>bundle description</p>
+        <p><?php echo $bundle->getDetails(); ?></p>
     </div>
 </div>
 
