@@ -1,7 +1,6 @@
 @use '../abstracts/config';
+@use '../abstracts/mixins';
 @use 'sass:map';
-
-
 
 .active-bundles-wrapper {
     width: 65vw;
@@ -58,10 +57,16 @@
 
 
 .active-bundles-bundle-nav ul {
-    padding-top: 4vh;
+  padding-top: 4vh;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+
+  @include mixins.resp(1080px) {
     display: flex;
-    gap: 32px;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+  };
 }
 
 .active-bundles-bundle-nav-view {
