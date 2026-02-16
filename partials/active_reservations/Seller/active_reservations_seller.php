@@ -76,6 +76,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
             data: {reservationID: reservationID},
             success: function() {
                 // redirect
+                alert("Reservation successfully cancelled!");
                 window.location.href = '/active_reservations.php';
             },
             error: function(err) {

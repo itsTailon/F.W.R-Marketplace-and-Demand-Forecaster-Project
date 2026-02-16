@@ -3,7 +3,7 @@ use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Account;
 // Define document (i.e. tab) title
-$DOCUMENT_TITLE = "reservations";
+$DOCUMENT_TITLE = "Reservations";
 
 // Include page head
 

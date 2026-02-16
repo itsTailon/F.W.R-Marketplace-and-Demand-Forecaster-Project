@@ -144,6 +144,7 @@ $('.view-reservation-form').on('submit', function (e) {
             data: {reservationID: <?php echo $reservationID ?>},
             success: function() {
                 // redirect
+                alert("Reservation successfully cancelled!");
                 window.location.href = '/active_reservations.php';
             },
             error: function(err) {
