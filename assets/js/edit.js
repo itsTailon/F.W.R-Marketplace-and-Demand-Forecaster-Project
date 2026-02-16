@@ -73,7 +73,8 @@ $('#submit-btn').click(() => {
         },
         statusCode: {
             200: () => { // Edit successful
-                $('#bundle-name').text(bundleName);
+                alert("Bundle successfully updated!");
+                window.location.replace("/view_bundle.php?id=" + bundleID);
             },
             400: () => {
                 $('.error-text').text("Bad Request");
