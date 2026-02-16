@@ -41,7 +41,7 @@ $purchaserAcc = Customer::load($purchaserID);
 
 <div class="view-reservation-wrapper">
     <h1><?php echo $bundle->getTitle() ?></h1>
-    <p><i>reservation date posted...</i></p>
+<!--    <p><i>reservation date posted...</i></p>-->
 
     <div class="view-reservation-info">
         <div id="status-message" style="color: red;"></div>
@@ -85,9 +85,28 @@ $purchaserAcc = Customer::load($purchaserID);
 
 
     <div class="view-reservation-description">
-        <h5>Allergens listed ....</h5>
+        <?php
+        if (!empty($bundle->getAllergens())) {
+            ?>
+            <strong>
+                Allergens listed:
+                <?php
+                $allergens = $bundle->getAllergens();
+
+                for ($i = 0; $i < count($allergens); $i++) {
+                    echo $allergens[$i];
+
+                    if ($i != count($allergens) - 1) {
+                        echo ', ';
+                    }
+                }
+                ?>
+            </strong>
+            <?php
+        }
+        ?>
         <br>
-        <p>bundle description</p>
+        <p><?php echo $bundle->getDetails(); ?></p>
     </div>
 </div>
 

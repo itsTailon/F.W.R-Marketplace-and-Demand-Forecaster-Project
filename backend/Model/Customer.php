@@ -2,8 +2,9 @@
 
 namespace TTE\App\Model;
 
-use TTE\App\Auth\RBACManager;
+use MongoDB\BSON\PackedArray;
 use TTE\App\Auth\NoSuchRoleException;
+use TTE\App\Auth\RBACManager;
 
 class Customer extends Account {
 
@@ -36,6 +37,14 @@ class Customer extends Account {
         $customer->accountType = "customer";
 
         $customerID = array("customerID" => $customer->getUserID());
+
+        try {
+            RBACManager::assignRoleToUser($customer->getUserID(), "customer");
+        } catch (NoSuchRoleException $e) {
+            die("There is no such role");
+        } catch (NoSuchAccountException $e) {
+            die("There is no such account");
+        }
 
         // Create a streak attached to customer, that has null for all current date values
         Streak::create($customerID);
