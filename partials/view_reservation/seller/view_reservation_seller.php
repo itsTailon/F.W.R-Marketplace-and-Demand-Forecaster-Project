@@ -88,7 +88,7 @@ $purchaserAcc = Customer::load($purchaserID);
         <?php
         if (!empty($bundle->getAllergens())) {
             ?>
-            <h5>
+            <strong>
                 Allergens listed:
                 <?php
                 $allergens = $bundle->getAllergens();
@@ -101,7 +101,7 @@ $purchaserAcc = Customer::load($purchaserID);
                     }
                 }
                 ?>
-            </h5>
+            </strong>
             <?php
         }
         ?>

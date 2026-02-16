@@ -59,7 +59,26 @@ if($reservation->getPurchaserID() != $userID) {
 
 
     <div class="view-reservation-description">
-        <h5>Allergens listed ....</h5>
+        <?php
+        if (!empty($bundle->getAllergens())) {
+            ?>
+            <strong>
+                Allergens listed:
+                <?php
+                $allergens = $bundle->getAllergens();
+
+                for ($i = 0; $i < count($allergens); $i++) {
+                    echo $allergens[$i];
+
+                    if ($i != count($allergens) - 1) {
+                        echo ', ';
+                    }
+                }
+                ?>
+            </strong>
+            <?php
+        }
+        ?>
         <br>
         <p>bundle description</p>
     </div>
