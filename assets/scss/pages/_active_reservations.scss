@@ -1,4 +1,5 @@
 @use '../abstracts/config';
+@use '../abstracts/mixins';
 @use 'sass:map';
 
 
@@ -10,9 +11,9 @@
 }
 
 .active-reservations-nav {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 3vh;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3vh;
 
 }
 .active-reservations-nav ul li {
@@ -58,10 +59,16 @@
 
 
 .active-reservations-bundle-nav ul {
-    padding-top: 4vh;
+  padding-top: 4vh;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+
+  @include mixins.resp(640px) {
     display: flex;
-    gap: 32px;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+  };
 }
 
 .active-reservations-bundle-nav-view {
