@@ -1,6 +1,8 @@
 <?php
 namespace TTE\App\Model;
 
+use TTE\App\Auth\NoSuchRoleException;
+use TTE\App\Auth\RBACManager;
 use TTE\App\Helpers\CurrencyTools;
 
 class Seller extends Account {
@@ -31,6 +33,14 @@ class Seller extends Account {
         $seller->setAddress($fields['address']);
         $seller->accountType = "seller";
         $seller->userID = $account->getUserID();
+
+        try {
+            RBACManager::assignRoleToUser($seller->getUserID(), "customer");
+        } catch (NoSuchRoleException $e) {
+            die("There is no such role");
+        } catch (NoSuchAccountException $e) {
+            die("There is no such account");
+        }
 
         return $seller;
     }
