@@ -42,6 +42,14 @@ $('#submit-btn').click(() => {
     }
 
 
+    // Get allergens
+    var allergens = [];
+    $('.allergen-list__item__selector').each(function () {
+        if ($(this).val() !== null) {
+            allergens.push($(this).val());
+        }
+    });
+
     // Send POST request to bundle API
     $.ajax({
         url: "/backend/API/Model/bundle.php",
@@ -51,6 +59,7 @@ $('#submit-btn').click(() => {
             details: bundleDesc,
             rrp: bundleRRP * 100,
             discountedPrice: bundleDiscountPrice * 100,
+            allergens: JSON.stringify(allergens),
         },
         statusCode: {
             200: () => { // Edit successful
