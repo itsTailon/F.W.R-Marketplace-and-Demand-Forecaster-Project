@@ -30,7 +30,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 <br>
 
 <div class="forecast-variables">
-    <div class="forecast-variables__var">
+    <!-- <div class="forecast-variables__var">
         <label for="day">Day</label>
         <select id="day" disabled>
             <option value="Monday">Monday</option>
@@ -63,7 +63,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
             <option value="rain">Rain</option>
             <option value="snow">Snow</option>
         </select>
-    </div>
+    </div> -->
     <div class="forecast-variables__var">
         <label>Time</label>
         <span><input type="number" min="0" max="23" value="08" id="start-hr">:<input type="number" min="0" max="59" value="00" id="start-min"> to <input type="number" min="0" max="23" value="20" id="end-hr">:<input type="number" min="0" max="59" value="00" id="end-min"></span>

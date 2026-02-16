@@ -222,8 +222,8 @@ function getForecast() {
         url: '/backend/API/Model/forcast.php',
         type: 'GET',
         data: {
-            weather: $("#weather").val(),
-            category: $("category").val(),
+            // weather: $("#weather").val(),
+            // category: $("category").val(),
             // Format time as XX:XX
             startTime: `${$("#start-hr").val()}:${$("#start-min").val()}`,
             endTime: `${$("#end-hr").val()}:${$("#end-min").val()}`,
