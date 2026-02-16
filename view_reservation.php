@@ -11,61 +11,55 @@ $DOCUMENT_TITLE = "View Reservations";
 // Include page head
 require_once 'partials/head.php';
 
-// TODO: Replace this with graceful redirect to login page
-// (Temporary code) Halt rendering if user not logged in
 if (!Authenticator::isLoggedIn()) {
     header("Location: /login.php");
-    die('ERROR: Not logged in! <br> TODO: redirect to login page');
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
 }
 
 $acc = Authenticator::getCurrentUser();
 $accType = $acc->getAccountType();
 
-if($accType == 'seller') {
-    require_once 'partials/dashboard/seller/dashboard_sidebar.php';
-}
-else if ($accType == 'customer') {
-    require_once 'partials/dashboard/customer/dashboard_sidebar.php';
+// No ID passed, so redirect to 404
+if (!isset($_GET['id'])) {
+    header('Location: /404.php');
+    die();
 }
 
-
+// Check that int was passed as ID
 $reservationID = filter_var($_GET['id'], FILTER_VALIDATE_INT);
-
-if (empty($reservationID)) {
-    die("Couldn't find Reservation with that id lil bro.");
+if (!is_int($reservationID)) {
+    header('Location: /404.php');
+    die();
 }
 
+// Ensure that ID corresponds to a reservation
+if (!Reservation::existsWithID($reservationID)) {
+    header('Location: /404.php');
+    die();
+}
+
+// Load reservation
 $reservation = Reservation::load($reservationID);
-if (!$reservation || $reservation->getStatus() != ReservationStatus::Active) {
-    die("reservation not found");
+
+// Ensure that reservation is actually active.
+if ($reservation->getStatus() != ReservationStatus::Active) {
+    header('Location: /404.php');
+    die();
 }
-
-
 
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 
+$acc = Authenticator::getCurrentUserSubclass();
 
-
-
-$acc = Authenticator::getCurrentUser();
-
-
-if($acc) {
-    if(Seller::existsWithID($acc->getUserID())){
-        require_once 'partials/view_reservation/seller/view_reservation_seller.php';
-    }    
-    else {
-        require_once 'partials/view_reservation/customer/view_reservation_customer.php';
-    }
-
+if ($acc instanceof Seller) {
+    require_once 'partials/view_reservation/seller/view_reservation_seller.php';
+    require_once 'partials/dashboard/seller/dashboard_sidebar.php';
+} else if ($acc instanceof Customer) {
+    require_once 'partials/view_reservation/customer/view_reservation_customer.php';
+    require_once 'partials/dashboard/customer/dashboard_sidebar.php';
 }
-else {
-    header("Location: /login.php");
-    die();
-}
-
 
 ?>
 

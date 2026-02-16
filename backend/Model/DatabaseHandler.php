@@ -216,6 +216,7 @@ class DatabaseHandler {
                 "reservation_load",
                 "reservation_claim",
                 "reservation_cancel",
+                "forecast_view",
             ],
 
             "customer" => [

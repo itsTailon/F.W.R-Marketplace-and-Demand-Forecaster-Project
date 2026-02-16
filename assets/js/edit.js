@@ -48,6 +48,14 @@ $('#submit-btn').click(() => {
         return false;
     }
 
+    // Get allergens
+    var allergens = [];
+    $('.allergen-list__item__selector').each(function () {
+        if ($(this).val() !== null) {
+            allergens.push($(this).val());
+        }
+    });
+
     // Send PUT request to bundle API
     $.ajax({
         url: "/backend/API/Model/bundle.php",
@@ -58,7 +66,8 @@ $('#submit-btn').click(() => {
             details: bundleDesc,
             rrp: bundleRRP,
             discountedPrice: bundleDiscountPrice,
-            bundleStatus: "available"
+            bundleStatus: "available",
+            allergens: JSON.stringify(allergens),
         },
         statusCode: {
             200: () => { // Edit successful

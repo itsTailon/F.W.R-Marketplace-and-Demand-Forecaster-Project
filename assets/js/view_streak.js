@@ -238,15 +238,15 @@ $.ajax({
             let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
             streakStart = new Date(sqlStartSplit[0], sqlStartSplit[1]-1, sqlStartSplit[2]);
 
-            let sqlEndDate = dates["endDate"]["date"];
+            let sqlEndDate = dates["currentWeekStart"]["date"];
             let sqlEndSplit = sqlEndDate.replace(' ', '-').split("-");
             streakEnd = new Date(sqlEndSplit[0], sqlEndSplit[1]-1, sqlEndSplit[2]);
 
             let weeks = 0;
 
             for (let d = new Date(streakStart.getFullYear(), streakStart.getMonth(), streakStart.getDate()); d <= streakEnd; d.setDate(d.getDate() + 7), weeks++);
-            
-            $("#weeks").text(weeks);
+
+            $("#weeks").text(weeks.toString() + " " + (weeks == 1 ? "week" : "weeks"));
         }
 
         updateCalendar();

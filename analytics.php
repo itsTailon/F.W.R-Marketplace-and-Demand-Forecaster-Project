@@ -9,31 +9,21 @@ $DOCUMENT_TITLE = "Analytics";
 // Include page head
 require_once 'partials/head.php';
 
-// TODO: Replace this with graceful redirect to login page
-// (Temporary code) Halt rendering if user not logged in
 if (!Authenticator::isLoggedIn()) {
-    die('ERROR: Not logged in! <br> TODO: redirect to login page');
+    header('Location: /login.php');
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
 }
 
-$acc = Authenticator::getCurrentUser();
-
-
-if(!$acc) {
-    die('ERROR: Not logged in!');
+// Ensure that user is a Seller (Seller-only page)
+$acc = Authenticator::getCurrentUserSubclass();
+if (!($acc instanceof Seller)) {
+    header('Location: /dashboard.php');
+    die('');
 }
-else {
-    $acc_id = $acc->getUserID();
-    if(!Seller::existsWithID($acc_id)) {
-        header('Location: /dashboard.php');
-        die("Only sellers can access this page.");
-    }
-}
+
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
-
-
 require_once 'partials/dashboard/dashboard_sidebar.php';
-
 
 ?>
 

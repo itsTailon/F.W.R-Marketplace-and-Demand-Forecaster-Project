@@ -4,27 +4,27 @@
         <h1>Find a new Bundle!</h1>
         <ul class="dashboard-options">
             <li>
-                <a>Search Listings</a>
+                <a href="/browse.php">Search Listings</a>
             </li>
             <li>
-                <a href="/new_bundle.php">Nearby Bundles</a>
+                <a href="/browse.php">Nearby Bundles</a>
             </li>
         </ul>
         <br>
         <h1>View your Stats!</h1>
         <ul class = "dashboard-options">
             <li>
-                <a>My Streak</a>
+                <a href="/view_streak.php">My Streak</a>
             </li>
             <li>
-                <a>Personal Impact</a>
+                <a href="/coming_soon.php">Personal Impact</a>
             </li>
         </ul>
         <br>
         <h1>Manage Reservations</h1>
         <ul class = "dashboard-options">
             <li>
-                <a href="/analytics.php">Issues</a>
+                <a href="/coming_soon.php">Issues</a>
             </li>
             <li>
                 <a href="/active_reservations.php">Reservations</a>

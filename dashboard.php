@@ -8,22 +8,16 @@ $DOCUMENT_TITLE = "Dashboard";
 // Include page head
 require_once 'partials/head.php';
 
-// TODO: Replace this with graceful redirect to login page
-// (Temporary code) Halt rendering if user not logged in
 if (!Authenticator::isLoggedIn()) {
     header('Location: /login.php');
-    die('ERROR: Not logged in! <br> TODO: redirect to login page');
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
 }
 
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 
 // Include dashboard sidebar
-
 require_once 'partials/dashboard/dashboard_sidebar.php';
-
-
-
 ?>
 
 <div class="dashboard-wrapper">
