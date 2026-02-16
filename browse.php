@@ -24,10 +24,11 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 <div class="dashboard-wrapper">
     <div class="dashboard">
-        <form id = "searchform" method = "GET">
-            <input id = "searchbar" name = "searchbar">
-            <input id = "searchsubmitbutton" type = "submit" value = "Search">
+        <form id="searchform" method="GET">
+            <div class="textbox textbox--size-fill" data-type="text" data-label="Search" data-name="searchbar" data-id="searchbar" id="searchbar-textbox"></div>
+            <input class="button" id="searchsubmitbutton" type="submit" value="Search">
         </form>
+
 
         <div id = "searchresults">
         <?php

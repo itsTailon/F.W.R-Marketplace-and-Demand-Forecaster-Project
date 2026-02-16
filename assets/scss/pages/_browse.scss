@@ -1,15 +1,22 @@
 #searchform {
   width: 100%;
-  display: grid;
-  grid-template-columns: 80% 20%;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
 }
 
 #searchbarlabel {
   width: 100%;
 }
 
-#searchbar, #searchsubmitbutton {
-  margin: 5px;
+#searchbar-textbox {
+  height: 50px;
+  width: 80%;
+}
+
+#searchsubmitbutton {
+  height: 40px;
+  width: 20%;
 }
 
 .displayedbundle {
