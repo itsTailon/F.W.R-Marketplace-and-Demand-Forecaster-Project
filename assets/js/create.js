@@ -45,7 +45,9 @@ $('#submit-btn').click(() => {
     // Get allergens
     var allergens = [];
     $('.allergen-list__item__selector').each(function () {
-        allergens.push($(this).val());
+        if ($(this).val() !== null) {
+            allergens.push($(this).val());
+        }
     });
 
     // Send POST request to bundle API

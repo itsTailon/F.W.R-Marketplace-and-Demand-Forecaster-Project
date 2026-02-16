@@ -40,16 +40,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $_PUT = array();
         parse_str(file_get_contents('php://input'), $_PUT);
 
-        // Get bundleID from input
-        $bundleID = $_PUT["bundleID"];
-
-        // check data is set and of the right form before using
-        if (!isset($bundleID) || !!is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
+        // check bundle ID is set and of the right form before using
+        if (!isset($_PUT["bundleID"]) || !is_int(filter_var($_PUT["bundleID"], FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
-        // Convert to int before using
-        $bundleID = intval($bundleID);
+        // Presence check for fields
+        if (!isset($_PUT["title"]) || !isset($_PUT["details"])
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens'])) {
+
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
+        }
+
+        // Convert bundle ID to int before using
+        $bundleID = intval($_PUT["bundleID"]);
 
         // Get current user logged in
         $ownerID = Authenticator::getCurrentUser()->getUserID();
@@ -67,12 +72,34 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new FailedOwnershipAuthException("Seller $ownerID is not allowed to update bundle");
         }
 
+        // Get allergens
+        $allergens = json_decode($_PUT['allergens']);
+        if ($allergens === null) {
+            throw new InvalidArgumentException();
+        } else {
+            foreach ($allergens as $allergen) {
+                // Check if allergen exists (convert to string explicitly, as JSON value could have been non-string)
+                if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
+                    throw new InvalidArgumentException();
+                }
+            }
+        }
+
         // Apply changes to bundle
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
+
+        // Set allergens
+        // TODO: Make more efficient (add 'setAllergens' method to Bundle, perhaps)
+        foreach ($bundle->getAllergens() as $existingAllergen) {
+            $bundle->removeAllergen($existingAllergen);
+        }
+        foreach ($allergens as $allergen) {
+            $bundle->addAllergen($allergen);
+        }
 
         if(isset($_PUT['purchaserID'])) {
             $bundle->setPurchaserID(intval($_PUT['purchaserID']));
@@ -91,10 +118,17 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Handling exception produced if user doesn't have required permission and producing JSON-encoded response
         echo json_encode(http_response_code(403));
         die();
+
+    } catch (MissingValuesException $e) {
+        http_response_code(400);
+        die("MVE");
+    } catch (InvalidArgumentException $e) {
+        http_response_code(400);
+        die("IAE");
     } catch (DatabaseException $db_e) {
         // Handling exception produced due to database error and producing JSON-encoded response
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (NoSuchBundleException $sb_e) {
         // Handling exception if bundle attempted to update does not exist and producing JSON-encoded response
         echo json_encode(http_response_code(404));
@@ -102,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (\PDOException $pdo_e) {
         // Handling exception produced by failed PDO request and producing JSON-encoded response
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (FailedOwnershipAuthException $no_e) {
         // Handling exception produced failure
         //to authenticate seller for updating specified bundle and producing JSON-encoded message
@@ -111,6 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchCustomerException $e) {
         // Handling failure to customer ID and producing JSON-encoded message
         echo json_encode(http_response_code(400));
+        die();
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
