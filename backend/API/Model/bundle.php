@@ -119,11 +119,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
         }
+
 
         // Get array of fields for bundle to create
         $fields = array(
@@ -134,6 +135,19 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
             "bundleStatus" => BundleStatus::Available,
         );
+
+        // Get allergens
+        $allergens = json_decode($_POST['allergens']);
+        if ($allergens === null) {
+            throw new InvalidArgumentException();
+        } else {
+            foreach ($allergens as $allergen) {
+                // Check if allergen exists (convert to string explicitly, as JSON value could have been non-string)
+                if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
+                    throw new InvalidArgumentException();
+                }
+            }
+        }
 
         // Checking that current user has permissions to create a Bundle
         if (!RBACManager::isCurrentuserPermitted("bundle_create")) {
@@ -160,10 +174,13 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         }
 
-
-
         // Calling create() method, storing Bundle object produced as $bundle
         $bundle = Bundle::create($fields);
+
+        // Add allergens to bundle
+        foreach ($allergens as $allergen) {
+            $bundle->addAllergen($allergen);
+        }
 
         // If successfully created a Bundle, return that bundle
         echo json_encode($bundle);
