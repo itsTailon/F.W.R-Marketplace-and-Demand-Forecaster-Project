@@ -11,7 +11,7 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?php echo isset($DOCUMENT_TITLE) ? $DOCUMENT_TITLE . ' — ' : '';?>App Name</title>
+    <title><?php echo isset($DOCUMENT_TITLE) ? $DOCUMENT_TITLE . ' — ' : '';?>FWR</title>
 
     <!-- Fonts  -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
