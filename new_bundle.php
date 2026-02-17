@@ -26,6 +26,8 @@ require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 ?>
 
+<input type="hidden" name="sellerID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
+
 <div class="bundle-creation-container">
     <div class="bundle-creation-wrapper">
         <div class="bundle-dashboard-buttons">
@@ -37,20 +39,26 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         <section class="bundle-creation-form">
             <h1>Create a Listing</h1>
             <br>
+            <p class="error-text"></p>
+
             <div class="bundle-creation-form__field">
                 <label for="name">Name</label>
                 <div class="textbox" data-type="text" data-id="name" id="name-textbox"></div>
             </div>
             <div class="bundle-creation-form__field">
                 <label for="description">Description</label>
-                <textarea class="textarea"></textarea>
+                <textarea class="textarea" id="description"></textarea>
             </div>
             <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
             <ul class="allergen-list">
             </ul>
             <div class="bundle-creation-form__field">
                 <label for="price">Price</label>
-                <div class="textbox" data-type="text" data-id="price" data-label="Price in £" id="price-textbox"></div>
+                <div class="textbox" data-type="text" data-id="rrp" data-label="Price in £" id="price-textbox"></div>
+            </div>
+            <div class="bundle-creation-form__field">
+                <label for="discount-price">Discounted Price</label>
+                <div class="textbox" data-type="text" data-id="discount-price" data-label="Price in £" id="discount-price-textbox"></div>
             </div>
             <div class="bundle-creation-form__btns">
                 <button type="button" class="button button--rounded button--green" id="submit-btn">Submit</button>
@@ -61,7 +69,11 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     </div>
 </div>
 
-<script src="/assets/js/components/text-inputs.js"></script>
 <script src="/assets/js/bundle_form.js"></script>
 <script src="/assets/js/create.js"></script>
+
 <?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+

@@ -1,5 +1,5 @@
-const streakStart = new Date(2026, 1, 3)
-const streakEnd = new Date(2026, 1, 13)
+var streakStart;
+var streakEnd;
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const monthLengths = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -133,8 +133,8 @@ function updateCalendar() {
         </tr>
     `;
 
-    const properStreakStart = getWeekStart(streakStart);
-    const properStreakEnd = getWeekEnd(streakEnd);
+    const properStreakStart = (streakStart == null) ? null : getWeekStart(streakStart);
+    const properStreakEnd = (streakEnd == null) ? null : getWeekEnd(streakEnd);
 
     // Reset count back to 0
     count = 0;
@@ -179,7 +179,9 @@ function updateCalendar() {
             }
 
             // Enclose day string in a div with the given streak classes if there are any
-            dayStr = `<div${streakClasses.length > 0 ? ` class="${streakClasses.join(" ")}"` : ""}>${dayStr}</div>`;
+            if (streakClasses.length > 0) {
+                dayStr = `<div class="${streakClasses.join(" ")}">${dayStr}</div>`;
+            }
             
             // Embed the day string in a table column with any given classes
             var colHtml = `<td${cssClasses.length > 0 ? ` class="${cssClasses.join(" ")}"` : ""}>${dayStr}</td>`;
@@ -204,9 +206,6 @@ const d = new Date(); // Get current date
 var selMonth = d.getMonth();
 var selYear = d.getFullYear();
 
-// Update calendar widget
-updateCalendar();
-
 // If previous button is clicked, go back 1 month
 $('#prev-btn').click(() => {
     if (--selMonth == -1) { // If going back a month would go out of the 0-11 month range
@@ -225,4 +224,32 @@ $('#next-btn').click(() => {
     }
 
     updateCalendar();
+});
+
+$.ajax({
+    url: "/backend/API/Model/streak.php",
+    type: 'GET',
+    success: dates => {
+        if (dates["startDate"] == null || dates["endDate"] == null || dates["currentWeekStart"] == null) {
+            streakStart = null;
+            streakEnd = null;
+            $("#weeks").text("0 weeks");
+        } else {
+            let sqlStartDate = dates["startDate"]["date"];
+            let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
+            streakStart = new Date(sqlStartSplit[0], sqlStartSplit[1]-1, sqlStartSplit[2]);
+
+            let sqlEndDate = dates["currentWeekStart"]["date"];
+            let sqlEndSplit = sqlEndDate.replace(' ', '-').split("-");
+            streakEnd = new Date(sqlEndSplit[0], sqlEndSplit[1]-1, sqlEndSplit[2]);
+
+            let weeks = 0;
+
+            for (let d = new Date(streakStart.getFullYear(), streakStart.getMonth(), streakStart.getDate()); d <= streakEnd; d.setDate(d.getDate() + 7), weeks++);
+
+            $("#weeks").text(weeks.toString() + " " + (weeks == 1 ? "week" : "weeks"));
+        }
+
+        updateCalendar();
+    }
 });

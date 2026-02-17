@@ -40,16 +40,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $_PUT = array();
         parse_str(file_get_contents('php://input'), $_PUT);
 
-        // Get bundleID from input
-        $bundleID = $_PUT["bundleID"];
-
-        // check data is set and of the right form before using
-        if (!isset($bundleID) || !ctype_digit($bundleID)) {
+        // check bundle ID is set and of the right form before using
+        if (!isset($_PUT["bundleID"]) || !is_int(filter_var($_PUT["bundleID"], FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
-        // Convert to int before using
-        $bundleID = intval($bundleID);
+        // Presence check for fields
+        if (!isset($_PUT["title"]) || !isset($_PUT["details"])
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens'])) {
+
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
+        }
+
+        // Convert bundle ID to int before using
+        $bundleID = intval($_PUT["bundleID"]);
 
         // Get current user logged in
         $ownerID = Authenticator::getCurrentUser()->getUserID();
@@ -67,13 +72,40 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new FailedOwnershipAuthException("Seller $ownerID is not allowed to update bundle");
         }
 
+        // Get allergens
+        $allergens = json_decode($_PUT['allergens']);
+        if ($allergens === null) {
+            throw new InvalidArgumentException();
+        } else {
+            foreach ($allergens as $allergen) {
+                // Check if allergen exists (convert to string explicitly, as JSON value could have been non-string)
+                if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
+                    throw new InvalidArgumentException();
+                }
+            }
+        }
+
         // Apply changes to bundle
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
-        $bundle->setPurchaserID(intval($_PUT['purchaserID']));
+
+        // Set allergens
+        // TODO: Make more efficient (add 'setAllergens' method to Bundle, perhaps)
+        foreach ($bundle->getAllergens() as $existingAllergen) {
+            $bundle->removeAllergen($existingAllergen);
+        }
+        foreach ($allergens as $allergen) {
+            $bundle->addAllergen($allergen);
+        }
+
+        if(isset($_PUT['purchaserID'])) {
+            $bundle->setPurchaserID(intval($_PUT['purchaserID']));
+        } else {
+            $bundle->setPurchaserID(null);
+        }
 
         // Calling update() method as checks have been fulfilled
         $bundle->update();
@@ -86,10 +118,17 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Handling exception produced if user doesn't have required permission and producing JSON-encoded response
         echo json_encode(http_response_code(403));
         die();
+
+    } catch (MissingValuesException $e) {
+        http_response_code(400);
+        die("MVE");
+    } catch (InvalidArgumentException $e) {
+        http_response_code(400);
+        die("IAE");
     } catch (DatabaseException $db_e) {
         // Handling exception produced due to database error and producing JSON-encoded response
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (NoSuchBundleException $sb_e) {
         // Handling exception if bundle attempted to update does not exist and producing JSON-encoded response
         echo json_encode(http_response_code(404));
@@ -97,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (\PDOException $pdo_e) {
         // Handling exception produced by failed PDO request and producing JSON-encoded response
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (FailedOwnershipAuthException $no_e) {
         // Handling exception produced failure
         //to authenticate seller for updating specified bundle and producing JSON-encoded message
@@ -106,6 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchCustomerException $e) {
         // Handling failure to customer ID and producing JSON-encoded message
         echo json_encode(http_response_code(400));
+        die();
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -113,21 +153,36 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     try {
 
         // Ensuring all required values are set
-        if (!isset($_POST["bundleStatus"]) || !isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST["purchaserID"])) {
+        if (!isset($_POST["title"]) || !isset($_POST["details"])
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens'])) {
+
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
         }
 
+
         // Get array of fields for bundle to create
         $fields = array(
-            $_POST["bundleStatus"],
-            $_POST["title"],
-            $_POST["details"],
-            $_POST["rrp"],
-            $_POST["discountedPrice"],
-            $_POST["purchaserID"]
+            "title" => $_POST["title"],
+            "details" => $_POST["details"],
+            "rrp" => $_POST["rrp"],
+            "discountedPrice" => $_POST["discountedPrice"],
+            "sellerID" => Authenticator::getCurrentUser()->getUserID(),
+            "bundleStatus" => BundleStatus::Available,
         );
+
+        // Get allergens
+        $allergens = json_decode($_POST['allergens']);
+        if ($allergens === null) {
+            throw new InvalidArgumentException();
+        } else {
+            foreach ($allergens as $allergen) {
+                // Check if allergen exists (convert to string explicitly, as JSON value could have been non-string)
+                if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
+                    throw new InvalidArgumentException();
+                }
+            }
+        }
 
         // Checking that current user has permissions to create a Bundle
         if (!RBACManager::isCurrentuserPermitted("bundle_create")) {
@@ -139,41 +194,15 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             // Switch-case confirming field type
             // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
-                case "bundleStatus":
-                    // Switch-case checking value to additionally update it to non-string
-                    $fields["bundleStatus"] = match ($value) {
-                        "Available" => BundleStatus::Available,
-                        "Reserved" => BundleStatus::Reserved,
-                        "Collected" => BundleStatus::Collected,
-                        "Cancelled" => BundleStatus::Cancelled,
-                        default => throw new InvalidArgumentException("Invalid field type for $field"),
-                    };
-                    break;
-
                 case "rrp":
                 case "discountedPrice":
                 case "sellerID":
                     // Check string contains only [0,9] digits and no '.'
-                    if (!ctype_digit($value)) {
+                    if (!is_int(filter_var($value, FILTER_VALIDATE_INT))) {
                         throw new InvalidArgumentException("Invalid field type for $field");
                     }
                     // Convert string to integer
                     $fields[$field] = intval($value);
-                    break;
-
-                case "purchaserID":
-                    // If not [0,9] or null, throw exception
-                    if (!empty($value) || !ctype_digit($value)) {
-                        throw new InvalidArgumentException("Invalid field type for $field");
-                    }
-
-                    // Convert type and store if integer
-                    if (ctype_digit($value)) {
-                        $fields[$field] = intval($value);
-                    } else {
-                        // If empty then store as null
-                        $fields[$field] = null;
-                    }
                     break;
 
             }
@@ -183,6 +212,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Calling create() method, storing Bundle object produced as $bundle
         $bundle = Bundle::create($fields);
 
+        // Add allergens to bundle
+        foreach ($allergens as $allergen) {
+            $bundle->addAllergen($allergen);
+        }
+
         // If successfully created a Bundle, return that bundle
         echo json_encode($bundle);
         die();
@@ -191,27 +225,27 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchPermissionException $nsp_e) {
         // Permission denied thus "forbidden" to access content and produce JSON-encoded message
         echo json_encode(http_response_code(403));
-        die();
+        die("NSP");
     } catch (DatabaseException $e) {
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
-        die();
+        die("DBE");
     } catch (MissingValuesException $mv_e) {
         // Bad request not in the form required as input and produce JSON-encoded message
         echo json_encode(http_response_code(400));
-        die();
+        die("MVE");
     } catch (NoSuchCustomerException $nsc_e) {
         // Customer not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
-        die();
+        die("NCE");
     } catch (NoSuchSellerException $nss_e) {
         // Seller not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
-        die();
+        die("NSE");
     } catch (InvalidArgumentException $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
-        die();
+        die("IAE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
@@ -223,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_GET["bundleID"];
 
         // Checking validity of passed bandle ID
-        if (!isset($bundleID['bundleID']) || !ctype_digit($bundleID['bundleID'])) {
+        if (!isset($bundleID['bundleID']) || !!is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
@@ -242,8 +276,20 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Calling load() and storing resultant Bundle under $bundle
         $bundle = Bundle::load($bundleID);
 
+        // Create associative array to encode for return
+        $bundle_fields = array(
+            "id" => $bundle->getID(),
+            "title" => $bundle->getTitle(),
+            "details" => $bundle->getDetails(),
+            "status" => $bundle->getStatus(),
+            "rrpGBX" => $bundle->getRrpGBX(),
+            "discountedPriceGBX" => $bundle->getDiscountedPriceGBX(),
+            "sellerID" => $bundle->getSellerID(),
+            "purchaserID" => $bundle->getPurchaserID(),
+        );
+
         // Return Bundle through a JSON-encoded message
-        echo json_encode($bundle);
+        echo json_encode($bundle_fields);
         die();
 
     } catch (DatabaseException $db_e) {
@@ -270,7 +316,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundleID = $_DELETE["bundleID"];
 
         // Check that bundle ID holds valid data
-        if (!isset($bundleID) || !ctype_digit($bundleID)) {
+        if (!isset($bundleID) || !is_int(filter_var($bundleID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 

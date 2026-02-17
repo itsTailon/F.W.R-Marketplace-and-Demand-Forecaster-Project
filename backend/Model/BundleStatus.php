@@ -6,4 +6,5 @@ enum BundleStatus: string {
     case Reserved = "reserved";
     case Collected = "collected";
     case Cancelled = "cancelled";
+    case Expired = "expired";
 }

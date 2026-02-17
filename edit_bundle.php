@@ -6,9 +6,10 @@ use TTE\App\Model\DatabaseHandler;
 
 use TTE\App\Model\Seller;
 
+
+
 require 'partials/head.php';
 
-session_start();
 
 // If user is not logged in, briefly display an error
 // and then redirect to login
@@ -115,6 +116,33 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
     <br>
     <ul class="allergen-list">
+        <?php
+        foreach ($bundle->getAllergens() as $allergen) {
+            ?>
+            <li class="allergen-list__item">
+                <select class="allergen-list__item__selector">
+                    <option value="" disabled="">Choose an allergen</option>
+                    <option value="celery" <?php echo $allergen == "celery" ? 'selected=""' : ''; ?>>Celery</option>
+                    <option value="gluten" <?php echo $allergen == "gluten" ? 'selected=""' : ''; ?>>Gluten</option>
+                    <option value="crustaceans" <?php echo $allergen == "crustaceans" ? 'selected=""' : ''; ?>>Crustaceans</option>
+                    <option value="eggs" <?php echo $allergen == "eggs" ? 'selected=""' : ''; ?>>Eggs</option>
+                    <option value="fish" <?php echo $allergen == "fish" ? 'selected=""' : ''; ?>>Fish</option>
+                    <option value="lupin" <?php echo $allergen == "lupin" ? 'selected=""' : ''; ?>>Lupin</option>
+                    <option value="milk" <?php echo $allergen == "milk" ? 'selected=""' : ''; ?>>Milk</option>
+                    <option value="molluscs" <?php echo $allergen == "molluscs" ? 'selected=""' : ''; ?>>Molluscs</option>
+                    <option value="mustard" <?php echo $allergen == "mustard" ? 'selected=""' : ''; ?>>Mustard</option>
+                    <option value="nuts" <?php echo $allergen == "nuts" ? 'selected=""' : ''; ?>>Nuts</option>
+                    <option value="peanuts" <?php echo $allergen == "peanuts" ? 'selected=""' : ''; ?>>Peanuts</option>
+                    <option value="sesame-seeds" <?php echo $allergen == "sesame-seeds" ? 'selected=""' : ''; ?>>Sesame Seeds</option>
+                    <option value="soya" <?php echo $allergen == "soya" ? 'selected=""' : ''; ?>>Soya</option>
+                    <option value="sulphites" <?php echo $allergen == "sulphites" ? 'selected=""' : ''; ?>>Sulphur dioxide/sulphites</option>
+                </select>
+                <button type="button" class="allergen-list__item__delete-btn"><img src="/assets/icons/bin_faded.png" width="20px" height="20px"></button>
+            </li>
+
+            <?php
+        }
+        ?>
     </ul>
     <br>
     <div class="edit-form__field">
@@ -137,6 +165,12 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     </div>
 </section>
 
-<script src="/assets/js/components/text-inputs.js"></script>
 <script src="/assets/js/bundle_form.js"></script>
 <script src="/assets/js/edit.js"></script>
+
+
+<?php
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+?>
+

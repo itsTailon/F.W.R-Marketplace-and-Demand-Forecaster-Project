@@ -4,6 +4,7 @@ namespace TTE\App\Tests\Model;
 
 use Exception;
 use TTE\App\Model\Account;
+use TTE\App\Model\NoSuchAllergenException;
 use TTE\App\Model\NoSuchStreakException;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Helpers\CurrencyTools;
@@ -25,6 +26,8 @@ $_SESSION = array();
 // Class testing functions of the Bundle class
 class BundleTest extends TestCase
 {
+
+    // TODO (for AT): add unit tests for setRrpGBX and setDiscountedPriceGBX
 
     /**
      * @throws NoSuchCustomerException|DatabaseException|MissingValuesException|NoSuchStreakException
@@ -424,17 +427,21 @@ class BundleTest extends TestCase
     } // Not necessarily needed as should be tested through use in set...ID functions
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * test delete bundle method
+     * @return void
+     * @throws DatabaseException
+     * @throws MissingValuesException
+     * @throws NoSuchBundleException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException
      */
-    public function testDeleteBundle()
-    {
+    public function testDelete() {
         /*
-        * Test:
-        * - If a bundle is deleted, it is not in the database
-        * - If a bundle that doesn't exist is tried to be deleted, error thrown
+         * Tests:
+         * - Deleting bundle that does not exist will throw NoSuchReservationException
+         * - Deleting a bundle removes it from the database
          */
 
-        // Create associative array for test bundle
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
             'email' => 'sellertest@example.com',
@@ -453,28 +460,166 @@ class BundleTest extends TestCase
             'sellerID' => $seller->getUserID(),
         ]);
 
-        // Create test bundle and check it exists
-        $testDeleteID = $bundle->getID();
-        $this->assertTrue(Bundle::existsWithID($testDeleteID));
-
-        // Delete test bundle and check that the bundle no longer exists
+        // Check that when deleting a bundle that does not exist, NoSuchBundleException is thrown
+        $thrown = false;
         try {
-            Bundle::delete($testDeleteID);
-            $this->assertFalse(Bundle::existsWithID($testDeleteID));
-        } catch (DatabaseException $e) {
+            bundle::delete(-1);
+        } catch (NoSuchBundleException $e) {
+            $thrown  = true;
+        }
+        self::assertTrue($thrown);
+
+        // Check that calling the delete method deletes a record from the database
+        self::assertTrue(Bundle::existsWithID($bundle->getID()));
+        try{
+            Bundle::delete($bundle->getID());
+        } catch (\PDOException $e) {
+            // If it is not there, fail test and clean up
+            Seller::delete($seller->getUserID());
+
             self::fail($e->getMessage());
         }
 
-        // Test deleting a bundle that does not exist
-        $thrown = false;
-        try {
-            Bundle::delete($testDeleteID);
-        } catch (\PDOException $e) {
-            $thrown = true;
-        }
-        if (!$thrown) {
-            $this->fail();
-        }
+        self::assertFalse(Bundle::existsWithID($bundle->getID()));
+
+        // Clean up
+        Seller::delete($seller->getUserID());
     }
 
+    public function testAddAllergen() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Test adding non-existent allergen to bundle
+        $thrown = false;
+        try {
+            $bundle->addAllergen("noAllergenWouldEverHaveThisName");
+        } catch (NoSuchAllergenException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Test adding valid allergen to bundle
+        $bundle->addAllergen("gluten");
+        $this->assertTrue(in_array("gluten", $bundle->getAllergens()));
+
+        // Test adding valid allergen to bundle that already has that allergen
+        $thrown = false;
+        try {
+            $bundle->addAllergen("gluten");
+        } catch (DatabaseException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testRemoveAllergen() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Add allergen to bundle
+        $bundle->addAllergen("gluten");
+
+        // Test removing non-existent (i.e. invalid name) allergen from bundle
+        $thrown = false;
+        try {
+            $bundle->removeAllergen("noAllergenWouldEverHaveThisName");
+        } catch (NoSuchAllergenException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Test removing previously added allergen from bundle
+        $bundle->removeAllergen("gluten");
+        $this->assertFalse(in_array("gluten", $bundle->getAllergens()));
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testGetAllergens() {
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Add allergens to bundle
+        $bundle->addAllergen("gluten");
+        $bundle->addAllergen("soya");
+
+        // Ensure that the Bundle::getAllergens() returns the expected result
+        $bundleAllergens = $bundle->getAllergens();
+        $this->assertTrue(in_array("gluten", $bundleAllergens) && in_array("soya", $bundleAllergens));
+
+        // Cleanup (delete seller)
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testSearchBundle() {
+        $testSeller = Seller::create(["email" => "testsearchbundle@example.com", "password" => "password",
+            "name" => "ex name", "address" => "ex address"]);
+        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available,
+            "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
+            "discountedPrice" => 8.00]);
+
+        $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
+        $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
+        $shouldNotFind = Bundle::searchBundles($testBundle->getTitle() . " except no");
+
+        $this->assertCount(1, $shouldFindFromTitle);
+        $this->assertCount(1, $shouldFindFromDetails);
+        $this->assertCount(0, $shouldNotFind);
+
+        Bundle::delete($testBundle->getID());
+        Seller::delete($testSeller->getUserID());
+    }
 }

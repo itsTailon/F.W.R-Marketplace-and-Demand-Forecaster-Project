@@ -49,9 +49,13 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
         // Load streak for given customer
         $streak = Customer::load($customerID)->getStreak();
-
+        // print_r(value: $streak);
         // Return Streak through a JSON-encoded message
-        echo json_encode($streak);
+        echo json_encode([
+            "startDate" => $streak->getStartDate(),
+            "endDate" => $streak->getEndDate(),
+            "currentWeekStart" => $streak->getCurrentWeekStart()
+        ]);
         die();
 
     } catch (InvalidArgumentException $ia_e) {
@@ -74,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         parse_str(file_get_contents('php://input'), $_DELETE);
 
         // Check that streak ID holds valid data
-        if (!isset($streakID) || !ctype_digit($streakID)) {
+        if (!isset($streakID) || !!is_int(filter_var($streakID, FILTER_VALIDATE_INT))) {
             throw new InvalidArgumentException("Invalid streak ID");
     }
 

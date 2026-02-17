@@ -1,6 +1,9 @@
 <?php
-
 namespace TTE\App\Model;
+
+use TTE\App\Auth\NoSuchRoleException;
+use TTE\App\Auth\RBACManager;
+use TTE\App\Helpers\CurrencyTools;
 
 class Seller extends Account {
 
@@ -30,6 +33,14 @@ class Seller extends Account {
         $seller->setAddress($fields['address']);
         $seller->accountType = "seller";
         $seller->userID = $account->getUserID();
+
+        try {
+            RBACManager::assignRoleToUser($seller->getUserID(), "customer");
+        } catch (NoSuchRoleException $e) {
+            die("There is no such role");
+        } catch (NoSuchAccountException $e) {
+            die("There is no such account");
+        }
 
         return $seller;
     }
@@ -92,6 +103,26 @@ class Seller extends Account {
         return !($row === false);
     }
 
+
+    /**
+     * Summary of getAllBundlesForUser
+     * @param int $id ID of seller 
+     * @throws DatabaseException
+     * @return array Returns array of Bundles that are owned by Seller provided.
+     */
+    public static function getAllBundlesForUser(int $id) {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM bundle WHERE sellerID=:id;");
+
+        // Try to execute
+        try {
+            $stmt->execute([":id" => $id]);
+            // Load all bundles from query and return array
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
     public function getName(): string {
         return $this->name;
     }
@@ -119,14 +150,55 @@ class Seller extends Account {
         try {
             $stmt->execute(["sellerID" => $id]);
         } catch (\PDOException $e) {
-            throw new DkatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM account WHERE userID=:userID;");
         try {
             $stmt->execute(["userID" => $id]);
         } catch (\PDOException $e) {
-            throw new DkatabaseException($e->getMessage());
+            throw new DatabaseException($e->getMessage());
         }
 
+
+
+    }
+
+    private function filterBundlesByDiscountLevel(array $dbRows, int $minDiscount, int $maxDiscount): array {
+        $dbRowsFiltered = array();
+        $j = 0;
+
+        for ($i = 0; $i < count($dbRows); $i++) {
+            $dbRow = $dbRows[$i];
+            $rrp = CurrencyTools::decimalStringToGBX($dbRow['rrp']);
+            $discountedPrice = CurrencyTools::decimalStringToGBX($dbRow['discountedPrice']);
+            $discountPercentage = 100 * (($rrp - $discountedPrice) / $rrp);
+
+            if ($discountPercentage <= $maxDiscount && $discountPercentage >= $minDiscount) {
+                $dbRowsFiltered[$j++] = $dbRow;
+            }
+        }
+
+        return $dbRowsFiltered;
+    }
+
+    private function getBundlesByStatus(BundleStatus $status) : array {
+        $queryText = "SELECT rrp, discountedPrice FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
+        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+        $stmt->execute([":sellerID" => $this->getUserID(), ":status" => $status->value]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function getSellThroughRate() : float {
+        $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
+        $expired = count($this->getBundlesByStatus(BundleStatus::Expired));
+
+        return 100 * ($collected / ($collected + $expired));
+    }
+
+    public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
+        $collected = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Collected), $minDiscount, $maxDiscount));
+        $expired = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Expired), $minDiscount, $maxDiscount));
+
+        return 100 * ($collected / ($collected + $expired));
     }
 }

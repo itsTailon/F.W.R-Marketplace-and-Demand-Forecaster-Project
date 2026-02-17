@@ -48,6 +48,16 @@ $('#submit-btn').click(() => {
         return false;
     }
 
+    // Get allergens
+    var allergens = [];
+    $('.allergen-list__item__selector').each(function () {
+        let allergen = $(this).val();
+        // If allergen isn't null and hasn't already been counted
+        if (allergen !== null && !allergens.includes(allergen)) {
+            allergens.push(allergen);
+        }
+    });
+
     // Send PUT request to bundle API
     $.ajax({
         url: "/backend/API/Model/bundle.php",
@@ -58,11 +68,13 @@ $('#submit-btn').click(() => {
             details: bundleDesc,
             rrp: bundleRRP,
             discountedPrice: bundleDiscountPrice,
-            bundleStatus: "available"
+            bundleStatus: "available",
+            allergens: JSON.stringify(allergens),
         },
         statusCode: {
             200: () => { // Edit successful
-                $('#bundle-name').text(bundleName);
+                alert("Bundle successfully updated!");
+                window.location.replace("/view_bundle.php?id=" + bundleID);
             },
             400: () => {
                 $('.error-text').text("Bad Request");

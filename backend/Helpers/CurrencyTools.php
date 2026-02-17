@@ -14,6 +14,8 @@ class CurrencyTools {
      * @return int amount represented as total number of pence
      */
     public static function decimalStringToGBX(string $decimal): int {
+        // TODO: Allow for values w/o decimal point — e.g., '10'.
+
         // Split input into LHS and RHS
         $split = explode('.', $decimal);
 

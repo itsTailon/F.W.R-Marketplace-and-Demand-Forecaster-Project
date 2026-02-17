@@ -103,3 +103,12 @@ p.streak__header {
 p.streak__display {
     font-size: 50px;
 }
+
+.streak__display {
+    height: 50px;
+    margin-bottom: 20px;
+}
+
+.streak__display img {
+    height: inherit;
+}

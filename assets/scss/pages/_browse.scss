@@ -1,0 +1,42 @@
+#searchform {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 64px;
+}
+
+#searchbarlabel {
+  width: 100%;
+}
+
+#searchbar-textbox {
+  height: 50px;
+  width: 80%;
+}
+
+#searchsubmitbutton {
+  height: 40px;
+  width: 20%;
+}
+
+
+#searchresults {
+  background-color: #aaaaaa;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.displayedbundle {
+  background-color: #cccccc;
+  padding: 16px;
+  border-radius: 5px;
+}
+
+.displayedbundlelink {
+  text-decoration: none;
+  color: black;
+}

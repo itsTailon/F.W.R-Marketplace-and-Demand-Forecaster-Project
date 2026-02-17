@@ -13,12 +13,13 @@ if (session_status() != PHP_SESSION_ACTIVE) {
 if (!Authenticator::isLoggedIn()) {
     // Not logged-in, so redirect to login page
     header('Location: login.php');
+    die('You are not logged in. If you are not redirected automatically, please click <a href="/login.php">here</a>.');
 }
 
 // Ensure that bundle ID was passed in request
 if (!isset($_GET['id'])) {
-    // TODO: Remove die call. Instead, redirect to 404 or somewhere else.
-    die("ERROR: No ID given. (TODO: Redirect to 404 or elsewhere)");
+    header('Location: 404.php');
+    die();
 }
 
 // Get bundle ID
@@ -26,8 +27,8 @@ $bundleID = filter_var($_GET['id'], FILTER_VALIDATE_INT);
 
 // Check ensure that bundle ID given is valid (i.e. it is an integer and corresponds to an actual record)
 if (!is_int($bundleID) || !Bundle::existsWithID($bundleID)) {
-    // TODO: Remove die call. Instead, redirect to 404 page
-    die("ERROR: Invalid bundle ID (TODO: Redirect to 404)");
+    header('Location: 404.php');
+    die();
 }
 
 // Instantiate Bundle object to get bundle data
@@ -45,18 +46,22 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 ?>
 
+<input type="hidden" id="bundleID" value="<?php echo $bundleID; ?>">
+<input type="hidden" id="purchaserID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
+
+
 <div class="single-bundle-container">
     <div class="single-bundle-wrapper">
         <div class="bundle-dashboard-buttons">
             <!-- TODO: Add symbols  -->
-            <a href="" class="button button--rounded">Listings</a>
+            <a href="browse.php" class="button button--rounded">Listings</a>
             <a href="dashboard.php" class="button button--rounded">Home</a>
         </div>
 
         <div class="bundle-view">
 
             <div class="bundle-view__main">
-                <img src="" alt="" class="bundle-view__img">
+                <img src="/assets/img/bundle_placeholder.jpg" alt="" class="bundle-view__img">
                 <div class="bundle-view__info">
                     <h1 class="bundle-view__title"><?php echo $bundle->getTitle(); ?></h1>
 
@@ -73,15 +78,24 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     ?>
 
                     <span class="bundle-view__seller"><?php echo (Seller::load($bundle->getSellerID()))->getName(); ?></span>
-                    <span class="bundle-view__date">Posted on DATE at TIME</span>
+                    <span class="bundle-view__date"></span>
                     <div class="bundle-view__price">
                         <span>£<?php echo $priceStr; ?></span>
                         <?php
                             $user = Authenticator::getCurrentUserSubclass();
                             if ($user instanceof Seller && $bundle->getSellerID() == $user->getUserID()) {
-                                ?><a href="" class="bundle-view__edit-btn button button--rounded button--green">Edit</a><?php
+                                ?><a href="edit_bundle.php?id=<?php echo $bundle->getID(); ?>" class="bundle-view__edit-btn button button--rounded button--green">Edit</a><?php
                             } else if ($user instanceof \TTE\App\Model\Customer) {
-                                ?><a href="" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</a><?php
+                                if ($bundle->getStatus() == \TTE\App\Model\BundleStatus::Available) {
+                                    ?>
+                                    <button id="reserve-btn" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</button>
+                                    <script src="assets/js/bundle_reserve.js"></script>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <span>RESERVED</span>
+                                    <?php
+                                }
                             }
                         ?>
                     </div>
@@ -89,7 +103,26 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
             </div>
 
             <div class="bundle-view__desc-wrapper">
-                <span class="bundle-view__allergens">Allergens listed: XX, XX</span>
+                <?php
+                if (!empty($bundle->getAllergens())) {
+                    ?>
+                        <span class="bundle-view__allergens">
+                        Allergens listed:
+                        <?php
+                        $allergens = $bundle->getAllergens();
+
+                        for ($i = 0; $i < count($allergens); $i++) {
+                            echo $allergens[$i];
+
+                            if ($i != count($allergens) - 1) {
+                                echo ', ';
+                            }
+                        }
+                        ?>
+                        </span>
+                    <?php
+                }
+                ?>
                 <p class="bundle-view__desc"><?php echo $bundle->getDetails(); ?></p>
             </div>
 

@@ -2,6 +2,9 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Auth\NoSuchRoleException;
+use TTE\App\Auth\RBACManager;
+
 class Account extends StoredObject {
 
     protected int $userID;
@@ -71,6 +74,7 @@ class Account extends StoredObject {
         $account->userID = $userID;
         $account->email = $fields['email'];
         $account->accountType = $fields['accountType'];
+
         return $account;
     }
 
