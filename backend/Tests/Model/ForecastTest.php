@@ -12,7 +12,7 @@ class ForecastTest extends TestCase
          * tests:
          * - Test that forecast is returned in the correct format
          */
-        $testForecast = Forecast::sellerWeeklyForecast(1, "", "", "00:00", "24:00", "0", "100");
+        $testForecast = Forecast::sellerWeeklyForecast(3, "00:00", "24:00", "0", "100");
         self::assertTrue(is_int($testForecast['AvgMondayCollected']));
         self::assertTrue(is_int($testForecast['AvgTuesdayCollected']));
         self::assertTrue(is_int($testForecast['AvgWednesdayCollected']));

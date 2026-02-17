@@ -20,20 +20,6 @@ if (!Authenticator::isLoggedIn()) {
 
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
     try{
-        // Check if category is specified
-        if(!isset($_GET["category"])){
-            $category = "";
-        } else {
-            $category = $_GET["category"];
-        }
-
-        // Check if weather is specified
-        if(!isset($_GET["weather"])){
-            $weather = "";
-        } else {
-            $weather = $_GET["weather"];
-        }
-
         // Check if values that need to be set are set
         if(!isset($_GET["startTime"]) || !isset($_GET["endTime"]) || !isset($_GET["minDiscount"])
             || !isset($_GET["maxDiscount"])){
@@ -49,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         }
 
         // Get the forecast
-        $weeklyForecast = Forecast::sellerWeeklyForecast($sellerID, $category, $weather, $_GET["startTime"], $_GET["endTime"], $_GET["minDiscount"], $_GET["maxDiscount"]);
+        $weeklyForecast = Forecast::sellerWeeklyForecast($sellerID, $_GET["startTime"], $_GET["endTime"], $_GET["minDiscount"], $_GET["maxDiscount"]);
         echo json_encode($weeklyForecast);
 
         exit();
