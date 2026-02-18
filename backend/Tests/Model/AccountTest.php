@@ -55,19 +55,20 @@ class AccountTest extends TestCase {
     $account = Account::create([
         'password' => 'password',
         'email' => 'testDeleteAccount@example.com',
-        'accountType' => 'seller', // Account type not important for the purposes of this test
+        'accountType' => 'seller',
+    ]);
 
     // Ensure the account exists
-    $this->assertTrue(Account::existsWithID($account->getUserID));
+    $this->assertTrue(Account::existsWithID($account->getUserID()));
 
     // Delete account
-    Account::delete($account->getUserID);
+    Account::delete($account->getUserID());
 
     // Ensure it no longer exists
-    $this->assertFalse(Account::existsWithID($account->getUserID));
+    $this->assertFalse(Account::existsWithID($account->getUserID()));
 
     // Ensure loading it now throws an exception
     $this->expectException(DatabaseException::class);
-    Account::load($account->getUserID);
+    Account::load($account->getUserID());
     }
 }
