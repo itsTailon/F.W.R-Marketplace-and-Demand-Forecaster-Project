@@ -15,6 +15,10 @@ class Customer extends Account {
     }
 
     /**
+     * Creates a record for a customer in the database and then returns an object describing that customer
+     *
+     * @param array $fields The information inputted into the signup form
+     * @return Customer The newly created customer
      * @throws DatabaseException|NoSuchCustomerException|MissingValuesException
      */
     public static function create(array $fields): Customer {
@@ -145,7 +149,6 @@ class Customer extends Account {
      * @throws DatabaseException
      */
     public static function delete(int $id): void {
-
         // Check customer with given ID exists
         if (Customer::existsWithID($id) === false) {
             throw new DatabaseException("No customer found with ID $id");
@@ -156,6 +159,12 @@ class Customer extends Account {
         try {
             $stmt->execute(["customerID" => $id]);
         } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_ua WHERE userID = :userID;");
+        try {
+            $stmt->execute(["userID" => $id]);
+        } catch(\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer WHERE customerID=:customerID;");

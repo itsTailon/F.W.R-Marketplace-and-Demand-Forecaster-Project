@@ -226,15 +226,18 @@ $('#next-btn').click(() => {
     updateCalendar();
 });
 
+// Send GET request to API to obtain user's streak
 $.ajax({
     url: "/backend/API/Model/streak.php",
     type: 'GET',
     success: dates => {
+        // If one or more of the date values are null, then streak is 0 weeks
         if (dates["startDate"] == null || dates["endDate"] == null || dates["currentWeekStart"] == null) {
             streakStart = null;
             streakEnd = null;
-            $("#weeks").text("0 weeks");
+            $("#weeks").text("0 weeks"); // Say the streak is 0 weeks
         } else {
+            // Parse the SQL dates as JavaScript Date types
             let sqlStartDate = dates["startDate"]["date"];
             let sqlStartSplit = sqlStartDate.replace(' ', '-').split("-");
             streakStart = new Date(sqlStartSplit[0], sqlStartSplit[1]-1, sqlStartSplit[2]);
@@ -243,13 +246,14 @@ $.ajax({
             let sqlEndSplit = sqlEndDate.replace(' ', '-').split("-");
             streakEnd = new Date(sqlEndSplit[0], sqlEndSplit[1]-1, sqlEndSplit[2]);
 
+            // Count how many weeks elapsed during the streak
             let weeks = 0;
-
             for (let d = new Date(streakStart.getFullYear(), streakStart.getMonth(), streakStart.getDate()); d <= streakEnd; d.setDate(d.getDate() + 7), weeks++);
 
+            // Display number of weeks, with 1 week showing "week" instead of "weeks"
             $("#weeks").text(weeks.toString() + " " + (weeks == 1 ? "week" : "weeks"));
         }
 
-        updateCalendar();
+        updateCalendar(); // Update calendar widget
     }
 });

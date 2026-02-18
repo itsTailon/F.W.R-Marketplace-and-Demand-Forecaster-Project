@@ -15,6 +15,13 @@ class Seller extends Account {
         // TODO: Implement update() method.
     }
 
+    /**
+     * Creates a record for a seller in the database and then returns an object describing that seller
+     *
+     * @param array $fields An associative array of fields, which must contain the email, password, name, and address of the seller
+     * @return Seller The newly created seller
+     * @throws DatabaseException
+     */
     public static function create(array $fields): Seller {
         $account = parent::create([
             'email' => $fields['email'],
@@ -145,7 +152,12 @@ class Seller extends Account {
             throw new DatabaseException("Seller with ID $id does not exist");
         }
 
-        // Create SQL command to delete seller and corresponding account instance of given ID
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM rbac_ua WHERE userID = :userID;");
+        try {
+            $stmt->execute(["userID" => $id]);
+        } catch(\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM seller WHERE sellerID=:sellerID;");
         try {
             $stmt->execute(["sellerID" => $id]);
