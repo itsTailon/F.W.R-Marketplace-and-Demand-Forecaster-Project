@@ -175,7 +175,16 @@ class Seller extends Account {
 
     }
 
-    private function filterBundlesByDiscountLevel(array $dbRows, int $minDiscount, int $maxDiscount): array {
+    /**
+     * A helper function used in getSellThroughRateByDiscountRate to filter bundles SELECTed from the bundles table
+     * by discount level. Public only so it can be tested with PHPUnit; do not use.s
+     *
+     * @param array $dbRows The rows returned from a database SELECT request on the bundles table
+     * @param int $minDiscount The minimum discount, expressed as a percentage discount
+     * @param int $maxDiscount The maximum discount, expressed aa a percentage discount
+     * @return array
+     */
+    public function filterBundlesByDiscountLevel(array $dbRows, int $minDiscount, int $maxDiscount): array {
         $dbRowsFiltered = array();
         $j = 0;
 
@@ -193,13 +202,26 @@ class Seller extends Account {
         return $dbRowsFiltered;
     }
 
-    private function getBundlesByStatus(BundleStatus $status) : array {
+    /**
+     * A helper function used by analytics functions to SELECT bundles associated with the seller in question
+     * with a particular status. Public only so it can be tested with PHPUnit; do not use.
+     *
+     * @param BundleStatus $status
+     * @return array
+     */
+    public function getBundlesByStatus(BundleStatus $status) : array {
         $queryText = "SELECT rrp, discountedPrice FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
         $stmt = DatabaseHandler::getPDO()->prepare($queryText);
         $stmt->execute([":sellerID" => $this->getUserID(), ":status" => $status->value]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Calculates sell-through, or the percentage of past (collected or expired) bundles that are collected
+     * rather than expired, for all bundles associated with the seller
+     *
+     * @return float The sell-through rate
+     */
     public function getSellThroughRate() : float {
         $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
         $expired = count($this->getBundlesByStatus(BundleStatus::Expired));
@@ -207,6 +229,15 @@ class Seller extends Account {
         return 100 * ($collected / ($collected + $expired));
     }
 
+    /**
+     * Calculates sell-through, or the percentage of past (collected or expired) bundles that are collected
+     * rather than expired, for all bundles associated with the seller within a certain range of discount
+     * level
+     *
+     * @param int $minDiscount The bottom of the discount range, expressed as a discount percentage
+     * @param int $maxDiscount The top of the discount range, expressed as a discount percentage
+     * @return float The sell-through rate for that discount range
+     */
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
         $collected = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Collected), $minDiscount, $maxDiscount));
         $expired = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Expired), $minDiscount, $maxDiscount));

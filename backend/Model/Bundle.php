@@ -384,6 +384,13 @@ class Bundle extends StoredObject {
         }
     }
 
+    /**
+     * Searches the bundle table for bundles with the query string as a substring of their names
+     * or descriptions
+     *
+     * @param string $withWhatQuery The query string
+     * @return array The list of results, as an array of Bundle objects
+     */
     public static function searchBundles(string $withWhatQuery) : array {
         $pattern = "%" . $withWhatQuery . "%";
         $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
@@ -406,6 +413,10 @@ class Bundle extends StoredObject {
         return $rows;
     }
 
+    /**
+     * Displays the bundle in the style used in browse.php
+     * @return void
+     */
     public function display(): void {
         $format = "<div class = 'displayedbundle'><a href='view_bundle.php?id=%s' class = 'displayedbundlelink'><h2 class>%s</h2><p>%s</p></a></div>";
         echo sprintf($format, $this->id, htmlspecialchars($this->title), htmlspecialchars($this->details));

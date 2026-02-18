@@ -304,6 +304,7 @@ class Reservation extends StoredObject
      * @throws DatabaseException
      * @throws NoSuchBundleException
      * @throws invalidClaimCodeExeption
+     * @throws NoSuchCustomerException
      */
     public function claimReservation (string $claimCode): void {
         // Check if claim codes match
@@ -322,24 +323,37 @@ class Reservation extends StoredObject
         $bundle->update();
     }
 
-    private static function markStatus(int $id, ReservationStatus $status): void {
-        $queryText = "UPDATE reservation SET reservationStatus = :status WHERE reservationID = :id;";
-        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
-        $stmt->execute([":status" => $status->value, ":id" => $id]);
-    }
-
-    private static function markAssociatedBundleStatus(int $id, BundleStatus $status): void {
-        $queryText = "UPDATE bundle INNER JOIN reservation ON bundle.bundleID = reservation.bundleID SET bundleStatus = :status WHERE reservationID = :id;";
-        $stmt = DatabaseHandler::getPDO()->prepare($queryText);
-        $stmt->execute([":status" => $status->value, ":id" => $id]);
-    }
-
+    /**
+     * Marks the reservation as no show in the database
+     *
+     * @param int $id The ID of the reservation to be marked as no show
+     * @throws DatabaseException
+     * @throws NoSuchReservationException
+     */
     public static function markNoShow(int $id): void {
-        self::markStatus($id, ReservationStatus::NoShow);
+        $reservation = Reservation::load($id);
+        $reservation->setStatus(ReservationStatus::NoShow);
+        $reservation->update();
     }
 
+    /**
+     * Marks the reservation as completed and the associated bundle as collected in the database
+     *
+     * @param int $id The ID of the reservation to marked as collected
+     * @throws MissingValuesException
+     * @throws NoSuchBundleException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchReservationException
+     * @throws NoSuchStreakException
+     */
     public static function markCollected(int $id): void {
-        self::markStatus($id, ReservationStatus::Completed);
-        self::markAssociatedBundleStatus($id, BundleStatus::Collected);
+        $reservation = Reservation::load($id);
+        $reservation->setStatus(ReservationStatus::Completed);
+        $reservation->update();
+
+        $bundle = Bundle::load($reservation->getBundleID());
+        $bundle->setStatus(BundleStatus::Collected);
+        $bundle->update();
     }
 }

@@ -49,6 +49,17 @@ class Account extends StoredObject {
         // TODO: Implement update() method.
     }
 
+    /**
+     * Used by subclasses' create() methods to create entries in
+     * the Account table before they create entries in their respective tables. Should not
+     * be used elsewhere unless the programmer really knows what they're doing.
+     *
+     * @param array $fields An associative array containing the email, password and account
+     * type with which the account should be created
+     *
+     * @return Account
+     * @throws DatabaseException
+     */
     public static function create(array $fields): Account
     {
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO account(email, passwordHash, accountType) VALUES (:email, :passwordHash, :accountType);");
