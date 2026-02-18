@@ -50,5 +50,24 @@ class AccountTest extends TestCase {
         $this->assertFalse(Account::existsWithID($account->getUserID())); // $account was deleted, so its ID is no longer valid
     }
 
+    public function testDeleteAccount(): void {
+    // Create account to test deletion
+    $account = Account::create([
+        'password' => 'password',
+        'email' => 'testDeleteAccount@example.com',
+        'accountType' => 'seller', // Account type not important for the purposes of this test
 
+    // Ensure the account exists
+    $this->assertTrue(Account::existsWithID($account->getUserID));
+
+    // Delete account
+    Account::delete($account->getUserID);
+
+    // Ensure it no longer exists
+    $this->assertFalse(Account::existsWithID($account->getUserID));
+
+    // Ensure loading it now throws an exception
+    $this->expectException(DatabaseException::class);
+    Account::load($account->getUserID);
+    }
 }
