@@ -148,12 +148,10 @@ class Bundle extends StoredObject {
             throw new DatabaseException($e->getMessage());
         }
 
-        //TODO: Look into behaviour of lastInsertId() in terms of concurrency problems
-
         // Get query ID of the last record added to the database (i.e., the one just created)
         $lastId = DatabaseHandler::getPDO()->lastInsertId();
         // Add ID to Bundle object
-        $bundle->id = $lastId;
+        $bundle->id = intval($lastId);
 
 
         // Return Bundle object as output once the database is successfully updated

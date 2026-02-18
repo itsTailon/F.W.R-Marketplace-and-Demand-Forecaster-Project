@@ -86,6 +86,11 @@ class Streak extends StoredObject {
         $streak->setEndDate(null);
         $streak->setCustomerID($fields["customerID"]);
 
+        // Formatting fields before passing to DB (allow null)
+        $streakStart = $streak->getStartDate()?->format("Y-m-d H:i:s");
+        $currentWeekStart = $streak->getCurrentWeekStart()?->format("Y-m-d H:i:s");
+        $streakEnd = $streak->getEndDate()?->format("Y-m-d H:i:s");
+
         // Creating parameterised SQL command
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO streak (startDate, currentWeekStart, endDate, customerID) 
             VALUES (:startDate, :currentWeekStart, :endDate, :customerID);");
@@ -100,12 +105,10 @@ class Streak extends StoredObject {
             throw new DatabaseException($e->getMessage());
         }
 
-        //TODO: Look into behaviour of lastInsertId() in terms of concurrency problems
-
         // Get query ID of the last record added to the database (i.e., the one just created)
         $lastId = DatabaseHandler::getPDO()->lastInsertId();
         // Add ID to Streak object
-        $streak->id = $lastId;
+        $streak->id = intval($lastId);
 
 
         // Return Streak object as output once the database is successfully updated
