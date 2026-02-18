@@ -71,9 +71,12 @@ class Bundle extends StoredObject {
             if ($streak == null) {
                 // Create streak
                 $streak = Streak::create(["customerID" => $this->getPurchaserID()]);
-                // Update end-date of streak to a week from now
-                $streak->setCurrentWeekStart($streak->getStartDate());
-                $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                // Get current day and time
+                $currentDate = new DateTimeImmutable("now");
+                // Set appropriate values for fields
+                $streak->setStartDate($currentDate);
+                $streak->setCurrentWeekStart($currentDate->modify("+1 week"));
+                $streak->setEndDate($currentDate->modify("+1 week"));
                 $streak->update();
             } else {
 
