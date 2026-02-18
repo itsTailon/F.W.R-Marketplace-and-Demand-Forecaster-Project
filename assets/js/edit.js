@@ -51,8 +51,10 @@ $('#submit-btn').click(() => {
     // Get allergens
     var allergens = [];
     $('.allergen-list__item__selector').each(function () {
-        if ($(this).val() !== null) {
-            allergens.push($(this).val());
+        let allergen = $(this).val();
+        // If allergen isn't null and hasn't already been counted
+        if (allergen !== null && !allergens.includes(allergen)) {
+            allergens.push(allergen);
         }
     });
 
@@ -71,7 +73,8 @@ $('#submit-btn').click(() => {
         },
         statusCode: {
             200: () => { // Edit successful
-                $('#bundle-name').text(bundleName);
+                alert("Bundle successfully updated!");
+                window.location.replace("/view_bundle.php?id=" + bundleID);
             },
             400: () => {
                 $('.error-text').text("Bad Request");

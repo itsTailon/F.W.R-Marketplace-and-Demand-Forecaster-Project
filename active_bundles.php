@@ -71,7 +71,7 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
                 <h1 class="active-bundles-bundle-name"><?php echo $bundle->getTitle() ?></h1>
                 <p class="active-bundles-bundle-description">Bundle Status: <?php echo $bundle->getStatus()->value ?></p>
                 <p class="active-bundles-bundle-description">Bundle description: <?php echo $bundle->getDetails() ?></p>
-                <p class="active-bundles-bundle-date"><i>Bundle Date posted</i></p>
+<!--                <p class="active-bundles-bundle-date"><i>Bundle Date posted</i></p>-->
 
                 <nav class="active-bundles-bundle-nav">
                     <ul>

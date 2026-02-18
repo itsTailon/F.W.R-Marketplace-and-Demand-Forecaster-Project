@@ -48,7 +48,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'buyer
                 <li>
                     <h1 class="active-reservations-bundle-name"><?php echo $bundle->getTitle() ?></h1>
                     <p class="active-reservations-bundle-description"><?php echo $bundle->getDetails() ?></p>
-                    <p class="active-reservations-bundle-date"><i>Bundle Date posted</i></p>
+<!--                    <p class="active-reservations-bundle-date"><i>Bundle Date posted</i></p>-->
 
                     <nav class="active-reservations-bundle-nav">
                         <ul>
@@ -77,6 +77,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'buyer
             data: {reservationID: reservationID},
             success: function() {
                 // redirect
+                alert("Reservation successfully cancelled!");
                 window.location.href = '/active_reservations.php';
             },
             error: function(err) {

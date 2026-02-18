@@ -19,12 +19,16 @@ $(document).ready(function () {
         var inputID = $(this).data('id');
         inputID = inputID === undefined ? '' : inputID; // If unspecified, default to empty string
 
+        // Get the input name
+        var inputName = $(this).data('name');
+        inputName = inputName === undefined ? '' : inputName; // If unspecified, default to empty string
+
         // Get the input value
         var inputValue = $(this).data('value');
         inputValue = inputValue === undefined ? '' : inputValue; // If unspecified, default to empty string
 
         // Create actual input field and insert it
-        const input = $('<input class="textbox__input" type="' + inputType + '" placeholder=" " id="' + inputID + '" value="' + inputValue + '">');
+        const input = $('<input class="textbox__input" type="' + inputType + '" placeholder=" " name="' + inputName + '" id="' + inputID + '" value="' + inputValue + '">');
         $(this).append(input);
 
         // Create actual label/placeholder and insert it

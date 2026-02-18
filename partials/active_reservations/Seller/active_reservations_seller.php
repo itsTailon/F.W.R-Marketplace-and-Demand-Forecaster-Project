@@ -44,16 +44,16 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
                     
                 ?>
                 <li>
-                    <h1 class="active-reservations-bundle-name"><?php echo $bundle->getTitle() ?></h1>
-                    <p class="active-reservations-bundle-description">Bundle description: <i><?php echo $bundle->getDetails() ?></i></p>
-                    <p class="active-reservations-bundle-date"><i>Bundle Date posted</i></p>
+                    <h1 class="active-reservations-bundle-name"><?php echo $bundle->getTitle(); ?></h1>
+                    <p class="active-reservations-bundle-description">Bundle description: <i><?php echo $bundle->getDetails(); ?></i></p>
+<!--                    <p class="active-reservations-bundle-date"><i>Bundle Date posted</i></p>-->
 
                     <nav class="active-reservations-bundle-nav">
                         <ul>
                             <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
-                            <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID ?>">View</a></li>
-                            <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID ?>">Edit</a></li>
-                            <li><a class="active-reservations-bundle-nav-cancel" data-res-id="<?php echo $reservationID ?>">Cancel</a></li>
+                            <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID; ?>">View</a></li>
+                            <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID; ?>">Edit</a></li>
+                            <li><a class="active-reservations-bundle-nav-cancel" data-res-id="<?php echo $reservationID; ?>">Cancel</a></li>
                         </ul>
                     </nav>
 
@@ -76,6 +76,7 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
             data: {reservationID: reservationID},
             success: function() {
                 // redirect
+                alert("Reservation successfully cancelled!");
                 window.location.href = '/active_reservations.php';
             },
             error: function(err) {

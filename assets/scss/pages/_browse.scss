@@ -1,29 +1,38 @@
 #searchform {
   width: 100%;
-  display: grid;
-  grid-template-columns: 80% 20%;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 64px;
 }
 
 #searchbarlabel {
   width: 100%;
 }
 
-#searchbar, #searchsubmitbutton {
-  padding: 5px;
-  margin: 5px;
+#searchbar-textbox {
+  height: 50px;
+  width: 80%;
 }
+
+#searchsubmitbutton {
+  height: 40px;
+  width: 20%;
+}
+
 
 #searchresults {
   background-color: #aaaaaa;
   padding: 10px;
-  margin: 5px;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .displayedbundle {
   background-color: #cccccc;
-  padding: 10px;
-  margin: 5px;
+  padding: 16px;
   border-radius: 5px;
 }
 

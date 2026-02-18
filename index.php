@@ -1,4 +1,5 @@
 <?php
+header("Location: /dashboard.php");
 // Define document (i.e. tab) title
 $DOCUMENT_TITLE = "Home";
 
