@@ -51,7 +51,7 @@ class Customer extends Account {
         }
 
         // Create a streak attached to customer, that has null for all current date values
-        Streak::create($customerID);
+        Streak::create(["customerID" => $customerID]);
 
         // Return required output
         return $customer;
