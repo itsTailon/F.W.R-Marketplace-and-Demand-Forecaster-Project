@@ -215,6 +215,16 @@ class Bundle extends StoredObject {
         return !($row === false);
     }
 
+    /**
+     * Adds an allergen to the bundle.
+     *
+     * NOTE: Updates made by this method are applied immediately, even before Bundle::save() is called.
+     *
+     * @param string $allergenName the name of the allergen
+     * @return void
+     * @throws DatabaseException if a database issue occurs when trying to verify/add the allergen
+     * @throws NoSuchAllergenException if the allergen name given does not correspond to a valid allergen
+     */
     public function addAllergen(string $allergenName): void {
         // Ensure that allergen exists
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
@@ -239,6 +249,16 @@ class Bundle extends StoredObject {
         }
     }
 
+    /**
+     * Removes an allergen from the bundle.
+     *
+     * NOTE: Updates made by this method are applied immediately, even before Bundle::save() is called.
+     *
+     * @param string $allergenName the name of the allergen
+     * @return void
+     * @throws DatabaseException if a database issue occurs when trying to verify/remove the allergen
+     * @throws NoSuchAllergenException if the allergen name given does not correspond to a valid allergen
+    */
     public function removeAllergen(string $allergenName): void {
         // Ensure that allergen exists
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM allergen WHERE allergenName=:allergenName;");
@@ -263,6 +283,13 @@ class Bundle extends StoredObject {
         }
     }
 
+    /**
+     * Returns an array of the names of all of the bundle's allergens.
+     *
+     * If the bundle has no allergens, an empty array is returned.
+     *
+     * @return array if the bundle has allergens, an array of strings (names of bundle's allergens). Otherwise, an empty array.
+     */
     public function getAllergens(): array {
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT allergen.allergenName FROM allergen JOIN bundle_allergen ON bundle_allergen.bundleID=:bundleID WHERE allergen.allergenName=bundle_allergen.allergenName");
         $stmt->execute([
