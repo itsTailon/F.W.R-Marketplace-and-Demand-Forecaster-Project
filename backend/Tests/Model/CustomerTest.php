@@ -66,16 +66,16 @@ class CustomerTest extends TestCase {
     ]);
 
     // Ensure customer exists before deletion
-    $this->assertTrue(Customer::existsWithID($customer1->getUserID));
+    $this->assertTrue(Customer::existsWithID($customer->getUserID()));
 
     // Delete the customer
-    Customer::delete($customer1->getUserID);
+    Customer::delete($customer->getUserID());
 
     // Ensure customer no longer exists
-    $this->assertFalse(Customer::existsWithID($userID));
+    $this->assertFalse(Customer::existsWithID($customer->getUserID()));
 
     // Ensure loading deleted customer throws exception
     $this->expectException(DatabaseException::class);
-    Customer::load($userID);
+    Customer::load($customer->getUserID());
     }
 }
