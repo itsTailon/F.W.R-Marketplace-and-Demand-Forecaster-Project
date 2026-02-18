@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit bootstrap="vendor/autoload.php">
+    <testsuites>
+        <testsuite name="Auth">
+            <directory>backend\Tests\Auth</directory>
+        </testsuite>
+
+        <testsuite name="Model">
+            <directory>backend\Tests\Model</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
