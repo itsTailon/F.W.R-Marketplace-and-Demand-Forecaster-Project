@@ -71,6 +71,50 @@ class Forecast
             }
         }
 
+        // Filter out values
+        $filteredData = array();
+        foreach($data as $row) {
+            if(
+                // Check if datum needs to be filtered out
+                (int)$row[3] >= $startTime
+                && (int)$row[4] <= $endTime
+                && (int)$row[5] >= $minDiscount
+                && (int)$row[5] <= $maxDiscount
+            ) {
+                array_push($filteredData, $row);
+            }
+        }
+
+        $collectedNoShow = self::countSpread($filteredData);
+
+        // prepare collected array
+        $collected = $collectedNoShow[0];
+
+        // prepare no-show array
+        $totalNoShow = $collectedNoShow[1];
+
+        // Construct weekly forecast array
+        $weeklyForecast = array(
+            "AvgMondayCollected" => (int)round($collected["Monday"] / $numWeeks),
+            "AvgTuesdayCollected" => (int)round($collected["Tuesday"] / $numWeeks),
+            "AvgWednesdayCollected" => (int)round($collected["Wednesday"] / $numWeeks),
+            "AvgThursdayCollected" => (int)round($collected["Thursday"] / $numWeeks),
+            "AvgFridayCollected" => (int)round($collected["Friday"] / $numWeeks),
+            "AvgSaturdayCollected" => (int)round($collected["Saturday"] / $numWeeks),
+            "AvgSundayCollected" => (int)round($collected["Sunday"] / $numWeeks),
+            "AvgMondayNoShow" => (int)round($totalNoShow["Monday"] / $numWeeks),
+            "AvgTuesdayNoShow" => (int)round($totalNoShow["Tuesday"] / $numWeeks),
+            "AvgWednesdayNoShow" => (int)round($totalNoShow["Wednesday"] / $numWeeks),
+            "AvgThursdayNoShow" => (int)round($totalNoShow["Thursday"] / $numWeeks),
+            "AvgFridayNoShow" => (int)round($totalNoShow["Friday"] / $numWeeks),
+            "AvgSaturdayNoShow" => (int)round($totalNoShow["Saturday"] / $numWeeks),
+            "AvgSundayNoShow" => (int)round($totalNoShow["Sunday"] / $numWeeks),
+        );
+
+        return $weeklyForecast;
+    }
+
+    public static function countSpread($data) : array {
         // prepare collected array
         $collected = array(
             "Monday" => 0,
@@ -93,89 +137,64 @@ class Forecast
             "Sunday" => 0
         );
 
-        // Calculate average amount of collections & no-shows for each day of the week
-        $i = 0;
+        // Sort by collected/no-show and by day
         foreach($data as $row) {
-            if(
-                // Check if datum needs to be filtered out
-                (int)$row[3] >= $startTime
-                && (int)$row[4] <= $endTime
-                && (int)$row[5] >= $minDiscount
-                && (int)$row[5] <= $maxDiscount
-            ) {
-                // Check what day it is and add the stats to that day & increment days
-                switch ($row[0]) {
-                    case "Monday":
-                        if ($row[6] == "collected") {
-                            $collected["Monday"] += 1;
-                        } else {
-                            $totalNoShow["Monday"] += 1;
-                        }
-                        break;
-                    case "Tuesday":
-                        if ($row[6] == "collected") {
-                            $collected["Tuesday"] += 1;
-                        } else {
-                            $totalNoShow["Tuesday"] += 1;
-                        }
-                        break;
-                    case "Wednesday":
-                        if($row[6] == "collected") {
-                            $collected["Wednesday"] += 1;
-                        } else {
-                            $totalNoShow["Wednesday"] += 1;
-                        }
-                        break;
-                    case "Thursday":
-                        if ($row[6] == "collected") {
-                            $collected["Thursday"] += 1;
-                        } else {
-                            $totalNoShow["Thursday"] += 1;
-                        }
-                    case "Friday":
-                        if ($row[6] == "collected") {
-                            $collected["Friday"] += 1;
-                        } else {
-                            $totalNoShow["Friday"] += 1;
-                        }
-                        break;
-                    case "Saturday":
-                        if ($row[6] == "collected") {
-                            $collected["Saturday"] += 1;
-                        } else {
-                            $totalNoShow["Saturday"] += 1;
-                        }
-                        break;
-                    case "Sunday":
-                        if ($row[6] == "collected") {
-                            $collected["Sunday"] += 1;
-                        } else {
-                            $totalNoShow["Sunday"] += 1;
-                        }
-                        break;
-                }
+            // Check what day it is and add the stats to that day & increment days
+            switch ($row[0]) {
+                case "Monday":
+                    if ($row[6] == "collected") {
+                        $collected["Monday"] += 1;
+                    } else {
+                        $totalNoShow["Monday"] += 1;
+                    }
+                    break;
+                case "Tuesday":
+                    if ($row[6] == "collected") {
+                        $collected["Tuesday"] += 1;
+                    } else {
+                        $totalNoShow["Tuesday"] += 1;
+                    }
+                    break;
+                case "Wednesday":
+                    if($row[6] == "collected") {
+                        $collected["Wednesday"] += 1;
+                    } else {
+                        $totalNoShow["Wednesday"] += 1;
+                    }
+                    break;
+                case "Thursday":
+                    if ($row[6] == "collected") {
+                        $collected["Thursday"] += 1;
+                    } else {
+                        $totalNoShow["Thursday"] += 1;
+                    }
+                    break;
+                case "Friday":
+                    if ($row[6] == "collected") {
+                        $collected["Friday"] += 1;
+                    } else {
+                        $totalNoShow["Friday"] += 1;
+                    }
+                    break;
+                case "Saturday":
+                    if ($row[6] == "collected") {
+                        $collected["Saturday"] += 1;
+                    } else {
+                        $totalNoShow["Saturday"] += 1;
+                    }
+                    break;
+                case "Sunday":
+                    if ($row[6] == "collected") {
+                        $collected["Sunday"] += 1;
+                    } else {
+                        $totalNoShow["Sunday"] += 1;
+                    }
+                    break;
+
             }
         }
 
-        // Construct weekly forecast array
-        $weeklyForecast = array(
-            "AvgMondayCollected" => (int)round($collected["Monday"] / $numWeeks),
-            "AvgTuesdayCollected" => (int)round($collected["Tuesday"] / $numWeeks),
-            "AvgWednesdayCollected" => (int)round($collected["Wednesday"] / $numWeeks),
-            "AvgThursdayCollected" => (int)round($collected["Thursday"] / $numWeeks),
-            "AvgFridayCollected" => (int)round($collected["Friday"] / $numWeeks),
-            "AvgSaturdayCollected" => (int)round($collected["Saturday"] / $numWeeks),
-            "AvgSundayCollected" => (int)round($collected["Sunday"] / $numWeeks),
-            "AvgMondayNoShow" => (int)round($totalNoShow["Monday"] / $numWeeks),
-            "AvgTuesdayNoShow" => (int)round($totalNoShow["Tuesday"] / $numWeeks),
-            "AvgWednesdayNoShow" => (int)round($totalNoShow["Wednesday"] / $numWeeks),
-            "AvgThursdayNoShow" => (int)round($totalNoShow["Thursday"] / $numWeeks),
-            "AvgFridayNoShow" => (int)round($totalNoShow["Friday"] / $numWeeks),
-            "AvgSaturdayNoShow" => (int)round($totalNoShow["Saturday"] / $numWeeks),
-            "AvgSundayNoShow" => (int)round($totalNoShow["Sunday"] / $numWeeks),
-        );
-
-        return $weeklyForecast;
+        return array($collected, $totalNoShow);
     }
 }
 
