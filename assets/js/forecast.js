@@ -1,4 +1,19 @@
+/* Graph class
+Used for displaying statistics.
+Current types: Bar chart
+TBA: Line graphs
+*/
+
 class Graph {
+    /* Constructor
+    Parameters:
+    - type: The type of graph
+    - width: Desired size of canvas
+    - height: Desired size of canvas
+    - rows: How many horizontal, equally spaced faded lines there will be
+    - cols: How many vertical, equally spaced faded lines there will be
+    - padding: Space between the corners of the canvas and beginning/end of graph
+    */
     constructor(type, width, height, rows, cols, padding) {
         this.type = type;
         this.width = width;
@@ -7,23 +22,35 @@ class Graph {
         this.cols = cols;
         this.padding = padding;
 
+        // Lists of labels for each axis, one for each column (X) or row (Y)
         this.xAxisLabels = [];
         this.yAxisLabels = [];
 
+        // Calculate the size of each column and row
         this.colWidth = (width - 2*padding) / cols;
         this.rowHeight = (height - 2*padding) / rows;
 
+        // Get canvas, set dimensions, and get context
         this.canvas = document.getElementById("graph");
         this.canvas.width = width;
         this.canvas.height = height;
         this.ctx = this.canvas.getContext("2d");
 
+        // Store colour keys for bar charts
         this.keys = {};
-        this.keySpace = 0;
+        this.keySpace = 0; // Extra space to be added to bottom to accommodate keys
 
         this.plot = new Map();
     }
 
+    /* generateAxisLabels
+    Generate equally-spaced labels for an axis in a given range
+    Parameters:
+    - start: The start of the range
+    - end: The end of the range
+    - divisor: The number of labels to generate
+    Return: The generated labels
+    */
     generateAxisLabels(start, end, divisor) {
         let axisLabels = []
         for (let i = start; i <= end; i += (end-start)/divisor) {
@@ -32,14 +59,27 @@ class Graph {
         return axisLabels;
     }
 
+    /* generateXAxisLabels
+    Generate equally-spaced labels within a certain range for the X axis
+    */
     generateXAxisLabels(start, end) {
+        // Set X axis labels to the result of generateAxisLabels with cols as the number of labels
         this.setXAxisLabels(this.generateAxisLabels(start, end, this.cols));
     }
-    
+
+    /* generateYAxisLabels
+    Generate equally-spaced labels within a certain range for the Y axis
+    */
     generateYAxisLabels(start, end) {
+        // Set Y axis labels to the result of generateAxisLabels with rows as the number of labels
         this.setYAxisLabels(this.generateAxisLabels(start, end, this.rows));
     }
 
+    /* setXAxisLabels
+    Manually set a list of labels for the X axis
+    Parameters:
+    - labels: List of labels
+    */
     setXAxisLabels(labels) {
         this.xAxisLabels = labels;
         this.xAxisLabels.forEach(label => {
@@ -49,10 +89,18 @@ class Graph {
         });
     }
 
+    /* setYAxisLabels
+    Manually set a list of labels for the Y axis
+    Parameters:
+    - labels: List of labels
+    */
     setYAxisLabels(labels) {
         this.yAxisLabels = labels;
     }
 
+    /* draw
+    Draw the graph
+    */
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height) 
         // Draw axes
@@ -99,6 +147,7 @@ class Graph {
         if (this.type === "bar") {
             y = this.height - this.keySpace;
             
+            // Display the keys below the graph
             Object.keys(this.keys).forEach(key => {
                 let colour = this.keys[key];
                 this.ctx.fillStyle = colour;
@@ -115,28 +164,32 @@ class Graph {
             this.ctx.textBaseline = "top";
             let x = this.padding + 0.5*this.colWidth;
 
+            // Draw the bar chart
             this.xAxisLabels.forEach(label => {
-                if (this.plot.has(label)) {
+                if (this.plot.has(label)) { // If X value has a corresponding bar
                     let col = this.plot.get(label);
 
                     let y = this.height - this.padding - this.keySpace;
 
+                    // Draw proportion of bar for each key
                     Object.keys(this.keys).forEach(key => {
                         if (col.has(key)) {
                             let val = col.get(key);
                             if (val > 0) {
-                                let colour = this.keys[key];
+                                let colour = this.keys[key]; // Get colour of bar
                                 this.ctx.fillStyle = colour;
+                                // Draw proportion of bar
                                 this.ctx.fillRect(x - 0.3*this.colWidth, y - (yAxisScale*val), 0.6*this.colWidth, (yAxisScale*val));
+                                // Draw text on top of bar for its value
                                 this.ctx.fillStyle = "#000000";
                                 this.ctx.fillText(`${val}`, x, y - (yAxisScale*val) + 6);
-                                y -= (yAxisScale*val);
+                                y -= (yAxisScale*val); // Move Y up the height of the bar
                             }
                             
                         }
                     });
                 }
-                x += this.colWidth;
+                x += this.colWidth; // Move to the next column
                 
             })
         }
@@ -148,6 +201,7 @@ class Graph {
             this.keys[text] = colour; // If so, set the colour to correspond to text
             // Grow the graph from the bottom to make room for keys
             this.height += 20;
+            // Increase space at bottom of canvas to accommodate key
             this.keySpace += 20;
             this.canvas.height = this.height;
             this.ctx = this.canvas.getContext("2d");
@@ -265,6 +319,7 @@ function getForecast() {
             graph.plotBar("Sunday", data["AvgSundayCollected"], "Show");
             graph.plotBar("Sunday", data["AvgSundayNoShow"], "No Show");
 
+            // Draw graph
             graph.draw();
         }
     });
@@ -272,4 +327,4 @@ function getForecast() {
 
 getForecast();
 
-$("#update-btn").click(getForecast);
+$("#update-btn").click(getForecast); // If update button clicked, re-run get forecast

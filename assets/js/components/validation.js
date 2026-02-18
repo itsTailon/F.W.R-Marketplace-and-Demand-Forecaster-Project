@@ -54,9 +54,9 @@ Returns:
 - If the password is not valid, the reason why
 */
 const validatePassword = password => {
-    if (password.length < 8) { return "Password must be at least 8 characters" }
-    else if (getCharSetCount(password, "1234567890") == 0) { return "Password must contain at least one number" }
-    else if (getCharSetCount(password, "abcdefghijklmnopqrstuvwxyz") == 0 || getCharSetCount(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 0) { return "Password must include both upper and lowercase letters" }
+    if (password.length < 8) { return "Password must be at least 8 characters" } // Password must be 8+ characters
+    else if (getCharSetCount(password, "1234567890") == 0) { return "Password must contain at least one number" } // Password must include a number
+    else if (getCharSetCount(password, "abcdefghijklmnopqrstuvwxyz") == 0 || getCharSetCount(password, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 0) { return "Password must include both upper and lowercase letters" } 
     else if (getCharSetCount(password, "!\"£$%^&*();:'@#~,.<>/?{}[]_-+=") == 0) { return "Password must contain at least one special character" }
-    return "PASS"
+    return "PASS" // PASS indicates password meets the requirements
 }
