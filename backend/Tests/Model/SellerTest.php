@@ -78,4 +78,41 @@ class SellerTest extends TestCase
         Customer::delete($testPurchaser->getUserID());
         Seller::delete($testSeller->getUserID());
     }
+
+    public function testFilterBundlesByDiscountLevel() {
+        $seller = Seller::create(["email" => "testfilterbundles@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "123 Testing Street"]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00]);
+
+        $bundles = Seller::getAllBundlesForUser($seller->getUserID());
+
+        $this->assertCount(2, $seller->filterBundlesByDiscountLevel($bundles, 5, 25));
+        $this->assertCount(2, $seller->filterBundlesByDiscountLevel($bundles, 15, 35));
+        $this->assertCount(3, $seller->filterBundlesByDiscountLevel($bundles, 5, 35));
+        $this->assertCount(1, $seller->filterBundlesByDiscountLevel($bundles, 15, 25));
+
+        Seller::delete($seller->getUserID());
+    }
+
+    public function testGetBundlesByStatus() {
+        $seller = Seller::create(["email" => "testbundlesbystatus@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "123 Testing Street"]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00]);
+
+        $available = $seller->getBundlesByStatus(BundleStatus::Available);
+        $this->assertCount(1, $available);
+        $this->assertEquals(CurrencyTools::decimalStringToGBX($available[0]["discountedPrice"]), 0.9 * CurrencyTools::decimalStringToGBX($available[0]["rrp"]));
+
+        $expired = $seller->getBundlesByStatus(BundleStatus::Expired);
+        $this->assertCount(1, $expired);
+        $this->assertEquals(CurrencyTools::decimalStringToGBX($expired[0]["discountedPrice"]), 0.8 * CurrencyTools::decimalStringToGBX($expired[0]["rrp"]));
+
+        $collected = $seller->getBundlesByStatus(BundleStatus::Collected);
+        $this->assertCount(1, $collected);
+        $this->assertEquals(CurrencyTools::decimalStringToGBX($collected[0]["discountedPrice"]), 0.7 * CurrencyTools::decimalStringToGBX($collected[0]["rrp"]));
+
+        Seller::delete($seller->getUserID());
+    }
 }
