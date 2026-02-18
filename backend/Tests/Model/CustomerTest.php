@@ -57,5 +57,25 @@ class CustomerTest extends TestCase {
         $this->assertFalse(Customer::existsWithID($customer1->getUserID())); // $customer1 was deleted, so its ID is no longer valid
     }
 
+    public function testDeleteCustomer(): void {
+    // Create customer to test deletion
+    $customer = Customer::create([
+        'username' => 'testDeleteCustomer',
+        'password' => 'password',
+        'email' => 'testDeleteCustomer@example.com',
+    ]);
 
+    // Ensure customer exists before deletion
+    $this->assertTrue(Customer::existsWithID($customer1->getUserID));
+
+    // Delete the customer
+    Customer::delete($customer1->getUserID);
+
+    // Ensure customer no longer exists
+    $this->assertFalse(Customer::existsWithID($userID));
+
+    // Ensure loading deleted customer throws exception
+    $this->expectException(DatabaseException::class);
+    Customer::load($userID);
+    }
 }
