@@ -125,17 +125,15 @@ class SellerTest extends TestCase
         "address" => "Seller Address"
     ]);
 
-    $sellerID = $seller->getUserID();
-
     // Ensure seller exists
-    $loadedSeller = Seller::load($sellerID);
-    $this->assertEquals($sellerID, $loadedSeller->getUserID());
+    $loadedSeller = Seller::load($seller->getUserID());
+    $this->assertEquals($seller->getUserID(), $loadedSeller->getUserID());
 
     // Delete seller
-    Seller::delete($sellerID);
+    Seller::delete($seller->getUserID());
 
     // Ensure seller no longer exists
     $this->expectException(\Exception::class);
-    Seller::load($sellerID);
-  }
+    Seller::load($seller->getUserID());
+    }
 }
