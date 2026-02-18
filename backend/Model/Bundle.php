@@ -70,10 +70,13 @@ class Bundle extends StoredObject {
             $streak = Customer::load($this->getPurchaserID())->getStreak();
             if ($streak == null) {
                 // Create streak
-                $streak = Streak::create([$this->getPurchaserID()]);
-                // Update end-date of streak to a week from now
-                $streak->setCurrentWeekStart($streak->getStartDate());
-                $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                $streak = Streak::create(["customerID" => $this->getPurchaserID()]);
+                // Get current day and time
+                $currentDate = new DateTimeImmutable("now");
+                // Set appropriate values for fields
+                $streak->setStartDate($currentDate);
+                $streak->setCurrentWeekStart($currentDate->modify("+1 week"));
+                $streak->setEndDate($currentDate->modify("+1 week"));
                 $streak->update();
             } else {
 
@@ -145,12 +148,10 @@ class Bundle extends StoredObject {
             throw new DatabaseException($e->getMessage());
         }
 
-        //TODO: Look into behaviour of lastInsertId() in terms of concurrency problems
-
         // Get query ID of the last record added to the database (i.e., the one just created)
         $lastId = DatabaseHandler::getPDO()->lastInsertId();
         // Add ID to Bundle object
-        $bundle->id = $lastId;
+        $bundle->id = intval($lastId);
 
 
         // Return Bundle object as output once the database is successfully updated
