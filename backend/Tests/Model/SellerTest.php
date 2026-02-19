@@ -115,4 +115,25 @@ class SellerTest extends TestCase
 
         Seller::delete($seller->getUserID());
     }
+
+    public function testDeleteSeller() {
+    // Create a seller
+    $seller = Seller::create([
+        "email" => "testdeleteseller@example.com",
+        "name" => "Seller Name",
+        "password" => "password",
+        "address" => "Seller Address"
+    ]);
+
+    // Ensure seller exists
+    $loadedSeller = Seller::load($seller->getUserID());
+    $this->assertEquals($seller->getUserID(), $loadedSeller->getUserID());
+
+    // Delete seller
+    Seller::delete($seller->getUserID());
+
+    // Ensure seller no longer exists
+    $this->expectException(\Exception::class);
+    Seller::load($seller->getUserID());
+    }
 }
