@@ -58,6 +58,7 @@ class Forecast
                 // Create record
                 $dpData = array($dpDate,"Weather", "catagory", $dpStartTime, $dpEndTime, $dpDiscount, $status);
 
+
                 // Add it to the array of data
                 $data[] = $dpData;
             }
