@@ -16,14 +16,14 @@ $bundles = Seller::getAllBundlesForUser($userID);
 
 $collected = 0;
 $noshow = 0;
-$expired = 0;
+$cancelled = 0;
 foreach ($bundles as $b) {
     switch ($b['bundleStatus']) {
         case 'collected':
             $collected++;
             break;
-        case 'expired':
-            $expired++;
+        case 'cancelled':
+            $cancelled++;
             break;
         default:
             break;
@@ -107,8 +107,8 @@ $dataJson   = json_encode($data);
 
 <script src="assets/js/lib/Chart/chart.umd.min.js"></script>
 <script>
-const labels = ["No-Show", "Collected", "Expired"];
-const values = [0, <?php echo $collected?>, <?php echo $expired ?>];
+const labels = ["No-Show", "Collected", "Cancelled"];
+const values = [0, <?php echo $collected?>, <?php echo $cancelled ?>];
 
 new Chart(document.getElementById('analytics-salespiechart'), {
   type: 'pie',
@@ -116,7 +116,7 @@ new Chart(document.getElementById('analytics-salespiechart'), {
     labels: labels,
     datasets: [{
       data: values,
-      backgroundColor: ['#ff6565', '#4aff62', '#4b90ff']
+      backgroundColor: ['#4b90ff', '#4aff62', '#ff6565']
     }]
   },
   options: {
