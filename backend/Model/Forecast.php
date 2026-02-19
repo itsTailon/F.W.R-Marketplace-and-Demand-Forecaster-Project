@@ -6,22 +6,14 @@ include '../Dataset/forecast.csv';
 
 class Forecast
 {
-    public static function getForecastInformation() : array {
-        // Open file and prepare array
-        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/forecast.csv'));
-        return $records;
-    }
-
     public static function getData() : array {
         // Open file and prepare array
-        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/testData.csv'));
-        return $records;
+        return array_map('str_getcsv', file(__DIR__ . '/../Dataset/testData.csv'));
     }
 
     public static function getBundleData() : array {
         // Open file and prepare array
-        $records = array_map('str_getcsv', file(__DIR__ . '/../Dataset/bundles.csv'));
-        return $records;
+        return array_map('str_getcsv', file(__DIR__ . '/../Dataset/bundles.csv'));
     }
 
     public static function sellerWeeklyForecast(int $sellerID, string $startTime, string $endTime, int $minDiscount, int $maxDiscount) : array {
@@ -67,7 +59,7 @@ class Forecast
                 $dpData = array($dpDate,"Weather", "catagory", $dpStartTime, $dpEndTime, $dpDiscount, $status);
 
                 // Add it to the array of data
-                array_push($data, $dpData);
+                $data[] = $dpData;
             }
         }
 
@@ -81,7 +73,7 @@ class Forecast
                 && (int)$row[5] >= $minDiscount
                 && (int)$row[5] <= $maxDiscount
             ) {
-                array_push($filteredData, $row);
+                $filteredData[] = $row;
             }
         }
 
@@ -94,7 +86,7 @@ class Forecast
         $totalNoShow = $collectedNoShow[1];
 
         // Construct weekly forecast array
-        $weeklyForecast = array(
+        return array(
             "AvgMondayCollected" => (int)round($collected["Monday"] / $numWeeks),
             "AvgTuesdayCollected" => (int)round($collected["Tuesday"] / $numWeeks),
             "AvgWednesdayCollected" => (int)round($collected["Wednesday"] / $numWeeks),
@@ -110,8 +102,6 @@ class Forecast
             "AvgSaturdayNoShow" => (int)round($totalNoShow["Saturday"] / $numWeeks),
             "AvgSundayNoShow" => (int)round($totalNoShow["Sunday"] / $numWeeks),
         );
-
-        return $weeklyForecast;
     }
 
     public static function countSpread($data) : array {
