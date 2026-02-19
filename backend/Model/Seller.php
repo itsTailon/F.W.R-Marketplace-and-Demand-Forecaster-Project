@@ -224,9 +224,9 @@ class Seller extends Account {
      */
     public function getSellThroughRate() : float {
         $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
-        $expired = count($this->getBundlesByStatus(BundleStatus::Expired));
+        $cancelled = count($this->getBundlesByStatus(BundleStatus::Cancelled));
 
-        return 100 * ($collected / ($collected + $expired));
+        return 100 * ($collected / ($collected + $cancelled));
     }
 
     /**
@@ -240,8 +240,8 @@ class Seller extends Account {
      */
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
         $collected = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Collected), $minDiscount, $maxDiscount));
-        $expired = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Expired), $minDiscount, $maxDiscount));
+        $cancelled = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Cancelled), $minDiscount, $maxDiscount));
 
-        return 100 * ($collected / ($collected + $expired));
+        return 100 * ($collected / ($collected + $cancelled));
     }
 }

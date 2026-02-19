@@ -30,8 +30,8 @@ class SellerTest extends TestCase
         $testSeller = Seller::create(["email" => "sellthroughrate@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
-        // Create an expired bundle
-        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        // Create a cancelled bundle
+        $testBundleCancelled = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
 
         // Create a collected bundle
         $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
@@ -56,7 +56,7 @@ class SellerTest extends TestCase
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
         // Create an expired bundle
-        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
 
         // Create a collected bundle
         $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
@@ -98,14 +98,14 @@ class SellerTest extends TestCase
     public function testGetBundlesByStatus() {
         $seller = Seller::create(["email" => "testbundlesbystatus@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "123 Testing Street"]);
         Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Expired, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
         Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00]);
 
         $available = $seller->getBundlesByStatus(BundleStatus::Available);
         $this->assertCount(1, $available);
         $this->assertEquals(CurrencyTools::decimalStringToGBX($available[0]["discountedPrice"]), 0.9 * CurrencyTools::decimalStringToGBX($available[0]["rrp"]));
 
-        $expired = $seller->getBundlesByStatus(BundleStatus::Expired);
+        $expired = $seller->getBundlesByStatus(BundleStatus::Cancelled);
         $this->assertCount(1, $expired);
         $this->assertEquals(CurrencyTools::decimalStringToGBX($expired[0]["discountedPrice"]), 0.8 * CurrencyTools::decimalStringToGBX($expired[0]["rrp"]));
 

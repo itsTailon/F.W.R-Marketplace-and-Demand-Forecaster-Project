@@ -8,11 +8,18 @@ use TTE\App\Model\DatabaseException;
 
 class AccountTest extends TestCase
 {
-    public function testCreate() {
+    public function testCreate()
+    {
         $account = Account::create(["email" => "testaccountcreate@example.com", "password" => "password", "accountType" => "seller"]);
         $accountLoaded = Account::load($account->getUserID());
+        $this->assertEquals("testaccountcreate@example.com", $accountLoaded->getEmail());
+        $this->assertEquals("seller", $accountLoaded->getAccountType());
 
-    public function testLoad(): void {
+        Account::delete($account->getUserID());
+    }
+
+    public function testLoad(): void
+    {
         // Create account to test loading
         $account = Account::create([
             'password' => 'password',
@@ -36,7 +43,8 @@ class AccountTest extends TestCase
         $this->assertTrue($thrown);
     }
 
-    public function testExistsWithID(): void {
+    public function testExistsWithID(): void
+    {
         // Create account to test loading
         $account = Account::create([
             'password' => 'password',
@@ -54,30 +62,26 @@ class AccountTest extends TestCase
         $this->assertFalse(Account::existsWithID($account->getUserID())); // $account was deleted, so its ID is no longer valid
     }
 
-    public function testDeleteAccount(): void {
-    // Create account to test deletion
-    $account = Account::create([
-        'password' => 'password',
-        'email' => 'testDeleteAccount@example.com',
-        'accountType' => 'seller',
-    ]);
+    public function testDeleteAccount(): void
+    {
+        // Create account to test deletion
+        $account = Account::create([
+            'password' => 'password',
+            'email' => 'testDeleteAccount@example.com',
+            'accountType' => 'seller',
+        ]);
 
-    // Ensure the account exists
-    $this->assertTrue(Account::existsWithID($account->getUserID()));
+        // Ensure the account exists
+        $this->assertTrue(Account::existsWithID($account->getUserID()));
 
-    // Delete account
-    Account::delete($account->getUserID());
-
-    // Ensure it no longer exists
-    $this->assertFalse(Account::existsWithID($account->getUserID()));
-
-    // Ensure loading it now throws an exception
-    $this->expectException(DatabaseException::class);
-    Account::load($account->getUserID());
-    }
-        $this->assertEquals("testaccountcreate@example.com", $accountLoaded->getEmail());
-        $this->assertEquals("seller", $accountLoaded->getAccountType());
-
+        // Delete account
         Account::delete($account->getUserID());
+
+        // Ensure it no longer exists
+        $this->assertFalse(Account::existsWithID($account->getUserID()));
+
+        // Ensure loading it now throws an exception
+        $this->expectException(DatabaseException::class);
+        Account::load($account->getUserID());
     }
 }
