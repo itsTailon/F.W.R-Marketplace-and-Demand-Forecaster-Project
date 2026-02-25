@@ -91,7 +91,7 @@ class Category {
         if (Category::categoryExists($categoryName)) {
             // Attempt to run SQL statement
             try {
-                $stmt->execute(["bundleID" => $categoryName]);
+                $stmt->execute(["categoryName" => $categoryName]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }

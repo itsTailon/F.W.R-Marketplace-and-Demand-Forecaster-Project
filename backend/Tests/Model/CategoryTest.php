@@ -5,6 +5,7 @@ namespace TTE\App\Tests\Model;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Category;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchCategoryException;
 
 class CategoryTest extends TestCase {
 
@@ -74,7 +75,7 @@ class CategoryTest extends TestCase {
 
         // Iterate through results of getCategoryList and verify they're correct
         foreach (Category::getCategoryList() as $category) {
-            $this->assertTrue(in_array($categories, $this->$category));
+            $this->assertTrue(in_array($category, $categories));
         }
 
         // Clean-up
@@ -100,7 +101,7 @@ class CategoryTest extends TestCase {
         $exceptionThrown = false;
         try {
             Category::delete("testCategory2");
-        } catch (MissingValuesException $e) {
+        } catch (NoSuchCategoryException $e) {
             $exceptionThrown = true;
         }
 
