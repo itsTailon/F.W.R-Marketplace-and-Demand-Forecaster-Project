@@ -250,6 +250,32 @@ class Bundle extends StoredObject {
     }
 
     /**
+     * @param string $categoryName name of category to be added to bundle
+     * @throws DatabaseException|NoSuchCategoryException|CategoryAlreadyExistsException
+     * @return void
+     */
+    public function addCategory(string $categoryName): void {
+        // Check category exists
+        if (!Category::categoryExists($categoryName)) {
+            throw new NoSuchCategoryException("No category exists with name '" . $categoryName . "'.");
+        }
+
+        // Check bundle doesn't already have an attached category
+        if ($this::getCategory() != null) {
+            throw new CategoryAlreadyExistsException("Category '" . $categoryName . "' already attached to bundle.");
+        }
+
+        // If category exists, add to bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle_category (bundleID, categoryName) VALUES (:bundleID, :categoryName);)");
+        try {
+            $stmt->execute(["bundleID" => $this->getID(), "categoryName" => $categoryName]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not add bundle category with name '" . $categoryName . "'.");
+        }
+
+    }
+
+    /**
      * Removes an allergen from the bundle.
      *
      * NOTE: Updates made by this method are applied immediately, even before Bundle::save() is called.
@@ -284,6 +310,26 @@ class Bundle extends StoredObject {
     }
 
     /**
+     * @param string $categoryName name of category to remove
+     * @throws DatabaseException|NoSuchCategoryException
+     * @return void
+     */
+    public function removeCategory(string $categoryName): void {
+        // Check category does exist
+        if (!Category::categoryExists($categoryName)) {
+            throw new NoSuchCategoryException("No category exists with name '" . $categoryName . "'.");
+        }
+
+        // Remove category from bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle_category WHERE bundleID=:bundleID;");
+        try {
+            $stmt->execute(["bundleID" => $this->getID()]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not remove bundle category with name '" . $categoryName . "' from bundle with ID " . $this->getID());
+        }
+    }
+
+    /**
      * Returns an array of the names of all of the bundle's allergens.
      *
      * If the bundle has no allergens, an empty array is returned.
@@ -297,6 +343,24 @@ class Bundle extends StoredObject {
         ]);
 
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
+    public function getCategory(): ?string {
+        // Retrieve category attached to bundle
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT categoryName FROM bundle_category WHERE bundleID=:bundleID;");
+        try {
+            $stmt->execute([$this->getID()]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Could not retrieve bundle category with name '" . $bundleID . "'.");
+        }
+        // Get result (false if none)
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$result) {
+            return null;
+        } else {
+            return $result["categoryName"];
+        }
     }
 
     public function getID(): int {
