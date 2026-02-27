@@ -11,7 +11,6 @@ class CategoryTest extends TestCase {
 
     /**
      * Testing that categoryExists() method works for existing and non-existing categories
-     *
      */
     public function testCategoryExists() {
         // Add category to database

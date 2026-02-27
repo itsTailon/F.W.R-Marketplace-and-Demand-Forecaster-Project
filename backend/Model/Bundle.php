@@ -314,13 +314,13 @@ class Bundle extends StoredObject {
      * @throws DatabaseException|NoSuchCategoryException
      * @return void
      */
-    public function removeCategory(string $categoryName): void {
-        // Check category does exist
-        if (!Category::categoryExists($categoryName)) {
-            throw new NoSuchCategoryException("No category exists with name '" . $categoryName . "'.");
+    public function removeCategory(): void {
+        // Check if there is currently a category attached to bundle
+        if ($this->getCategory() == null) {
+            throw new NoSuchCategoryException("No category is currently assigned to bundle with ID " . $this->getID());
         }
 
-        // Remove category from bundle
+        // Else, remove category from bundle
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM bundle_category WHERE bundleID=:bundleID;");
         try {
             $stmt->execute(["bundleID" => $this->getID()]);
@@ -345,13 +345,18 @@ class Bundle extends StoredObject {
         return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
+    /**
+     * Get category attached to bundle
+     *
+     * @throws DatabaseException
+     */
     public function getCategory(): ?string {
         // Retrieve category attached to bundle
-        $stmt = DatabaseHandler::getPDO()->prepare("SELECT categoryName FROM bundle_category WHERE bundleID=:bundleID;");
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT categoryName from bundle_category WHERE bundleID=:bundleID;");
         try {
-            $stmt->execute([$this->getID()]);
+            $stmt->execute(["bundleID" => $this->getID()]);
         } catch (\PDOException $e) {
-            throw new DatabaseException("Could not retrieve bundle category with name '" . $bundleID . "'.");
+            throw new DatabaseException("Could not retrieve category for bundle with bundle ID " . $this->getID());
         }
         // Get result (false if none)
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);

@@ -125,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // If bundle category currently set, remove category before adding new one
         if ($bundle->getCategory() !== null) {
-            $bundle->removeCategory($bundle->getCategory());
+            $bundle->removeCategory();
         }
 
         // Add new category
@@ -257,7 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             $bundle->addAllergen($allergen);
         }
 
-        // Add cateogry to bundle
+        // Add category to bundle
         $bundle->addCategory($category);
 
         // If successfully created a Bundle, return that bundle

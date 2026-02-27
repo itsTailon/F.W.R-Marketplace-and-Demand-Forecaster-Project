@@ -4,7 +4,10 @@ namespace TTE\App\Tests\Model;
 
 use Exception;
 use TTE\App\Model\Account;
+use TTE\App\Model\Category;
+use TTE\App\Model\CategoryAlreadyExistsException;
 use TTE\App\Model\NoSuchAllergenException;
+use TTE\App\Model\NoSuchCategoryException;
 use TTE\App\Model\NoSuchStreakException;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Helpers\CurrencyTools;
@@ -351,7 +354,7 @@ class BundleTest extends TestCase
     }
 
     /**
-     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException
+     * @throws DatabaseException|NoSuchCustomerException|MissingValuesException|NoSuchSellerException|NoSuchBundleException
      */
     public function testLoadBundle() {
         // Create seller to get a seller ID to create a bundle
@@ -622,4 +625,169 @@ class BundleTest extends TestCase
         Bundle::delete($testBundle->getID());
         Seller::delete($testSeller->getUserID());
     }
+
+    /**
+     * Testing method addCategory() for bundle class
+     */
+    public function testAddCategory() {
+        // Seller for creating bundle
+        $seller = Seller::create([
+            'email' => 'seller3@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Test adding a non-existent category to bundle
+        $thrown = false;
+        try {
+            $bundle->addCategory("notSet");
+        } catch (NoSuchCategoryException $e) {
+            $thrown = true;
+        }
+
+        $this->assertTrue($thrown);
+
+        // Testing of adding a valid category to bundle
+        Category::create("validCategory");
+        $bundle->addCategory("validCategory");
+        $this->assertTrue("validCategory" == $bundle->getCategory());
+
+        // Test adding valid category to bundle that already has a category
+        $thrown = false;
+        try {
+            Category::create("validCategory2");
+            $bundle->addCategory("validCategory2");
+        } catch (CategoryAlreadyExistsException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Cleanup
+        Category::delete("validCategory");
+        Category::delete("validCategory2");
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    /**
+     * Testing the removeCategory() method
+     */
+    public function testRemoveCategory() {
+        // Dummy seller and bundle objects
+        $seller = Seller::create([
+            'email' => 'seller3@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Create category and add to bundle
+        Category::create("validCategory");
+        $bundle->addCategory("validCategory");
+
+        // Test removing the category from the bundle (with catching of potential exceptions
+        try {
+            $bundle->removeCategory();
+        } catch (DatabaseException $e) {
+            $this->fail($e->getMessage());
+        } catch (NoSuchCategoryException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        // Check if category was successfully removed
+        $this->assertTrue($bundle->getCategory() == null);
+
+        // Attempt to remove category when one isn't attached
+        $thrown = false;
+        try {
+            $bundle->removeCategory();
+        } catch (NoSuchCategoryException $e) {
+            $thrown = true;
+        } catch (DatabaseException $e) {
+            // May be thrown, so get message for debugging in such case
+            $this->fail($e->getMessage());
+        }
+
+        $this->assertTrue($thrown);
+
+        // Clean-up
+        Category::delete("validCategory");
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+    /**
+     * Test method for getting currently attached category for a given bundle
+     */
+    public function testGetCategory() {
+        // Creating required pre-requisites to running test
+        $seller = Seller::create([
+            'email' => 'seller2@example.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        Category::create("validCategory");
+
+        // Testing getCategory() without a category attached to bundle
+        $thrown = false;
+        try {
+            $category = $bundle->getCategory();
+
+            if ($category != null) {
+                $this->fail("Didn't return expected output for when category isn't attached to a bundle.");
+            }
+        } catch (Exception $e) {
+            // Handling exceptions that could be thrown to aid debugging
+            $this->fail($e->getMessage());
+        }
+
+        // Add category and test again
+        try {
+            $bundle->addCategory("validCategory");
+
+            $category = $bundle->getCategory();
+            $this->assertEquals("validCategory", $category);
+
+        } catch (Exception $e) {
+            $this->fail($e->getMessage());
+        }
+
+        // Clean-up
+        Category::delete("validCategory");
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+    }
+
+
 }
