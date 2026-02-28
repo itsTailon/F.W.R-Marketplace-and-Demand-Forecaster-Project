@@ -152,6 +152,17 @@ class DatabaseHandler {
                     currentWeekStart DATETIME DEFAULT NULL, 
                     FOREIGN KEY (customerID) REFERENCES customer (customerID) ON DELETE CASCADE
                 );
+
+                CREATE TABLE IF NOT EXISTS category (
+                    categoryName VARCHAR (64) NOT NULL PRIMARY KEY
+                );
+                
+                CREATE TABLE IF NOT EXISTS bundle_category (
+                    bundleID INT NOT NULL PRIMARY KEY,
+                    categoryName VARCHAR (64) NOT NULL,
+                    FOREIGN KEY (bundleID) REFERENCES bundle(bundleID) ON DELETE CASCADE,
+                    FOREIGN KEY (categoryName) REFERENCES category(categoryName) ON DELETE CASCADE
+                );
                 END
             );
 
