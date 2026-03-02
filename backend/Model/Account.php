@@ -62,7 +62,7 @@ class Account extends StoredObject {
         }
 
         // Check if current object values are all set
-        if (!isset($this->id) || !isset($this->email) || !isset($this->accountType)) {
+        if (!isset($this->userID) || !isset($this->email) || !isset($this->accountType)) {
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to update account");
         }

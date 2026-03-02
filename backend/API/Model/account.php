@@ -8,7 +8,7 @@ include '../../../vendor/autoload.php';
 
 session_start();
 
-// JSON heading for all JSON-encoded messages
+// JSON header for all JSON-encoded messages
 header('Content-Type: application/json');
 
 // Check that user is currently logged in
