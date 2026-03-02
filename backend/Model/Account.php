@@ -45,8 +45,38 @@ class Account extends StoredObject {
         return $account;
     }
 
+    /**
+     * Saves changes to this Account object to the database.
+     *
+     * @return void
+     * @throws DatabaseException
+     * @throws MissingValuesException
+     * @throws NoSuchAccountException
+     */
     public function update(): void {
-        // TODO: Implement update() method.
+        // Check validity of ID
+        if (!Account::existsWithID($this->id)) {
+            // Exception thrown if ID is invalid
+            throw new NoSuchAccountException("No account with ID $this->id");
+        }
+
+        // Check if current object values are all set
+        if (!isset($this->id) || !isset($this->email) || !isset($this->accountType)) {
+            // Produce error message if field exists with no content
+            throw new MissingValuesException("Missing information required to update account");
+        }
+
+        // Update database record
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE account SET email=:email, accountType=:accountType WHERE userID=:userID;");
+        try {
+            $stmt->execute([
+                'email'         => $this->getEmail(),
+                'accountType'   => $this->getAccountType(),
+                'userID'        => $this->userID,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
 
     /**
