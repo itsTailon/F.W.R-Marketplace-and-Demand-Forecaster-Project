@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Get category and validate
-        $category = json_decode($_PUT['categoryName']);
+        $category = $_PUT['categoryName'];
         if ($category === null) {
             // Exception as value is unacceptable
             throw new InvalidArgumentException();
