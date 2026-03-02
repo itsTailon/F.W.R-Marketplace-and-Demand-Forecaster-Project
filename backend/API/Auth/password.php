@@ -3,6 +3,8 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\RBACManager;
 use TTE\App\Model\Account;
+use TTE\App\Model\DatabaseException;
+use TTE\App\Model\IncorrectPasswordException;
 
 include '../../../vendor/autoload.php';
 
@@ -23,20 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
     parse_str(file_get_contents('php://input'), $_PUT);
 
     // Ensure that required data was included in the request
-    if (!isset($_PUT['email']) || !isset($_PUT['userID'])) {
+    if (!isset($_PUT['newPassword']) || !isset($_PUT['currentPassword']) || !isset($_PUT['userID'])) {
         http_response_code(400); // Bad request
         echo json_encode([
-           'error' => 'Request missing required data.',
-        ]);
-        die();
-    }
-
-    // Ensure that new e-mail given is valid
-    $email = filter_var($_PUT['email'], FILTER_VALIDATE_EMAIL);
-    if ($email === false) {
-        http_response_code(400); // Bad request
-        echo json_encode([
-            'error' => 'E-mail address given is not a valid e-mail address.',
+            'error' => 'Request missing required data.',
         ]);
         die();
     }
@@ -89,16 +81,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
     }
     // User is permitted to update the account, so continue...
 
-    // Update account
     try {
+        // Get user account
         $account = Account::load($userID);
-        $account->setEmail($email);
-        $account->update();
 
-    } catch (Exception $e) {
+        $currentPassword = $_PUT['currentPassword'];
+        $newPassword = $_PUT['newPassword'];
+
+        // Update password (if current password is invalid, an exception will be thrown)
+        $account->updatePassword($currentPassword, $newPassword);
+
+    } catch (DatabaseException $e) {
         http_response_code(500);
         echo json_encode([
-            'error' => 'Error when attempting to update account.',
+            'error' => 'Server error (account load).',
+        ]);
+        die();
+
+    } catch (IncorrectPasswordException $e) {
+        // Incorrect 'current' password given.
+
+        http_response_code(403); // Forbidden
+        echo json_encode([
+            'error' => 'Incorrect password..',
         ]);
         die();
     }
