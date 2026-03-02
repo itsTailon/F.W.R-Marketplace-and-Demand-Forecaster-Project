@@ -6,6 +6,7 @@ $('#submit-btn').click(() => {
     var bundleRRP = $("#rrp").val();
     var bundleDiscountPrice = $("#discount-price").val();
     var sellerID = $("#sellerID").val();
+    var bundleCategory = $("#category-selector").val();
 
     $('.error-text').text(""); // Reset red error text
 
@@ -41,6 +42,11 @@ $('#submit-btn').click(() => {
         return false;
     }
 
+    if (!bundleCategory) {
+        $('.error-text').text("Bundle must have a category.");
+        return false;
+    }
+
     // Get allergens
     var allergens = [];
     $('.allergen-list__item__selector').each(function () {
@@ -61,6 +67,7 @@ $('#submit-btn').click(() => {
             rrp: bundleRRP * 100,
             discountedPrice: bundleDiscountPrice * 100,
             allergens: JSON.stringify(allergens),
+            categoryName: bundleCategory
         },
         statusCode: {
             200: () => { // Edit successful
