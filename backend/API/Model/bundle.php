@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Get category and validate
-        $category = $_PUT['categoryName'];
+        $category = json_decode($_PUT['categoryName']);
         if ($category === null) {
             // Exception as value is unacceptable
             throw new InvalidArgumentException();
@@ -215,8 +215,8 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Verify category
-        $category = json_decode($_POST['categoryName']);
-        if ($category === null) {
+        $category = $_POST['categoryName'];
+        if ($category == null) {
             throw new InvalidArgumentException();
         } else {
             if (!Category::categoryExists($category)) {
