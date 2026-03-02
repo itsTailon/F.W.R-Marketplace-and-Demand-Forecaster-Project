@@ -261,7 +261,7 @@ class Bundle extends StoredObject {
         }
 
         // Check bundle doesn't already have an attached category
-        if ($this::getCategory() != null) {
+        if ($this->getCategory() != null) {
             throw new CategoryAlreadyExistsException("Category '" . $categoryName . "' already attached to bundle.");
         }
 
@@ -315,8 +315,9 @@ class Bundle extends StoredObject {
      * @return void
      */
     public function removeCategory(): void {
+        $categoryName = $this->getCategory();
         // Check if there is currently a category attached to bundle
-        if ($this->getCategory() == null) {
+        if ($categoryName == null) {
             throw new NoSuchCategoryException("No category is currently assigned to bundle with ID " . $this->getID());
         }
 

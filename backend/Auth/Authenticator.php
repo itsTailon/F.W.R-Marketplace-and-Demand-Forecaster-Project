@@ -17,7 +17,7 @@ class Authenticator {
      * @param string $password
      * @return bool true, upon success. false, upon failure.
      */
-    public static function authenticateUser(string $email, string $password, bool $login = true): bool {
+    public static function authenticateUser(string $email, string $password): bool {
         // Use a prepared statement to protect against SQL injection
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT userID, passwordHash FROM account WHERE email=:email;");
 
@@ -39,11 +39,7 @@ class Authenticator {
         }
 
         // Log user in. Returns true if success, false upon failure.
-        if ($login) {
-            return self::login($row['userID']);
-        } else {
-            return true;
-        }
+        return self::login($row['userID']);
     }
 
     /**

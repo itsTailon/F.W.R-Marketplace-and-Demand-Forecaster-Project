@@ -2,7 +2,6 @@
 
 namespace TTE\App\Model;
 
-use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
 
@@ -46,14 +45,6 @@ class Account extends StoredObject {
         return $account;
     }
 
-    /**
-     * Saves changes to this Account object to the database.
-     *
-     * @return void
-     * @throws DatabaseException
-     * @throws MissingValuesException
-     * @throws NoSuchAccountException
-     */
     public function update(): void {
         // Check validity of ID
         if (!Account::existsWithID($this->userID)) {
