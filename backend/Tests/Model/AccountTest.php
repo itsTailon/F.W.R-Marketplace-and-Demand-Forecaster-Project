@@ -3,11 +3,52 @@
 namespace TTE\App\Tests\Model;
 
 use PHPUnit\Framework\TestCase;
+use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Account;
 use TTE\App\Model\DatabaseException;
+use TTE\App\Model\IncorrectPasswordException;
 
 class AccountTest extends TestCase
 {
+    public function testUpdate(): void {
+        // Create account for testing
+        $account = Account::create(["email" => "testaccountcreate2@example.com", "password" => "password", "accountType" => "seller"]);
+
+        // Change value of account
+        $account->setEmail("testaccountcreate2Edited@example.com");
+
+        // Test update method
+        $account->update();
+
+        // See if update worked by loading fresh Account object
+        $accountAfterUpdate = Account::load($account->getUserID());
+        $this->assertEquals($accountAfterUpdate->getEmail(), $account->getEmail());
+
+        // Cleanup
+        Account::delete($account->getUserID());
+    }
+
+    public function testUpdatePassword(): void {
+        // Create account for testing
+        $account = Account::create(["email" => "testaccountcreate3@example.com", "password" => "password", "accountType" => "seller"]);
+
+        // Test with invalid current password
+        $thrown = false;
+        try {
+            $account->updatePassword("wrongpassword", "newpassword");
+        } catch (IncorrectPasswordException $e) {
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        // Test with valid password
+        $account->updatePassword("password", "newpassword");
+        $this->assertTrue(Authenticator::authenticateUser($account->getEmail(), "newpassword", false));
+
+        // Cleanup
+        Account::delete($account->getUserID());
+    }
+
     public function testCreate()
     {
         $account = Account::create(["email" => "testaccountcreate@example.com", "password" => "password", "accountType" => "seller"]);
