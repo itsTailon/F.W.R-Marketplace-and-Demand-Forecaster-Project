@@ -1,6 +1,7 @@
 <?php
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
+use TTE\App\Model\Category;
 
 require 'partials/head.php';
 
@@ -24,6 +25,8 @@ require_once 'partials/dashboard/dashboard_header.php';
 
 // Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
+
+$categoryList = Category::getCategoryList();
 ?>
 
 <input type="hidden" name="sellerID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
@@ -45,10 +48,24 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                 <label for="name">Name</label>
                 <div class="textbox" data-type="text" data-id="name" id="name-textbox"></div>
             </div>
+            <br>
             <div class="bundle-creation-form__field">
                 <label for="description">Description</label>
                 <textarea class="textarea" id="description"></textarea>
             </div>
+            <br>
+            <div class="bundle-creation-form__field">
+                <label for="category-selector">Category</label>
+                <select class="category-selector disabled" id="category-selector">
+                    <option value="" disabled selected>Choose a category</option>
+                    <?php
+                        foreach ($categoryList as $key => $category) {
+                            echo "<option value=\"" . $category . "\">" . $category . "</option>";
+                        }
+                    ?>
+                </select>
+            </div>
+            <br>
             <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
             <ul class="allergen-list">
             </ul>
