@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
 
@@ -45,8 +46,68 @@ class Account extends StoredObject {
         return $account;
     }
 
+    /**
+     * Saves changes to this Account object to the database.
+     *
+     * @return void
+     * @throws DatabaseException
+     * @throws MissingValuesException
+     * @throws NoSuchAccountException
+     */
     public function update(): void {
-        // TODO: Implement update() method.
+        // Check validity of ID
+        if (!Account::existsWithID($this->userID)) {
+            // Exception thrown if ID is invalid
+            throw new NoSuchAccountException("No account with ID $this->userID");
+        }
+
+        // Check if current object values are all set
+        if (!isset($this->id) || !isset($this->email) || !isset($this->accountType)) {
+            // Produce error message if field exists with no content
+            throw new MissingValuesException("Missing information required to update account");
+        }
+
+        // Update database record
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE account SET email=:email, accountType=:accountType WHERE userID=:userID;");
+        try {
+            $stmt->execute([
+                'email'         => $this->getEmail(),
+                'accountType'   => $this->getAccountType(),
+                'userID'        => $this->userID,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
+    /**
+     * Update this account's password in the database.
+     *
+     * @param string $currentPassword the current password
+     * @param string $newPassword the new password
+     * @return void
+     * @throws DatabaseException
+     * @throws IncorrectPasswordException if the 'current password' supplied is incorrect
+     */
+    public function updatePassword(string $currentPassword, string $newPassword): void {
+        // Ensure that current password given is correct
+        if (!Authenticator::authenticateUser($this->getEmail(), $currentPassword, false)) {
+            throw new IncorrectPasswordException("Incorrect password for user with ID $this->userID. Thus, cannot update password.");
+        }
+
+        // Hash new password
+        $newPasswordHash = password_hash($newPassword, PASSWORD_ARGON2ID);
+
+        // Update password
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE account SET passwordHash=:passwordHash WHERE userID=:userID");
+        try {
+            $stmt->execute([
+                'userID'        => $this->getUserID(),
+                'passwordHash'  => $newPasswordHash,
+            ]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
     }
 
     /**
