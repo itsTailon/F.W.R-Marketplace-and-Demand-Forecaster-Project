@@ -1,11 +1,11 @@
 <?php
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\Category;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\DatabaseHandler;
 
 use TTE\App\Model\Seller;
-
 
 
 require 'partials/head.php';
@@ -91,6 +91,10 @@ require_once 'partials/dashboard/dashboard_header.php';
 
 // Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
+
+$categoryList = Category::getCategoryList();
+$myCategory = $bundle->getCategory();
+
 ?>
 
 <section class="edit-form">
@@ -111,6 +115,18 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         <textarea class="textarea" id="description"><?php
         echo $bundle->getDetails(); // Insert details in description field
     ?></textarea>
+    </div>
+    <br>
+    <div class="edit-form__field">
+        <label for="category-selector">Category</label>
+        <select class="category-selector <?php echo ($myCategory == null) ? "disabled": "" ?>" id="category-selector">
+            <?php
+                echo "<option value=\"\" disabled " . (($myCategory == null) ? "selected" : "") . ">Choose a category</option>";
+                foreach ($categoryList as $key => $category) {
+                    echo "<option value=\"" . $category . "\"" . (($myCategory == $category) ? "selected" : "") . ">" . $category . "</option>";
+                }
+            ?>
+        </select>
     </div>
     <br>
     <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
