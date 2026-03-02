@@ -32,6 +32,8 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
         <h1>Account Settings</h1>
 
+        <input type="hidden" id="userID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
+
         <div class="account-update-group">
             <h2>Update Email</h2>
             <table class="account-update-inputs">
@@ -74,6 +76,9 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         </div>
     </div>
 </div>
+
+<script src="assets/js/components/validation.js"></script>
+<script src="assets/js/update_account_settings.js"></script>
 
 <?php
 // Include page footer and closing tags
