@@ -228,7 +228,6 @@ class DatabaseHandler {
                 "reservation_claim",
                 "reservation_cancel",
                 "forecast_view",
-                "account_update", // To update *own* account
             ],
 
             "customer" => [
@@ -238,12 +237,6 @@ class DatabaseHandler {
                 "reservation_create",
                 "reservation_cancel",
                 "reservation_load",
-                "account_update", // To update *own* account
-            ],
-
-            "maintainer" => [
-                "account_update", // To update *own* account
-                "update_others_account", // To update *others'* account
             ],
         ];
 
