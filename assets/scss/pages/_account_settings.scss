@@ -1,0 +1,17 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+.account-update-inputs {
+  width: 100%;
+  max-width: 960px;
+  margin-top: 8px;
+
+  td {
+    padding: 12px 32px;
+    width: 512px;
+  }
+}
+
+.account-update-group {
+  padding: 40px 0;
+}

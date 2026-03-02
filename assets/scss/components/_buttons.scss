@@ -24,6 +24,9 @@ Stylesheet for buttons (as reusable components)
   text-align: center;
   text-decoration: none;
   color: map.get(config.$colours, "button-text");
+  display: flex;
+  align-items: center;
+  gap: 4px;
 
   &--rounded {
     border-radius: $v-padding * 2 + map.get(config.$font-sizes, "default");

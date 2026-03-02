@@ -91,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
         // Update password (if current password is invalid, an exception will be thrown)
         $account->updatePassword($currentPassword, $newPassword);
 
+
     } catch (DatabaseException $e) {
         http_response_code(500);
         echo json_encode([
@@ -103,13 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
 
         http_response_code(403); // Forbidden
         echo json_encode([
-            'error' => 'Incorrect password..',
+            'error' => 'Incorrect password.',
         ]);
         die();
     }
 
     // Success!
     http_response_code(200);
-    echo json_encode([]);
+    echo json_encode(['message' => 'success']);
     die();
 }
