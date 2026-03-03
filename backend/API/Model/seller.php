@@ -31,14 +31,73 @@ if (!Authenticator::isLoggedIn()) {
 
 // if-elseif...-else statement block branching on the basis of request method
 if ($_SERVER["REQUEST_METHOD"] == "PUT") {
-    //TODO: Add functionality to request handling method for PUT requests
+    // Handling PUT request that calls the update() method for the Seller class
+    try {
+
+        // Getting fields from input and storing under $_PUT to use as you would a superglobal
+        $_PUT = array();
+        parse_str(file_get_contents('php://input'), $_PUT);
+
+        // check seller ID is set and of the right form before using
+        if (!isset($_PUT["sellerID"]) || !is_int(filter_var($_PUT["sellerID"], FILTER_VALIDATE_INT))) {
+            throw new InvalidArgumentException("Invalid seller ID");
+        }
+
+        // Presence check for fields
+        if (empty(trim($_PUT["email"])) || empty(trim($_PUT["password"])) || empty(trim($_PUT["name"])) || empty(trim($_PUT["address"]))) {
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
+        }
+
+        // Convert seller ID to int before using
+        $sellerID = intval($_PUT["sellerID"]);
+
+        // Get current user logged in
+        $ownerID = Authenticator::getCurrentUser()->getUserID();
+
+        // Consider whether current user has permissions for update()
+        if (!RBACManager::isCurrentuserPermitted("seller_update")) {
+            throw new NoSuchPermissionException("User with ID $ownerID doesn't have permissions to update seller with ID $sellerID");
+        }
+
+        // Retrieve right Seller using sellerID
+        $seller = Seller::load($sellerID);
+
+        // Apply changes to seller
+        $seller->setEmail($_PUT["email"]);
+        $seller->setName($_PUT["name"]);
+        $seller->setAddress($_PUT["address"]);
+
+        // Calling update() method as checks have been fulfilled to update email, name and address for ccount
+        $seller->update();
+
+        // Explicitly give "OK" HTTP response code
+        http_response_code(200);
+        die();
+
+    } catch (NoSuchPermissionException $perm_e) {
+        // Handling exception produced if user doesn't have required permission and producing JSON-encoded response
+        echo json_encode(http_response_code(403));
+        die();
+
+    } catch (MissingValuesException $e) {
+        http_response_code(400);
+        die("MVE");
+    } catch (InvalidArgumentException $e) {
+        http_response_code(400);
+        die("IAE");
+    } catch (DatabaseException $db_e) {
+        // Handling exception produced due to database error and producing JSON-encoded response
+        echo json_encode(http_response_code(500));
+        die("DBE");
+    }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Handling POST request method that calls create() method
     try {
 
         // Ensuring all required values are set
-        if (empty($_POST["email"]) || empty($_POST["password"]) || empty($_POST["name"]) || empty($_POST["address"])) {
+        if (trim(empty($_POST["email"])) || trim(empty($_POST["password"])) || trim(empty($_POST["name"])) || trim(empty($_POST["address"]))) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
