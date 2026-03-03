@@ -11,10 +11,16 @@ class Seller extends Account {
 
     private string $address;
 
+    /**
+     * Method that updates the database version of the seller to hold current values of object
+     *
+     * @return void
+     * @throws DatabaseException|MissingValuesException
+     */
     public function update(): void {
 
         // Ensuring all required values are set
-        if (empty($this->getEmail()) || empty($this->getName()) || empty($this->getAddress())) {
+        if (empty(trim($this->getEmail())) || empty((trim($this->getName()))) || empty(trim($this->getAddress()))) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
