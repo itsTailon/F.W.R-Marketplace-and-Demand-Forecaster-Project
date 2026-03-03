@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
 

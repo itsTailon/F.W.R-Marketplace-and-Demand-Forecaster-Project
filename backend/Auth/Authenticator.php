@@ -109,7 +109,8 @@ class Authenticator {
             return null;
         }
 
-        return $_SESSION['currentUser'];
+        // Load fresh account object with up-to-date values
+        return Account::load($_SESSION['currentUser']->getUserID());
     }
 
     /**
@@ -125,7 +126,7 @@ class Authenticator {
             return null;
         }
 
-        return $_SESSION['currentUser']->getSubclass();
+        return Account::load($_SESSION['currentUser']->getUserID())->getSubclass();
     }
 
 }
