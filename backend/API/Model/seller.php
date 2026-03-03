@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Presence check for fields
-        if (empty(trim($_PUT["email"])) || empty(trim($_PUT["password"])) || empty(trim($_PUT["name"])) || empty(trim($_PUT["address"]))) {
+        if (empty(trim($_PUT["email"])) || empty(trim($_PUT["name"])) || empty(trim($_PUT["address"]))) {
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
         }
