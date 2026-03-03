@@ -12,7 +12,27 @@ class Seller extends Account {
     private string $address;
 
     public function update(): void {
-        // TODO: Implement update() method.
+
+        // Ensuring all required values are set
+        if (empty($this->getEmail()) || empty($this->getName()) || empty($this->getAddress())) {
+
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
+        }
+
+        // Applying updates to account (email)
+        parent::update();
+
+        // Applying updates to seller (company name and address)
+
+        // Update database record
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE seller SET sellerName=:name, sellerAddress=:address WHERE sellerID=:sellerID;");
+        try {
+            $stmt->execute([":name" => $this->getName(), ":address" => $this->getAddress(), ":sellerID" => $this->getUserID()]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
     }
 
     /**
@@ -29,7 +49,7 @@ class Seller extends Account {
             'password' => $fields['password']
         ]);
 
-        // Create the customer in the database
+        // Create the seller in the database
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO Seller(sellerID, sellerName, sellerAddress) VALUES (:id, :name, :address);");
         $stmt->execute(["id" => $account->getUserID(), "name" => $fields['name'], "address" => $fields['address']]);
 

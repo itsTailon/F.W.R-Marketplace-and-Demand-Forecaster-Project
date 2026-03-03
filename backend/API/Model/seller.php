@@ -68,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $seller->setName($_PUT["name"]);
         $seller->setAddress($_PUT["address"]);
 
-        // Calling update() method as checks have been fulfilled
+        // Calling update() method as checks have been fulfilled to update email, name and address for ccount
         $seller->update();
 
         // Explicitly give "OK" HTTP response code
