@@ -8,7 +8,8 @@ $('#submit-btn').click(() => {
     var bundleDesc = $("#description").val();
     var bundleRRP = $("#rrp").val();
     var bundleDiscountPrice = $("#discount-price").val();
-    
+    var bundleCategory = $("#category-selector").val();
+
     $('.error-text').text(""); // Reset red error text
 
     // Perform validation checks
@@ -44,7 +45,12 @@ $('#submit-btn').click(() => {
     }
 
     if (isNaN(bundleID)) { // If the ID is not a number
-        $('.error-text').val("Bundle ID is not a number.");
+        $('.error-text').text("Bundle ID is not a number.");
+        return false;
+    }
+
+    if (!bundleCategory) {
+        $('.error-text').text("Bundle must have a category.");
         return false;
     }
 
@@ -70,6 +76,7 @@ $('#submit-btn').click(() => {
             discountedPrice: bundleDiscountPrice,
             bundleStatus: "available",
             allergens: JSON.stringify(allergens),
+            categoryName: bundleCategory
         },
         statusCode: {
             200: () => { // Edit successful

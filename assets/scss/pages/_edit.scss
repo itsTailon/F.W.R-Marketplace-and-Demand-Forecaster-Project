@@ -26,7 +26,7 @@ li.allergen-list__item {
     border-bottom: 1px solid #c7c7c7;
 }
 
-select.allergen-list__item__selector {
+select.allergen-list__item__selector, select.category-selector {
     background-color: white;
     width: calc(100% - 100px);
     padding: 10px;
@@ -36,7 +36,7 @@ select.allergen-list__item__selector {
     border-radius: 5px;
 }
 
-select.allergen-list__item__selector.disabled {
+select.allergen-list__item__selector.disabled, select.category-selector.disabled {
     border: 2px solid #c7c7c7;
     color: #c7c7cd;
 }
@@ -89,19 +89,16 @@ div.edit-form__field > label {
     height: fit-content;
 }
 
-div.edit-form__field .textbox {
+div.edit-form__field .textbox, textarea.textarea, select.category-selector {
     flex-basis: calc(100% - 170px);
 }
 
 div.edit-form__btns {
     display: flex;
 }
+
 div.edit-form__btns > button.button {
     margin-right: 30px;
-}
-
-textarea.textarea {
-    flex-basis: calc(100% - 170px);
 }
 
 .edit-form > h1 {

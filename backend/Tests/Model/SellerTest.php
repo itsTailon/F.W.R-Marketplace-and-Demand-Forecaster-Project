@@ -4,6 +4,9 @@ namespace TTE\App\Tests\Model;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
+use TTE\App\Model\DatabaseException;
+use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Reservation;
@@ -12,6 +15,79 @@ use TTE\App\Helpers\CurrencyTools;
 
 class SellerTest extends TestCase
 {
+
+    public function testUpdate() {
+
+        // Seller fields for update() method
+        $seller = Seller::create(array(
+            "email" => "test@gmail.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        ));
+
+        // No email test as can't enter empty string as a valid email due to '@' check
+
+        // Test erroneous update for name
+        $prevValue = $seller->getName();
+        $seller->setName("       ");
+
+        $thrown = false;
+        try {
+            $seller->update();
+        } catch (MissingValuesException $e) {
+            $thrown = true;
+        } catch (DatabaseException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        if (!$thrown) {
+            $this->fail("Failed to throw MissingValuesException for empty name");
+        }
+
+        $seller->setName($prevValue);
+
+        // Test updating address to an erroneous one
+        $prevValue = $seller->getAddress();
+        $seller->setAddress("       ");
+
+        $thrown = false;
+        try {
+            $seller->update();
+        } catch (MissingValuesException $e) {
+            $thrown = true;
+        } catch (DatabaseException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        if (!$thrown) {
+            $this->fail("Failed to throw MissingValuesException for empty address");
+        }
+
+        $seller->setAddress($prevValue);
+
+        // Attempting a valid update of seller account
+        $seller->setEmail("secondTestEmail@test.com");
+        $seller->setName("secondTestName");
+        $seller->setAddress("34 Testing Street Second");
+
+        try {
+            $seller->update();
+        } catch (DatabaseException|MissingValuesException $e) {
+            $this->fail($e->getMessage());
+        }
+
+        // Checking currently held values to ensure they updated correctly
+        $this->assertTrue($seller->getEmail() == "secondTestEmail@test.com");
+        $this->assertTrue($seller->getName() == "secondTestName");
+        $this->assertTrue($seller->getAddress() == "34 Testing Street Second");
+
+        // Clean-up
+        Seller::delete($seller->getUserID());
+
+
+    }
+
     public function testCreateSeller()
     {
         $testSeller = Seller::create(["email" => "testcreateseller@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);

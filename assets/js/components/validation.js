@@ -42,7 +42,7 @@ const validateEmail = email => {
     if (getCharCount(email, '.') == 0) { return false; } // If there is not at least one ., email is invalid
     let emailSplit = email.split('@'); // Split the email into two at the @
     if (emailSplit[0].length == 0 || emailSplit[1].length == 0) { return false; } // If either side is empty, email is invalid
-    return true; // Otherwise, return true as the email has passed all checks
+    return true; // Otherwise, return true as the$ email has passed all checks
 }
 
 /* validatePassword(password) 

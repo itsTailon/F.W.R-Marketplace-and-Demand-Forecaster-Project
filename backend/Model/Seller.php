@@ -11,8 +11,34 @@ class Seller extends Account {
 
     private string $address;
 
+    /**
+     * Method that updates the database version of the seller to hold current values of object
+     *
+     * @return void
+     * @throws DatabaseException|MissingValuesException
+     */
     public function update(): void {
-        // TODO: Implement update() method.
+
+        // Ensuring all required values are set
+        if (empty(trim($this->getEmail())) || empty((trim($this->getName()))) || empty(trim($this->getAddress()))) {
+
+            // Throwing exception if field isn't present in retrieve data
+            throw new MissingValuesException("Missing fields");
+        }
+
+        // Applying updates to account (email)
+        parent::update();
+
+        // Applying updates to seller (company name and address)
+
+        // Update database record
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE seller SET sellerName=:name, sellerAddress=:address WHERE sellerID=:sellerID;");
+        try {
+            $stmt->execute([":name" => $this->getName(), ":address" => $this->getAddress(), ":sellerID" => $this->getUserID()]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
     }
 
     /**
@@ -29,7 +55,7 @@ class Seller extends Account {
             'password' => $fields['password']
         ]);
 
-        // Create the customer in the database
+        // Create the seller in the database
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO Seller(sellerID, sellerName, sellerAddress) VALUES (:id, :name, :address);");
         $stmt->execute(["id" => $account->getUserID(), "name" => $fields['name'], "address" => $fields['address']]);
 
@@ -50,6 +76,21 @@ class Seller extends Account {
         }
 
         return $seller;
+    }
+
+    public static function getAll(): array {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT sellerID FROM seller;");
+
+        // Get all seller IDs
+        $stmt->execute();
+
+        $sellers = [];
+
+        foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $id) {
+            array_push($sellers, self::load($id));
+        }
+
+        return $sellers;
     }
 
     /**

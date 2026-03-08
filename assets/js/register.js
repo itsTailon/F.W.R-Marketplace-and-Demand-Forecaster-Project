@@ -68,3 +68,7 @@ $("#register-btn").click(() => { // When sign up button is clicked
 $("#login-btn").click(() => { // When login button is clicked
     location.href = "/login.php"; // Go to login page
 });
+
+$("#seller-register-btn").click(() => { // When seller application button is clicked
+    location.href = "/seller_register.php"; // Go to seller application form
+});

@@ -10,14 +10,15 @@ $(document).on('mouseleave', '.allergen-list__item__delete-btn', function () {
     $(this).find("img").attr("src", "/assets/icons/bin_faded.png");
 });
 
-// When an allergen is changed, check if it should have the disabled class applied
-$(document).on('change', '.allergen-list__item__selector', function() {
-    if ($(this).val() !== "") { // If the allergen value is not the placeholder
+// When an allergen or category is changed, check if it should have the disabled class applied
+$(document).on('change', '.allergen-list__item__selector, .category-selector', function() {
+    if ($(this).val() !== "") { // If the allergen/category value is not the placeholder
         $(this).removeClass("disabled");  // Do not show as disabled
     } else { // If the allergen value is the placeholder
         $(this).addClass("disabled"); // Show as disabled
     }
 });
+
 
 // When an allergen delete button is clicked, delete the allergen from the list
 $(document).on('click', '.allergen-list__item__delete-btn', function () {

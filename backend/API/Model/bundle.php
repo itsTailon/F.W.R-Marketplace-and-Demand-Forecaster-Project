@@ -6,17 +6,21 @@
 
 // Import bundle from Model directory
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Model\Allergen;
 use TTE\App\Model\Bundle;
 use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\RBACManager;
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Model\BundleStatus;
+use TTE\App\Model\Category;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\FailedOwnershipAuthException;
+use TTE\App\Model\NoSuchCategoryException;
 use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
+use TTE\App\Model\CategoryAlreadyExistsException;
 
 include '../../../vendor/autoload.php';
 
@@ -47,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens'])) {
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -79,9 +83,21 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         } else {
             foreach ($allergens as $allergen) {
                 // Check if allergen exists (convert to string explicitly, as JSON value could have been non-string)
-                if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
+                if (!Allergen::allergenExists(strval($allergen))) {
                     throw new InvalidArgumentException();
                 }
+            }
+        }
+
+        // Get category and validate
+        $category = $_PUT['categoryName'];
+        if ($category == null) {
+            // Exception as value is unacceptable
+            throw new InvalidArgumentException();
+        } else {
+            // Check category is valid choice
+            if (!Category::categoryExists($category)) {
+                throw new NoSuchCategoryException("No $category category was found");
             }
         }
 
@@ -106,6 +122,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         } else {
             $bundle->setPurchaserID(null);
         }
+
+        // If bundle category currently set, remove category before adding new one
+        if ($bundle->getCategory() !== null) {
+            $bundle->removeCategory();
+        }
+
+        // Add new category
+        $bundle->addCategory($category);
 
         // Calling update() method as checks have been fulfilled
         $bundle->update();
@@ -141,11 +165,17 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Handling exception produced failure
         //to authenticate seller for updating specified bundle and producing JSON-encoded message
         echo json_encode(http_response_code(403));
-        die();
+        die("FOA");
     } catch (NoSuchCustomerException $e) {
         // Handling failure to customer ID and producing JSON-encoded message
         echo json_encode(http_response_code(400));
-        die();
+        die("NCE");
+    } catch (NoSuchCategoryException $e) {
+        echo json_encode(http_response_code(400));
+        die("NSE");
+    } catch (CategoryAlreadyExistsException $e) {
+        echo json_encode(http_response_code(400));
+        die("CAE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -154,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -181,6 +211,16 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
                 if (!\TTE\App\Model\Allergen::allergenExists(strval($allergen))) {
                     throw new InvalidArgumentException();
                 }
+            }
+        }
+
+        // Verify category
+        $category = $_POST['categoryName'];
+        if ($category == null) {
+            throw new InvalidArgumentException();
+        } else {
+            if (!Category::categoryExists($category)) {
+                throw new NoSuchCategoryException("No $category category was found");
             }
         }
 
@@ -217,6 +257,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             $bundle->addAllergen($allergen);
         }
 
+        // Add category to bundle
+        $bundle->addCategory($category);
+
         // If successfully created a Bundle, return that bundle
         echo json_encode($bundle);
         die();
@@ -246,6 +289,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
         die("IAE");
+    } catch (NoSuchCategoryException $nc_e) {
+        echo json_encode(http_response_code(400));
+        die("NSE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
