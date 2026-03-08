@@ -7,12 +7,71 @@ use TTE\App\Model\Bundle;
 
 $acc = Authenticator::getCurrentUser();
 
-$reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'seller');
+$statuses = ["active", "completed", "no-show", "cancelled"];
 
+$status = $_GET['status'];
+if (!in_array($status, $statuses)) {
+    $status = "active";
+}
+
+$allReservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'seller');
+
+$reservations = [];
+
+foreach ($allReservations as $r) {
+    if ($r["reservationStatus"] == $status) {
+        $reservations[sizeof($reservations)] = $r;
+    }
+}
+
+function generateReservationList($res): void {
+    global $status;
+    echo "<div class=\"active-reservations-list-wrapper\">
+            <ul class=\"active-reservations-list\">";
+                foreach ($res as $r) {
+                    $bundleID = $r['bundleID'];
+                    $bundle = Bundle::load($bundleID);
+                    $reservationID =$r['reservationID'];
+                    echo "<li>
+                            <h1 class=\"active-reservations-bundle-name\">" . $bundle->getTitle() . "</h1>
+                            <p class=\"active-reservations-bundle-description\">Bundle description: <i>" . $bundle->getDetails() . "</i></p>
+                            <!--                    <p class=\"active-reservations-bundle-date\"><i>Bundle Date posted</i></p>-->
+
+                            <nav class=\"active-reservations-bundle-nav\">
+                                <ul>
+                                    <li><h2>£" . number_format($bundle->getDiscountedPriceGBX() / 100, 2) . "</h2></li>
+                                    <li><a class=\"active-reservations-bundle-nav-view\" href=\"/view_reservation.php?id=" . $reservationID . "\">View</a></li>
+                                    <li><a class=\"active-reservations-bundle-nav-view\" href=\"/edit_bundle.php?id=" . $bundleID . "\">Edit</a></li>";
+                                    if ($status == "active") {
+                                        echo "<li><a class=\"active-reservations-bundle-nav-cancel\" data-res-id=" . $reservationID . ">Cancel</a></li>";
+                                    }
+                            echo "</ul>
+                        </nav>
+                    </li>";
+                }
+
+            echo "</ul>
+        </div>";
+}
+
+function getHeaderStatus($s) {
+    switch ($s) {
+        case "active":
+            echo "Active";
+            break;
+        case "completed":
+            echo "Completed";
+            break;
+        case "no-show":
+            echo "No-Show";
+            break;
+        case "cancelled":
+            echo "Cancelled";
+            break;
+    }    
+}
 
 ?>
-
-
 
 <div class="active-reservations-wrapper">
     <nav class="active-reservations-nav">
@@ -25,67 +84,21 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'selle
             </li>
         </ul>
     </nav>
+
+    <div class="active-reservations__tabbar">
+        <button class="tab start <?php if ($status == "active") { echo "selected"; }?>" id="active-tab">Active</button>
+        <button class="tab <?php if ($status == "completed") { echo "selected"; }?>" id="completed-tab">Completed</button>
+        <button class="tab <?php if ($status == "no-show") { echo "selected"; }?>" id="no-show-tab">No-Show</button>
+        <button class="tab end <?php if ($status == "cancelled") { echo "selected"; }?>" id="cancelled-tab">Cancelled</button>
+    </div>
     <div class="active-reservations"></div>
     <?php if (!$reservations): ?>
-        <h1>No Active Reservations</h1>
+        <h1>No <?php getHeaderStatus($status); ?> Reservations</h1>
     <?php else: ?>
-    <h1>Active Reservations</h1>   
-    <div class="active-reservations-list-wrapper">
-        <ul class="active-reservations-list">
-            <?php foreach ($reservations as $r): ?>
-
-                <?php
-                    $bundleID = $r['bundleID'];
-                    $bundle = Bundle::load($bundleID);
-                    $reservationID =$r['reservationID'];
-                    if($r['reservationStatus'] != 'active'){
-                        continue;
-                    }
-                    
-                ?>
-                <li>
-                    <h1 class="active-reservations-bundle-name"><?php echo $bundle->getTitle(); ?></h1>
-                    <p class="active-reservations-bundle-description">Bundle description: <i><?php echo $bundle->getDetails(); ?></i></p>
-<!--                    <p class="active-reservations-bundle-date"><i>Bundle Date posted</i></p>-->
-
-                    <nav class="active-reservations-bundle-nav">
-                        <ul>
-                            <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
-                            <li><a class="active-reservations-bundle-nav-view" href="/view_reservation.php?id=<?php echo $reservationID; ?>">View</a></li>
-                            <li><a class="active-reservations-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundleID; ?>">Edit</a></li>
-                            <li><a class="active-reservations-bundle-nav-cancel" data-res-id="<?php echo $reservationID; ?>">Cancel</a></li>
-                        </ul>
-                    </nav>
-
-                </li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+        <h1><?php getHeaderStatus($status); ?> Reservations</h1>
+        <?php generateReservationList($reservations); ?>
     <?php endif; ?>
-
 </div>
 
-<script>
-    $('.active-reservations-bundle-nav-cancel').on('click', function(e) {
-        e.preventDefault();
-        const reservationID = $(this).data('res-id');
-        console.log(reservationID);
-        $.ajax({
-            type: 'DELETE',
-            url: '/backend/API/Model/sellerReservation.php',
-            data: {reservationID: reservationID},
-            success: function() {
-                // redirect
-                alert("Reservation successfully cancelled!");
-                window.location.href = '/active_reservations.php';
-            },
-            error: function(err) {
-                console.log('Failed to Cancel: ' + err.status);
-            }
-        });
-
-    });
-
-    
-
-</script>
+<script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>
+<script src="/assets/js/reservation_seller.js"></script>
