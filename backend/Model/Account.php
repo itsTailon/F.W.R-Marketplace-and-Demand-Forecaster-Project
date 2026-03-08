@@ -116,7 +116,7 @@ class Account extends StoredObject {
     public static function create(array $fields): Account
     {
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO account(email, passwordHash, accountType) VALUES (:email, :passwordHash, :accountType);");
-        $passwordHash = password_hash($fields['password'], PASSWORD_ARGON2ID);
+        $passwordHash = $fields['passwordHash'] ?? (password_hash($fields['password'], PASSWORD_ARGON2ID));
 
         try {
             $stmt->execute([":email" => $fields['email'], ":passwordHash" => $passwordHash, ":accountType" => $fields['accountType']]);

@@ -52,7 +52,7 @@ class Seller extends Account {
         $account = parent::create([
             'email' => $fields['email'],
             'accountType' => 'seller',
-            'password' => $fields['password']
+            'passwordHash' => $fields['passwordHash']
         ]);
 
         // Create the seller in the database

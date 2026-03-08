@@ -8,6 +8,8 @@ class SellerRegistrationRequest extends StoredObject {
 
     private int $id;
 
+    private string $passwordHash;
+
     private SellerRegistrationRequestStatus $status;
 
     private string $sellerName;
@@ -102,6 +104,8 @@ class SellerRegistrationRequest extends StoredObject {
             }
         }
 
+        $passwordHash = password_hash($fields['password'], PASSWORD_ARGON2ID);
+
         // Insert database record
         try {
             $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO seller_registration_request (sellerName, sellerAddress, sellerEmail, passwordHash, details, status) VALUES (:sellerName, :sellerAddress, :sellerEmail, :passwordHash, :details, :status);");
@@ -109,7 +113,7 @@ class SellerRegistrationRequest extends StoredObject {
                 "sellerName"    => $fields["sellerName"],
                 "sellerAddress" => $fields["sellerAddress"],
                 "sellerEmail"   => $fields["sellerEmail"],
-                "passwordHash"  => password_hash($fields["password"], PASSWORD_ARGON2ID),
+                "passwordHash"  => $passwordHash,
                 "details"       => $fields["details"],
                 "status"        => SellerRegistrationRequestStatus::Pending->value,
             ]);
@@ -130,6 +134,7 @@ class SellerRegistrationRequest extends StoredObject {
         $registrationRequest->sellerEmail = $fields["sellerEmail"];
         $registrationRequest->sellerAddress = $fields["sellerAddress"];
         $registrationRequest->details = $fields["details"];
+        $registrationRequest->passwordHash = $passwordHash;
 
         return $registrationRequest;
     }
@@ -160,6 +165,7 @@ class SellerRegistrationRequest extends StoredObject {
         $registrationRequest->sellerEmail = $row["sellerEmail"];
         $registrationRequest->sellerAddress = $row["sellerAddress"];
         $registrationRequest->details = $row["details"];
+        $registrationRequest->passwordHash = $row["passwordHash"];
 
         return $registrationRequest;
     }
@@ -268,4 +274,19 @@ class SellerRegistrationRequest extends StoredObject {
         return $this->id;
     }
 
+    /**
+     * Marks the request as approved and creates a Seller based on the request details
+     *
+     * @throws DatabaseException
+     * @throws MissingValuesException
+     * @throws NoSuchSellerRegistrationRequestException
+     * @returns ?Seller The created Seller object, or null if the request was rejected
+     */
+    public function processRequest(bool $approved) : ?Seller {
+        $this->setStatus(SellerRegistrationRequestStatus::Closed);
+        $this->update();
+
+        if ($approved) return Seller::create(["email" => $this->sellerEmail, "passwordHash" => $this->passwordHash, "name" => $this->sellerName, "address" => $this->sellerAddress]);
+        return null;
+    }
 }
