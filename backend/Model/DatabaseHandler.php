@@ -238,6 +238,12 @@ class DatabaseHandler {
                 "reservation_cancel",
                 "reservation_load",
             ],
+
+            "maintainer" => [
+                "seller_delete",
+                "seller_create",
+                "seller_update",
+            ]
         ];
 
         // Create roles and permissions
