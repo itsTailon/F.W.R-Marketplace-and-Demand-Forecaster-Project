@@ -1,8 +1,11 @@
+$("#details").val(""); // Reset details textarea
+
 $("#submit-btn").click(() => { // When submit button is clicked
     // Get values of fields
     var businessName = $("#business-name").val();
     var businessAddress = $("#business-address").val();
     var email = $("#email").val();
+    var details = $("#details").val();
     var password = $("#password").val();
     var confirm_password = $("#confirm-password").val();
 
@@ -28,9 +31,15 @@ $("#submit-btn").click(() => { // When submit button is clicked
         return false;
     }
 
+    // Must have details
+    if (details.length < 50) {
+        $('.error-text').text("Need at least 50 characters of detail");
+        return false;
+    }
+
     // Email must be a valid email
     if (!validateEmail(email)) {
-        $("#email-textbox").addClass("textbox-error"); // Add error highlighting to email textbox
+        $("#email-textbox").addClass("textbox--error"); // Add error highlighting to email textbox
         $('.error-text').text("Invalid Email");
         return false;
     }
@@ -57,7 +66,8 @@ $("#submit-btn").click(() => { // When submit button is clicked
             businessName: businessName,
             businessAddress: businessAddress,
             email: email,
-            password: password
+            password: password,
+            details: details
         },
         statusCode: {
             200: () => { // If registration was successful
@@ -67,7 +77,7 @@ $("#submit-btn").click(() => { // When submit button is clicked
                 $('.error-text').text("Invalid input");
             },
             409: () => { // Conflict
-                $('.error-text').text("Email already taken");
+                $('.error-text').text("Seller name and address or email already taken");
             },
             500: () => { // Internal Server Error
                 $('.error-text').text("Internal Server Error");

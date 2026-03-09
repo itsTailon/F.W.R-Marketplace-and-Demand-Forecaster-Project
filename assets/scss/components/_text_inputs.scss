@@ -138,7 +138,7 @@ Stylesheet for text inputs (as reusable components)
   }
 }
 
-textarea.textarea {
+textarea.textarea, textarea.details {
   padding: 8px 16px;
   height: 80px;
   border: 1px solid map.get(config.$colours, "input-border");
@@ -146,4 +146,15 @@ textarea.textarea {
   resize: none;
   font-family: map.get(config.$font-families, "default");
   font-weight: map.get(config.$font-weights, "default");
+}
+
+textarea.details {
+  width: 100%;
+  font-size: 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+textarea.details::placeholder {
+  color: #49454F;
 }

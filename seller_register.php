@@ -13,8 +13,10 @@
             <div class="textbox textbox--size-fill" data-type="text" data-label="Business Name" data-id="business-name" id="business-name-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="text" data-label="Business Address" data-id="business-address" id="business-address-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="email" data-label="Email" data-id="email" id="email-textbox"></div>
+            <textarea class="details" placeholder="Details" id="details"></textarea>
             <div class="textbox textbox--size-fill" data-type="password" data-label="Password" data-id="password" id="password-textbox"></div>
             <div class="textbox textbox--size-fill" data-type="password" data-label="Confirm Password" data-id="confirm-password" id="confirm-password-textbox"></div>
+            
             <button class="button button--text-align-left button-submit" id="submit-btn">> Submit Application</button>
             <br>
             <button class="button button--text-align-left button-submit white" id="login-btn">> Log In</button>
