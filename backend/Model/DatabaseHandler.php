@@ -79,8 +79,8 @@ class DatabaseHandler {
                     userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     email VARCHAR(128) NOT NULL UNIQUE,
                     passwordHash VARCHAR(256) NOT NULL,
-                    accountType ENUM('seller', 'customer') NOT NULL
-                );
+                    accountType ENUM('seller', 'customer', 'maintainer') NOT NULL
+                    );
                 
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
@@ -248,6 +248,12 @@ class DatabaseHandler {
                 "reservation_cancel",
                 "reservation_load",
             ],
+
+            "maintainer" => [
+                "seller_delete",
+                "seller_create",
+                "seller_update",
+            ]
         ];
 
         // Create roles and permissions

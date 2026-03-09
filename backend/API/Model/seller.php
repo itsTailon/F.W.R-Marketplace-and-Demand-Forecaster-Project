@@ -144,5 +144,60 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "DELETE") {
-    //TODO: Implement the delete method for seller API
+    // Get request data
+    $_DELETE = array();
+    parse_str(file_get_contents('php://input'), $_DELETE);
+
+    // Ensure that current user has sufficient permissions to delete a seller account
+    if (!RBACManager::isCurrentUserPermitted('seller_delete')) {
+        // User is attempting to delete a seller account, but does not have the required privileges
+        http_response_code(403); // Forbidden
+        echo json_encode([
+            'error' => 'Permission denied.',
+        ]);
+        die();
+    }
+
+    // Ensure that required data was included in the request
+    if (!isset($_DELETE['sellerID'])) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            'error' => 'Request missing required data.',
+        ]);
+        die();
+    }
+
+    // Ensure that the seller ID given is an integer
+    $sellerID = filter_var($_DELETE['sellerID'], FILTER_VALIDATE_INT);
+    if (!is_int($sellerID)) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            'error' => 'Invalid seller ID (format/type).',
+        ]);
+        die();
+    }
+
+    // Ensure that the seller ID given corresponds to an actual seller
+    if (!Seller::existsWithID($sellerID)) {
+        http_response_code(400); // Bad request
+        echo json_encode([
+            'error' => 'Invalid seller ID (no such seller).',
+        ]);
+        die();
+    }
+
+    try {
+        Seller::delete($sellerID);
+    } catch (DatabaseException $e) {
+        http_response_code(500); // Internal Server Error
+        echo json_encode([
+            'error' => 'Error when attempting to delete seller account.',
+        ]);
+        die();
+    }
+
+    // Success!
+    http_response_code(200);
+    echo json_encode([]);
+    die();
 }
