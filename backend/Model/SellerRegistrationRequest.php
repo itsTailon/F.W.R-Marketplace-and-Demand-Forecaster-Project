@@ -173,6 +173,19 @@ class SellerRegistrationRequest extends StoredObject {
     /**
      * @inheritDoc
      */
+    public static function existsWithNameAndAddress(string $name, string $address) {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT id FROM seller_registration_request WHERE sellerName=:name AND sellerAddress=:address;");
+
+        $stmt->execute(params: ["name" => $name, "address" => $address]);
+
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return !($row === false);
+    }
+
+    /**
+     * @inheritDoc
+     */
     public static function existsWithID(int $id): bool {
         // Prepare parameterised statement
         $stmt = DatabaseHandler::getPDO()->prepare("SELECT id FROM seller_registration_request WHERE id=:id;");
