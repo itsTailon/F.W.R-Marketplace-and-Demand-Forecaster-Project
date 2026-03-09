@@ -78,6 +78,21 @@ class Seller extends Account {
         return $seller;
     }
 
+    public static function getAll(): array {
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT sellerID FROM seller;");
+
+        // Get all seller IDs
+        $stmt->execute();
+
+        $sellers = [];
+
+        foreach ($stmt->fetchAll(\PDO::FETCH_COLUMN) as $id) {
+            array_push($sellers, self::load($id));
+        }
+
+        return $sellers;
+    }
+
     /**
      * Returns a Seller object representing the seller with the given seller ID.
      *
