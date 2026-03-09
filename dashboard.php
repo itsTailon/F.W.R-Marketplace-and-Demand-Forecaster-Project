@@ -35,6 +35,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
             } else if ($user instanceof \TTE\App\Model\Customer) {
                 // Customer dashboard (home)
                 require 'partials/dashboard/customer/dashboard_customer_home.php';
+
+            } else if ($user->getAccountType() == "maintainer") {
+                // Maintainer dashboard (home)
+                require 'partials/dashboard/maintainer/dashboard_maintainer_home.php';
             }
         ?>
     </div>
