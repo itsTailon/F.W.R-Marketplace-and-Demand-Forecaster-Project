@@ -3,7 +3,6 @@
 @use 'sass:map';
 
 
-
 .active-reservations-wrapper {
     width: 65vw;
     margin: 0 auto;
@@ -14,8 +13,8 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 3vh;
-
 }
+
 .active-reservations-nav ul li {
     list-style: none;
     margin: 0;
@@ -29,16 +28,11 @@
     gap: 8px;
 }
 
-
-
-
-
-
 .active-reservations-list-wrapper {
     width: 100%;
     border-color: black;
     border: 2px solid black;
-    margin-top: 7vh;
+    margin-top: 3vh;
 }
 
 .active-reservations-list li {
@@ -108,3 +102,44 @@
     padding-bottom: 2vh;
 }
 
+button.tab {
+    width: 170px;
+    height: 100%;
+    color: black;
+    font-size: 16px;
+    border: none;
+    border-radius: 0px;
+    background-color: #D0DCFF;
+
+    &:hover {
+        background-color: map.get(config.$colours, "primary-main");
+        color: #fff;
+    }
+
+    &:active {
+        background-color: map.get(config.$colours, "primary-outline");
+        color: #fff;
+    }
+}
+
+button.tab.start {
+    border-top-left-radius: 15px;
+    border-bottom-left-radius: 15px;
+}
+
+button.tab.end {
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+}
+
+button.tab.selected {
+    background-color: map.get(config.$colours, "primary-main");
+    color: white;
+    font-weight: bold;
+}
+
+div.active-reservations__tabbar {
+    display: flex;
+    height: 50px;
+    margin-bottom: 20px;
+}

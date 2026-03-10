@@ -79,21 +79,21 @@ class DatabaseHandler {
                     userID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     email VARCHAR(128) NOT NULL UNIQUE,
                     passwordHash VARCHAR(256) NOT NULL,
-                    accountType ENUM('seller', 'customer') NOT NULL
+                    accountType ENUM('seller', 'customer', 'maintainer') NOT NULL
                     );
                 
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
                     FOREIGN KEY (customerID) REFERENCES account(userID)
-                    );
+                );
                 
                 CREATE TABLE IF NOT EXISTS seller (
                     sellerID INT NOT NULL PRIMARY KEY,
                     sellerName VARCHAR(128) NOT NULL, -- formerly `name`
                     sellerAddress VARCHAR(256) NOT NULL,
                     FOREIGN KEY (sellerID) REFERENCES account(userID)
-                    );
+                );
                 
                 CREATE TABLE IF NOT EXISTS bundle (
                     bundleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -107,7 +107,7 @@ class DatabaseHandler {
                     purchaserID INT DEFAULT NULL,
                     FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
                     FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
-                    );
+                );
                 
                 CREATE TABLE IF NOT EXISTS allergen (
                     allergenName VARCHAR (64) NOT NULL PRIMARY KEY
@@ -162,6 +162,16 @@ class DatabaseHandler {
                     categoryName VARCHAR (64) NOT NULL,
                     FOREIGN KEY (bundleID) REFERENCES bundle(bundleID) ON DELETE CASCADE,
                     FOREIGN KEY (categoryName) REFERENCES category(categoryName) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS seller_registration_request (
+                    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    sellerName VARCHAR(128) NOT NULL,
+                    sellerAddress VARCHAR(256) NOT NULL, 
+                    sellerEmail VARCHAR(128) NOT NULL UNIQUE,
+                    passwordHash VARCHAR(256) NOT NULL,
+                    details TEXT NOT NULL,
+                    status ENUM ('pending', 'closed') NOT NULL DEFAULT 'pending'
                 );
                 END
             );
@@ -238,6 +248,12 @@ class DatabaseHandler {
                 "reservation_cancel",
                 "reservation_load",
             ],
+
+            "maintainer" => [
+                "seller_delete",
+                "seller_create",
+                "seller_update",
+            ]
         ];
 
         // Create roles and permissions
@@ -260,9 +276,5 @@ class DatabaseHandler {
                 }
             }
         }
-
-
-
     }
-
 }

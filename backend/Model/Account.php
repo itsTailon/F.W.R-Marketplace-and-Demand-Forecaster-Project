@@ -47,16 +47,16 @@ class Account extends StoredObject {
     }
 
     public function update(): void {
-        // Check validity of ID
-        if (!Account::existsWithID($this->userID)) {
-            // Exception thrown if ID is invalid
-            throw new NoSuchAccountException("No account with ID $this->userID");
-        }
-
         // Check if current object values are all set
         if (!isset($this->userID) || !isset($this->email) || !isset($this->accountType)) {
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to update account");
+        }
+
+        // Check validity of ID
+        if (!Account::existsWithID($this->userID)) {
+            // Exception thrown if ID is invalid
+            throw new NoSuchAccountException("No account with ID $this->userID");
         }
 
         // Update database record
@@ -116,7 +116,7 @@ class Account extends StoredObject {
     public static function create(array $fields): Account
     {
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO account(email, passwordHash, accountType) VALUES (:email, :passwordHash, :accountType);");
-        $passwordHash = password_hash($fields['password'], PASSWORD_ARGON2ID);
+        $passwordHash = $fields['passwordHash'] ?? (password_hash($fields['password'], PASSWORD_ARGON2ID));
 
         try {
             $stmt->execute([":email" => $fields['email'], ":passwordHash" => $passwordHash, ":accountType" => $fields['accountType']]);
