@@ -102,6 +102,8 @@ class DatabaseHandler {
                     bundleStatus ENUM('available', 'reserved', 'collected', 'cancelled') NOT NULL,
                     title VARCHAR(128) NOT NULL, -- formerly `name`
                     details TEXT NOT NULL, -- formerly `description`
+                    quantity INT NOT NULL DEFAULT 1,
+                    CHECK (quantity >= 0), -- prevent negative quantities
                     rrp DECIMAL(8, 2) NOT NULL, -- recommended retail price
                     discountedPrice DECIMAL(8, 2) NOT NULL,
                     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
