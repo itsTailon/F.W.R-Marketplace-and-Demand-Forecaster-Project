@@ -1,0 +1,17 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+.request-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &-title {
+        margin-top: 16px;
+        font-weight: map.get(config.$font-weights, "semi-bold");
+    }
+
+    &-evidence {
+        margin: 16px 0;
+    }
+}

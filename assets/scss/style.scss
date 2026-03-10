@@ -30,5 +30,6 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'pages/browse';
 @use 'pages/http404';
 @use 'pages/account_settings';
-
+@use 'pages/requests';
+@use 'pages/view_request';
 
