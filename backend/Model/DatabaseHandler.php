@@ -181,14 +181,13 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS badge (
                     badgeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     title VARCHAR(128) NOT NULL, -- 'Loyal Customer'
-                    subtitle VARCHAR(255) NOT NULL, -- 'Reserve the same bundle 3 times'
-                    badgeDescription VARCHAR(255) NOT NULL, -- 'Reserve the same bundle <x> more times to earn this badge!'
                     iconURL VARCHAR(255) NOT NULL -- 'loyal_customer.png'
                 );
-
+    
                 CREATE TABLE IF NOT EXISTS customer_badge (
                     customerID INT NOT NULL,
                     badgeID INT NOT NULL,
+                    tier ENUM('bronze', 'silver', 'gold') DEFAULT NULL,
                     PRIMARY KEY (customerID, badgeID),
                     FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
                     FOREIGN KEY (badgeID) REFERENCES badge(badgeID) ON DELETE CASCADE
