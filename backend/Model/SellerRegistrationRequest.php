@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use http\Exception\UnexpectedValueException;
+use InvalidArgumentException;
 use TTE\App\Model\StoredObject;
 
 class SellerRegistrationRequest extends StoredObject {
@@ -301,5 +303,37 @@ class SellerRegistrationRequest extends StoredObject {
 
         if ($approved) return Seller::create(["email" => $this->sellerEmail, "passwordHash" => $this->passwordHash, "name" => $this->sellerName, "address" => $this->sellerAddress]);
         return null;
+    }
+
+    /**
+     * @throws DatabaseException
+     */
+    public function grant(): Seller {
+        if ($this->getStatus() == SellerRegistrationRequestStatus::Pending) {
+            return Seller::create([
+                "email" => $this->getSellerEmail(),
+                "password" => $this->passwordHash,
+                "name" => $this->getSellerName(),
+                "address" => $this->getSellerAddress(),
+            ]);
+
+            $this->setStatus(SellerRegistrationRequestStatus::Closed);
+            $this->update();
+        } else {
+            throw new InvalidArgumentException("Request already handled");
+        }
+        throw new UnexpectedValueException("Invalid Status");
+    }
+
+    /**
+     * @throws DatabaseException
+     */
+    public function deny(): void {
+        if ($this->getStatus() == SellerRegistrationRequestStatus::Pending) {
+            $this->setStatus(SellerRegistrationRequestStatus::Closed);
+            $this->update();
+        } else {
+            throw new InvalidArgumentException("Request already handled");
+        }
     }
 }
