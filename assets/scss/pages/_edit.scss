@@ -89,7 +89,7 @@ div.edit-form__field > label {
     height: fit-content;
 }
 
-div.edit-form__field .textbox, textarea.textarea, select.category-selector {
+div.edit-form__field .textbox, div.edit-form__field textarea.textarea, select.category-selector {
     flex-basis: calc(100% - 170px);
 }
 
