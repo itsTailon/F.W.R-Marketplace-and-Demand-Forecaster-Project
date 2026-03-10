@@ -9,6 +9,7 @@ This file will include all other compilable SCSS files, and will itself be compi
 
 @use 'components/buttons';
 @use 'components/text_inputs';
+@use 'components/nav';
 
 @use 'layout/dashboard_header';
 @use 'layout/dashboard_sidebar';
@@ -32,4 +33,5 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'pages/account_settings';
 @use 'pages/requests';
 @use 'pages/view_request';
+@use 'pages/view_all_sellers';
 
