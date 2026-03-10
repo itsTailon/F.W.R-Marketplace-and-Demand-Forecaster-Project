@@ -80,7 +80,7 @@ class DatabaseHandler {
                     email VARCHAR(128) NOT NULL UNIQUE,
                     passwordHash VARCHAR(256) NOT NULL,
                     accountType ENUM('seller', 'customer', 'maintainer') NOT NULL
-                    );
+                );
                 
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
@@ -92,6 +92,8 @@ class DatabaseHandler {
                     sellerID INT NOT NULL PRIMARY KEY,
                     sellerName VARCHAR(128) NOT NULL, -- formerly `name`
                     sellerAddress VARCHAR(256) NOT NULL,
+                    openingTime TIME NOT NULL,
+                    closingTime TIME NOT NULL,
                     FOREIGN KEY (sellerID) REFERENCES account(userID)
                 );
                 
