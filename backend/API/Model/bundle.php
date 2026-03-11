@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName'])) {
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -105,6 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
+        $bundle->setQuantity($_PUT['quantity']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
 
@@ -184,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -195,6 +196,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $fields = array(
             "title" => $_POST["title"],
             "details" => $_POST["details"],
+            "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
@@ -235,6 +237,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
                 case "rrp":
+                case "quantity":
                 case "discountedPrice":
                 case "sellerID":
                     // Check string contains only [0,9] digits and no '.'
@@ -327,6 +330,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "id" => $bundle->getID(),
             "title" => $bundle->getTitle(),
             "details" => $bundle->getDetails(),
+            "quantity" => $bundle->getQuantity(),
             "status" => $bundle->getStatus(),
             "rrpGBX" => $bundle->getRrpGBX(),
             "discountedPriceGBX" => $bundle->getDiscountedPriceGBX(),
