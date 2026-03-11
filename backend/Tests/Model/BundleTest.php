@@ -66,6 +66,7 @@ class BundleTest extends TestCase
                 "discountedPrice" => 299,
                 "sellerID" => $seller->getUserID(),
                 "purchaserID" => $customer->getUserID(),
+                "quantity" => 1,
             );
 
         // Creating bundle that is to then be updated
@@ -133,6 +134,7 @@ class BundleTest extends TestCase
         $bundle->setPurchaserID($customer->getUserID());
         $bundle->setTitle("Testing Updating Method");
         $bundle->setRrpGBX(700);
+        $bundle->setQuantity(5);
 
         // Attempting to update bundle
         try {
@@ -213,6 +215,7 @@ class BundleTest extends TestCase
                 "discountedPrice" => 299,
                 "sellerID" => $seller->getUserID(),
                 "purchaserID" => $customer->getUserID(),
+                "quantity" => 2,
             );
 
         // Iterate through $fields array and update different values to null to test functionality (ignore purchaserID as nullable)
@@ -341,6 +344,8 @@ class BundleTest extends TestCase
                 case "purchaserID":
                     $this->assertEquals($value, $bundle->getPurchaserID());
                     break;
+                case "quantity":
+                    $this->assertEquals($value, $bundle->getQuantity());
             }
         }
 
@@ -373,6 +378,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Load bundle and compare to existing bundle object (both should be equal)
@@ -415,6 +421,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Bundle should exist as it has just been created
@@ -461,6 +468,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Check that when deleting a bundle that does not exist, NoSuchBundleException is thrown
@@ -506,6 +514,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Test adding non-existent allergen to bundle
@@ -552,6 +561,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Add allergen to bundle
@@ -592,6 +602,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Add allergens to bundle
@@ -612,7 +623,7 @@ class BundleTest extends TestCase
             "name" => "ex name", "address" => "ex address"]);
         $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available,
             "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
-            "discountedPrice" => 8.00]);
+            "discountedPrice" => 8.00, "quantity" => 1]);
 
         $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
         $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
@@ -646,6 +657,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Test adding a non-existent category to bundle
@@ -699,6 +711,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         // Create category and add to bundle
@@ -755,6 +768,7 @@ class BundleTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 2,
         ]);
 
         Category::create("validCategory");
