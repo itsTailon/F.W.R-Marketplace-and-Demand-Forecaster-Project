@@ -478,12 +478,12 @@ class Bundle extends StoredObject {
      * @return void
      */
     public function setQuantity(int $quantity): void {
-        # Ensure quantity is valid
+        // Ensure quantity is valid
         if ($quantity < 0) {
             throw new \ValueError("Cannot set bundle quantity to negative value");
         }
 
-        # Update quantity
+        // Update quantity
         $this->quantity = $quantity;
     }
 
