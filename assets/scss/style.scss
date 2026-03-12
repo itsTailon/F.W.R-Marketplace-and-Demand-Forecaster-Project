@@ -14,7 +14,7 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'layout/dashboard_header';
 @use 'layout/dashboard_sidebar';
 @use 'layout/dashboard_buttons';
-
+@use 'layout/site_footer';
 
 @use 'pages/index';
 @use 'pages/dashboard';

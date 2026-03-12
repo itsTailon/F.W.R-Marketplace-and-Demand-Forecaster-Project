@@ -7,14 +7,15 @@ $font-families: (
 );
 
 $font-weights: (
-        "light":    200, // Lexend light(er)
+        "light":      200, // Lexend light(er)
         "default":    300, // Lexend light
         "semi-bold":  600, // Lexend semi-bold
 );
 
 $font-sizes: (
-    "default": 18px,
-    "label": 14px,
+    "default":  18px,
+    "label":    14px,
+    "footer":   14px,
 );
 
 $colours: (
@@ -33,6 +34,10 @@ $colours: (
         "button-green":           #b7dcbf,
 
         "title-bar":              #EBF3FF,
+
+        "site-footer-bg":         #f5faff,
+        "site-footer-fg":         #888888,
+        "site-footer-fg-hover":   #4e4e4e,
 );
 
 $desktop-max-content-width: 1366px;
