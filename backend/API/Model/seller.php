@@ -73,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Explicitly give "OK" HTTP response code
         http_response_code(200);
+        echo json_encode([]);
         die();
 
     } catch (NoSuchPermissionException $perm_e) {
