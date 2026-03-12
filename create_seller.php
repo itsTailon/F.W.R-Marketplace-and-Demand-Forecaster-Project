@@ -44,9 +44,9 @@ $acc = Authenticator::getCurrentUserSubclass();
         </div>
         <form class="create-seller-form" id="create-seller-form" method="POST" action="/backend/API/Model/seller.php">
             <h1 class="create-seller-form-title">Create Seller</h1>
-            <h3 id="status-message"></h3>
+            <h3 id="status-message">aaaaa</h3>
             <div class="create-seller-form-input-section">
-                <label>Name</label>
+                <label for="name">Name</label>
                 <input id="name" type="text" placeholder="Name" name="name">
             </div>
             <div class="create-seller-form-input-section">
@@ -69,7 +69,6 @@ $acc = Authenticator::getCurrentUserSubclass();
         
     </div>
 </div>
-<script src="/assets/js/components/validation.js"></script>
 
 
 <script>
@@ -78,22 +77,6 @@ const statusMessage = document.getElementById('status-message');
 $('.create-seller-form').on('submit', function (e) {
     e.preventDefault();
 
-
-    const email = $('#email').val();
-    const password = $('#password').val();
-
-    if(!validateEmail(email)) {
-        statusMessage.className = 'error';
-        statusMessage.textContent = 'Invalid email!';
-        return;
-    }
-
-    const passwordResult = validatePassword(password);
-    if(passwordResult !== 'PASS') {
-        statusMessage.className = 'error';
-        statusMessage.textContent = passwordResult;
-        return;
-    }
 
     $.ajax({
         type: 'POST',

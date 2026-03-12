@@ -85,7 +85,8 @@ class Reservation extends StoredObject
      *
      * @return StoredObject
      *
-     * @throws DatabaseException|MissingValuesException|NoSuchCustomerException|NoSuchSellerException|NoSuchStreakException|NoSuchBundleException
+     * @throws DatabaseException
+     * @throws MissingValuesException
      */
     public static function create(array $fields): StoredObject {
         // Check that required fields have values
@@ -94,44 +95,6 @@ class Reservation extends StoredObject
         }
 
         $bundle = Bundle::load($fields['bundleID']);
-
-        // Check bundle has quantity > 1
-        if ($bundle->getQuantity() > 1) {
-            try {
-                // Make copy of bundle with only one quantity
-                $temporaryBundle = Bundle::create(
-                    ["bundleStatus" => $bundle->getStatus(),
-                        "title" => $bundle->getTitle(),
-                        "details" => $bundle->getDetails(),
-                        "quantity" => 1,
-                        "rrp" => $bundle->getRrpGBX(),
-                        "discountedPrice" => $bundle->getDiscountedPriceGBX(),
-                        "sellerID" => $bundle->getSellerID(),
-                        "purchaserID" => $bundle->getPurchaserID(),
-                    ]);
-
-                // Update quantity of previous bundle
-                $bundle->setQuantity($bundle->getQuantity() - 1);
-                $bundle->update();
-
-                // Replace $bundle with $temporaryBundle and continue
-                $bundle = $temporaryBundle;
-
-            } catch (DatabaseException $e) {
-                throw new DatabaseException($e->getMessage());
-            } catch (MissingValuesException $e) {
-                throw new MissingValuesException($e->getMessage());
-            } catch (NoSuchCustomerException $e) {
-                throw new NoSuchCustomerException($e->getMessage());
-            } catch (NoSuchSellerException $e) {
-                throw new NoSuchSellerException($e->getMessage());
-            } catch (NoSuchBundleException $e) {
-                throw new NoSuchBundleException($e->getMessage());
-            } catch (NoSuchStreakException $e) {
-                throw new NoSuchStreakException($e->getMessage());
-            }
-
-        }
 
         // Update bundle's method
         try {
