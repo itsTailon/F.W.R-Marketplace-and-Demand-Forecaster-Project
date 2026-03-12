@@ -46,7 +46,7 @@ $acc = Authenticator::getCurrentUserSubclass();
             <h1 class="create-seller-form-title">Create Seller</h1>
             <h3 id="status-message">aaaaa</h3>
             <div class="create-seller-form-input-section">
-                <label for="name">Name</label>
+                <label>Name</label>
                 <input id="name" type="text" placeholder="Name" name="name">
             </div>
             <div class="create-seller-form-input-section">
