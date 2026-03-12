@@ -69,16 +69,17 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
                 ?>
             <li>
                 <h1 class="active-bundles-bundle-name"><?php echo $bundle->getTitle() ?></h1>
-                <p class="active-bundles-bundle-description">Bundle Status: <?php echo $bundle->getStatus()->value ?></p>
-                <p class="active-bundles-bundle-description">Bundle description: <?php echo $bundle->getDetails() ?></p>
+                <p class="active-bundles-bundle-description"><b>Status:</b> <?php echo ucfirst($bundle->getStatus()->value); ?></p>
+                <p class="active-bundles-bundle-description"><b>Description:</b> <?php echo $bundle->getDetails(); ?></p>
+                <p class="active-bundles-bundle-quantity"><b>Qty:</b> <?php echo $bundle->getQuantity(); ?></p>
 <!--                <p class="active-bundles-bundle-date"><i>Bundle Date posted</i></p>-->
 
                 <nav class="active-bundles-bundle-nav">
                     <ul>
                         <li><h2>£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h2></li>
-                        <li><a class="active-bundles-bundle-nav-view" href="/view_bundle.php?id=<?php echo $bundle->getID() ?>">View</a></li>
-                        <li><a class="active-bundles-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundle->getID() ?>">Edit</a></li>
-                        <li><a class="active-bundles-bundle-nav-cancel" data-bndle-id="<?php echo $bundle->getID() ?>">Delete</a></li>
+                        <li><a class="active-bundles-bundle-nav-view" href="/view_bundle.php?id=<?php echo $bundle->getID(); ?>">View</a></li>
+                        <li><a class="active-bundles-bundle-nav-view" href="/edit_bundle.php?id=<?php echo $bundle->getID(); ?>">Edit</a></li>
+                        <li><a class="active-bundles-bundle-nav-cancel" data-bndle-id="<?php echo $bundle->getID(); ?>">Delete</a></li>
                     </ul>
                 </nav>
 
