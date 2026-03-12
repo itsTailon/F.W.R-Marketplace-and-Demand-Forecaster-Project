@@ -87,6 +87,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Create test reservation
@@ -108,6 +109,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Make a different customer
@@ -183,6 +185,39 @@ class ReservationTest extends TestCase
             'address' => '2 Example Avenue',
         ]);
 
+        // Create bundle of bundles for the reservation to reference
+        $secondBundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+            'quantity' => 5
+        ]);
+
+        // Store bundle quantity for later comparison
+        $quantityBundle = $secondBundle->getQuantity();
+
+        // Test creating a reservation for a bundle with multiple quantities
+        try {
+            $reservation = Reservation::create([
+                'purchaserID' => $purchaser->getUserID(),
+                'bundleID' => $secondBundle->getID(),
+                'status' => ReservationStatus::Active,
+                'claimCode' => 'weroiusdfjsois'
+            ]);
+        } catch (\Exception $e) {
+            // Clean up and fail the test
+            self::emptyTables();
+
+            self::fail($e->getMessage());
+        }
+
+        // Ensure quantity for $secondBundle is now one less
+        self::assertTrue($secondBundle->getQuantity() == $quantityBundle);
+
+
         // Create bundle for the reservation to reference
         $bundle = Bundle::create([
             'bundleStatus' => BundleStatus::Available,
@@ -191,6 +226,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Test creating reservation with missing values
@@ -308,6 +344,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -376,6 +413,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -439,6 +477,7 @@ class ReservationTest extends TestCase
             'rrp' => 1000,
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -502,7 +541,7 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "quantity" => 1, "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markNoShow($reservation->getID());
@@ -520,7 +559,7 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "quantity" => 1, "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markCollected($reservation->getID());

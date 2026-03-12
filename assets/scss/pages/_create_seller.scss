@@ -1,0 +1,160 @@
+
+
+
+.create-seller-wrapper {
+    width: 52.5vw;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    height: 100vh;
+}
+
+.create-seller {
+    margin-top: 6vh;
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+    justify-content: left;
+    width: 85%;
+}
+
+
+.create-seller-nav ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0;
+    margin: 0;
+}
+
+.create-seller-nav ul li {
+
+    list-style: none;
+    text-decoration: none;
+}
+
+.create-seller-nav ul li a {
+    text-decoration: none;
+    color: red;
+    
+}
+
+.create-seller-form {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+
+}
+
+.create-seller-form-title {
+    font-weight: 500;
+}
+
+.create-seller-form-input-section {
+    display: grid;
+    grid-template-columns: 150px 17.5vw;
+    align-items: center;
+    gap: 10px;
+}
+
+.create-seller-form-input-section input {
+    height: 35px;
+    padding-left: 1vw;
+
+
+    border: 2px solid #e6e6e6;
+}
+
+
+.create-seller-form-buttons {
+    display: flex;
+    gap: 3vw;
+}
+
+.create-seller-form-buttons button {
+    border: none;
+    border-radius: 20px;
+    padding: 12px 16px;  
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+.create-seller-form-buttons-submit {
+    background-color: #b7dcbf;
+}
+
+.create-seller-form-buttons-submit:hover {
+    color: white;
+    background-color: #8ec89b;
+}
+
+.create-seller-form-buttons-clear {
+    background-color: #D0DCFF;
+}
+
+.create-seller-form-buttons-clear:hover {
+    color: white;
+    background-color: #809FFF;
+}
+
+
+
+#status-message {
+    display: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+#status-message.success {
+    display: block;
+    background-color: #d4edda;
+    color: #2d6a4f;
+}
+#status-message.error {
+    display: block;
+    background-color: #fde8e8;
+    color: #c0392b;
+}
+
+
+
+
+
+@media (max-width: 800px) {
+    .create-seller-wrapper {
+        width: 100vw;
+        border: none;
+    }
+
+    .create-seller {
+        width: 90%;
+        margin-top: 4vh;
+        gap: 3vh;
+    }
+
+    .create-seller-form-input-section {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+
+    .create-seller-form-input-section input {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .create-seller-form-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .create-seller-form-buttons button {
+        width: 100%;
+    }
+}
+
+
