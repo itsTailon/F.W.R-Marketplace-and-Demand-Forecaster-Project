@@ -37,7 +37,7 @@ if (!is_int($sellerID)) {
 }
 
 
-// Ensure that ID corresponds to a reservation
+// Ensure that ID corresponds to a seller
 if (!Seller::existsWithID($sellerID)) {
     header('Location: /404.php');
     die();
@@ -133,6 +133,8 @@ $seller = Seller::load($sellerID);
 
 <script>
 const statusMessage = document.getElementById('status-message');
+const sellerID = <?php echo htmlspecialchars($seller->getUserID()) ?>
+
 
 // edit button toggle
 document.querySelectorAll('.view-seller-form-edit').forEach(button => {
@@ -159,6 +161,39 @@ document.querySelectorAll('.change-btn').forEach(button => {
         const editButton = this.closest('ul').querySelector('.view-seller-form-input-section-view').querySelector('button');
         const viewVal = this.closest('ul').querySelector('.view-seller-form-input-section-view').querySelector('.view-seller-form-val');
 
+
+
+
+        if(inputType === 'password') {
+            statusMessage.className = 'error';
+            statusMessage.textContent = 'Update password is not working right now.';
+            return;
+        }
+
+
+        // get default values
+        const allViews = document.querySelectorAll('.view-seller-form-input-section-view');
+
+
+        let data = {['sellerID']: sellerID};
+        for(let i = 0; i < allViews.length; i++) {
+
+            let currentView = allViews[i];
+
+            let type = currentView.querySelector('.view-seller-form-type').textContent.toLowerCase();
+            let val = currentView.querySelector('.view-seller-form-val').textContent;
+
+            if(type != 'password') {
+                data[type] = val;
+            }
+
+        }
+
+
+
+
+        data[inputType] = inputVal;
+
         if(inputType === 'email' && !validateEmail(inputVal)) {
             statusMessage.className = 'error';
             statusMessage.textContent = 'Invalid email!';
@@ -177,22 +212,25 @@ document.querySelectorAll('.change-btn').forEach(button => {
         $.ajax({
             type: 'PUT',
             url: '/backend/API/Model/seller.php',
-            data: {
-                [inputType]: inputVal,
-            },
+            data: data,
         success: function () {
-            
+            console.log("here");
             if(inputType != 'password') {
                 viewVal.textContent = inputVal;
             }
+
             statusMessage.className = 'success';
-            statusMessage.textContent = 'Successfuly updated ' + inputType + ' field!';
+            statusMessage.textContent = 'Successfuly updated ' + inputType + ' to \'' + inputVal + '\'.';
+
+
+            // now hide change field.
+            editButton.click();
+            input.value = '';
         },
         error: function(e) {
             statusMessage.className = 'error';
             statusMessage.textContent = 'Failed to update ' + inputType + ' field!';
             editButton.click();
-            
         }
 
         });
@@ -201,6 +239,8 @@ document.querySelectorAll('.change-btn').forEach(button => {
 });
 
 document.querySelector('.view-seller-form-buttons-delete').addEventListener('click', function() {
+    // get default values
+
     $.ajax({
         type: 'DELETE',
         url: '/backend/API/Model/seller.php',
