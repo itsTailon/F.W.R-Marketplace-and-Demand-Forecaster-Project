@@ -6,6 +6,7 @@ $('#submit-btn').click(() => {
     // Get values in input fields/textboxes
     var bundleName = $("#name").val();
     var bundleDesc = $("#description").val();
+    var bundleQuantity = $("#quantity").val();
     var bundleRRP = $("#rrp").val();
     var bundleDiscountPrice = $("#discount-price").val();
     var bundleCategory = $("#category-selector").val();
@@ -29,6 +30,18 @@ $('#submit-btn').click(() => {
     // Bundle needs a description
     if (bundleDesc.length == 0) {
         $('.error-text').text("Bundle description may not be empty.");
+        return false;
+    }
+
+    // Bundle quantity must be a number
+    if (isNaN(parseInt(bundleQuantity))) {
+        $('.error-text').text("Quantity of bundles must be a number.");
+        return false;
+    }
+
+    // Bundle quantity must be greater than 0
+    if (bundleQuantity <= 0) {
+        $('.error-text').text("Quantity of bundles must be greater than 0.");
         return false;
     }
     
@@ -72,6 +85,7 @@ $('#submit-btn').click(() => {
             bundleID: bundleID,
             title: bundleName,
             details: bundleDesc,
+            quantity: bundleQuantity,
             rrp: bundleRRP,
             discountedPrice: bundleDiscountPrice,
             bundleStatus: "available",
@@ -104,6 +118,7 @@ $("#clear-btn").click(() => {
     // Empty all the input boxes
     $("#name").val('');
     $("#description").val('');
+    $("#quantity").val('');
     $("#rrp").val('');
     $("#discount-price").val('');
 });

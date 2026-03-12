@@ -70,6 +70,10 @@ $categoryList = Category::getCategoryList();
             <ul class="allergen-list">
             </ul>
             <div class="bundle-creation-form__field">
+                <label for="quantity">Quantity</label>
+                <div class="textbox" data-type="text" data-id="quantity" data-label="Quantity" id="quantity-textbox"></div>
+            </div>
+            <div class="bundle-creation-form__field">
                 <label for="price">Price</label>
                 <div class="textbox" data-type="text" data-id="rrp" data-label="Price in £" id="price-textbox"></div>
             </div>
