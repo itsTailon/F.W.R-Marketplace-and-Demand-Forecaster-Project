@@ -1,0 +1,33 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+.site-footer {
+  width: 100vw;
+  height: 64px;
+  background-color: map.get(config.$colours, "site-footer-bg");
+  position: absolute;
+  bottom: 0;
+  font-size: map.get(config.$font-sizes, "footer");
+  display: flex;
+  align-items: center;
+  padding: 16px 32px;
+  color: map.get(config.$colours, "site-footer-fg");
+
+  &__copyright {
+    margin-right: auto; // Flexbox alignment trick (align left)
+  }
+
+  &__report-email {
+    margin-left: auto; // Flexbox alignment trick (align right)
+    font-style: italic;
+
+    a {
+      color: map.get(config.$colours, "site-footer-fg");
+      text-decoration: underline;
+
+      &:hover, &:active {
+        color: map.get(config.$colours, "site-footer-fg-hover");
+      }
+    }
+  }
+}
