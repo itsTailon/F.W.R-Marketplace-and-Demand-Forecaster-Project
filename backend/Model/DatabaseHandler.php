@@ -139,14 +139,16 @@ class DatabaseHandler {
                     issueID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     customerID INT NOT NULL,
                     bundleID INT NOT NULL,
+                    reservationID INT NOT NULL,
                     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                     resolvedAt DATETIME DEFAULT NULL,
                     title TEXT NOT NULL,
                     issueDescription TEXT NOT NULL,
-                    sellerResponse TEXT DEFAULT NULL,
-                    issueStatus ENUM ('ongoing', 'resolved') NOT NULL,
-                    FOREIGN KEY (customerID) REFERENCES customer (customerID) ON DELETE CASCADE,
-                    FOREIGN KEY (bundleID) REFERENCES bundle (bundleID) ON DELETE CASCADE
+                    sellerResponse TEXT,
+                    issueStatus ENUM('ongoing', 'resolved') NOT NULL,
+                    FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
+                    FOREIGN KEY (bundleID) REFERENCES bundle(bundleID) ON DELETE CASCADE,
+                    FOREIGN KEY (reservationID) REFERENCES reservation(reservationID) ON DELETE CASCADE
                 );
                 
                 CREATE TABLE IF NOT EXISTS streak (
