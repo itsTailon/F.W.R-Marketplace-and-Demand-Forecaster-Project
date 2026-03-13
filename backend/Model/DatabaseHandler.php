@@ -141,8 +141,9 @@ class DatabaseHandler {
                     bundleID INT NOT NULL,
                     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                     resolvedAt DATETIME DEFAULT NULL,
+                    title TEXT NOT NULL,
                     issueDescription TEXT NOT NULL,
-                    sellerResponse TEXT,
+                    sellerResponse TEXT DEFAULT NULL,
                     issueStatus ENUM ('ongoing', 'resolved') NOT NULL,
                     FOREIGN KEY (customerID) REFERENCES customer (customerID) ON DELETE CASCADE,
                     FOREIGN KEY (bundleID) REFERENCES bundle (bundleID) ON DELETE CASCADE
