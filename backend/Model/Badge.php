@@ -22,7 +22,11 @@ class Badge extends StoredObject
     private int $xGold;
 
 
-
+    /**
+     * Updating held values for Badge
+     * @return void
+     * @throws DatabaseException|MissingValuesException
+     */
     public function update(): void
     {
         // Check badge exists
@@ -40,10 +44,10 @@ class Badge extends StoredObject
         xSilver = :xSilver, xGold = :xGold;");
 
         try {
-            $stmt->execute([":title" => $this->title, ":iconURL" => $this->iconURL, ":subtitle" => $this->subtitle,
-                ":badgeDescription" => $this->badgeDescription, ":xBronze" => $this->xBronze,
-                ":xSilver" => $this->xSilver, ":xGold" => $this->xGold]);
-        } catch (PDOException $e) {
+            $stmt->execute([":title" => $this->getTitle(), ":iconURL" => $this->getIconURL(), ":subtitle" => $this->getSubtitle(),
+                ":badgeDescription" => $this->getBadgeDescription(), ":xBronze" => $this->getXBronze(),
+                ":xSilver" => $this->getXSilver(), ":xGold" => $this->getXGold()]);
+        } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
     }
@@ -51,10 +55,10 @@ class Badge extends StoredObject
     /**
      * Method that creates a new Badge object
      * @param array $fields required
-     * @return StoredObject the newly formed badge object
+     * @return Badge the newly formed badge object
      * @throws DatabaseException|MissingValuesException
      */
-    public static function create(array $fields): StoredObject
+    public static function create(array $fields): Badge
     {
         // Checking that required fields are passed
         if (!isset($fields['title']) || !isset($fields['iconURL']) || !isset($fields['subtitle']) ||
@@ -69,11 +73,11 @@ class Badge extends StoredObject
         $badge = new Badge();
         $badge->setTitle($fields['title']);
         $badge->setIconURL($fields['iconURL']);
-        $badge->setSubtitleAction($fields['subtitle']);
-        $badge->setSubtitleSubject($fields['badgeDescription']);
-        $badge->setProgression1(intval($fields['xBronze']));
-        $badge->setProgression2(intval($fields['xSilver']));
-        $badge->setProgression3(intval($fields['xGold']));
+        $badge->setSubtitle($fields['subtitle']);
+        $badge->setBadgeDescription($fields['badgeDescription']);
+        $badge->setXBronze(intval($fields['xBronze']));
+        $badge->setXSilver(intval($fields['xSilver']));
+        $badge->setXGold(intval($fields['xGold']));
 
         // Create parameterised SQL command
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, iconURL, subtitle, badgeDescription, xBronze, xSilver, xGold)
@@ -82,8 +86,8 @@ class Badge extends StoredObject
         // Attempt execution of SQL command, throwing database error if failed
         try {
             $stmt->execute([":title" => $badge->getTitle(), ":iconURL" => $badge->getIconURL(), ":subtitle" =>
-                $badge->getSubtitleAction(), ":badgeDescription" => $badge->getSubtitleSubject(), ":xBronze" => $badge->getProgression1(),
-                ":xSilver" => $badge->getProgression2(), ":xGold" => $badge->getProgression3()]);
+                $badge->getSubtitle(), ":badgeDescription" => $badge->getBadgeDescription(), ":xBronze" => $badge->getXBronze(),
+                ":xSilver" => $badge->getXSilver(), ":xGold" => $badge->getXGold()]);
         } catch (\PDOException $e) {
             // Throw message received by database
             throw new DatabaseException($e->getMessage());
@@ -102,13 +106,13 @@ class Badge extends StoredObject
     /**
      * Method loading a Badge object representing the one holding given id value
      * @param int $id
-     * @return \TTE\App\Model\StoredObject
+     * @return Badge
      * @throws DatabaseException
      */
-    public static function load(int $id): StoredObject
+    public static function load(int $id): Badge
     {
         // SQL statement formed and executed
-        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE id=:id;");
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE badgeID=:id;");
         try {
             $stmt->execute([":id" => $id]);
         } catch (\PDOException $e) {
@@ -126,14 +130,14 @@ class Badge extends StoredObject
 
         // Construct badge object and perform required data type conversions
         $badge = new Badge;
-        $badge->id = $row["id"];
+        $badge->id = $row["badgeID"];
         $badge->setTitle($row['title']);
         $badge->setIconURL($row['iconURL']);
-        $badge->setSubtitleAction($row['subtitle']);
-        $badge->setSubtitleSubject($row['badgeDescription']);
-        $badge->setProgression1(intval($row['xBronze']));
-        $badge->setProgression2(intval($row['xSilver']));
-        $badge->setProgression3(intval($row['xGold']));
+        $badge->SetSubtitle($row['subtitle']);
+        $badge->SetBadgeDescription($row['badgeDescription']);
+        $badge->setXBronze(intval($row['xBronze']));
+        $badge->setXSilver(intval($row['xSilver']));
+        $badge->setXGold(intval($row['xGold']));
 
         return $badge;
     }
@@ -142,11 +146,12 @@ class Badge extends StoredObject
      * Check badge with badge ID passed exists or not
      * @param int $id of badge who's existence is to be verified
      * @return bool return true if does exist false if not
+     * @throws DatabaseException
      */
     public static function existsWithID(int $id): bool
     {
         // SQL parameterised statement
-        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE id=:id;");
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE badgeID=:id;");
 
         try {
             // Execute statement with given badge ID
@@ -171,7 +176,7 @@ class Badge extends StoredObject
             throw new NoSuchBadgeException("No badge with ID $id");
         }
         // SQL statement defined and executed
-        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM badge WHERE id=:id;");
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM badge WHERE badgeID=:id;");
 
         try {
             $stmt->execute([":id" => $id]);
@@ -190,19 +195,19 @@ class Badge extends StoredObject
     public function getIconURL(): string {
         return $this->iconURL;
     }
-    public function getSubtitleAction(): string {
+    public function getSubtitle(): string {
         return $this->subtitle;
     }
-    public function getSubtitleSubject(): string {
+    public function getBadgeDescription(): string {
         return $this->badgeDescription;
     }
-    public function getProgression1(): int {
+    public function getXBronze(): int {
         return $this->xBronze;
     }
-    public function getProgression2(): int {
+    public function getXSilver(): int {
         return $this->xSilver;
     }
-    public function getProgression3(): int {
+    public function getXGold(): int {
         return $this->xGold;
     }
 
@@ -213,19 +218,19 @@ class Badge extends StoredObject
     public function setIconURL(string $iconURL): void {
         $this->iconURL = $iconURL;
     }
-    public function setSubtitleAction(string $subtitle): void {
+    public function setSubtitle(string $subtitle): void {
         $this->subtitle = $subtitle;
     }
-    public function setSubtitleSubject(string $badgeDescription): void {
+    public function setBadgeDescription(string $badgeDescription): void {
         $this->badgeDescription = $badgeDescription;
     }
-    public function setProgression1(int $value): void {
+    public function setXBronze(int $value): void {
         $this->xBronze = $value;
     }
-    public function setProgression2(int $value): void {
+    public function setXSilver(int $value): void {
         $this->xSilver = $value;
     }
-    public function setProgression3(int $value): void {
+    public function setXGold(int $value): void {
         $this->xGold = $value;
     }
 }
