@@ -183,7 +183,10 @@ class DatabaseHandler {
                     iconURL VARCHAR(255) NOT NULL, -- 'loyal_customer.png'
                     title VARCHAR(128) NOT NULL, -- 'Loyal Customer'
                     subtitle VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {x} times'
-                    badgeDescription VARCHAR(255) NOT NULL -- 'Reserve the same bundle {y} more times to earn this badge!'
+                    badgeDescription VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {y} more times to earn this badge!'
+                    xBronze INT NOT NULL, -- the total number of times a bundle must be reserved to achieve bronze
+                    xSilver INT NOT NULL, -- the total number of times a bundle must be reserved to achieve silver
+                    xGold INT NOT NULL -- the total number of times a bundle must be reserved to achieve gold
                 );
     
                 CREATE TABLE IF NOT EXISTS customer_badge (
