@@ -13,35 +13,36 @@ class Badge extends StoredObject
     // Class attributes
     private int $id;
     private string $title;
+    const MAX_LEN_TITLE = 128;
     private string $iconURL;
-    private string $subtitle_action;
-    private string $subtitle_subject;
-    private int $progression_1;
-    private int $progression_2;
-    private int $progression_3;
+    private string $subtitle;
+    private string $badgeDescription;
+    private int $xBronze;
+    private int $xSilver;
+    private int $xGold;
 
 
 
     public function update(): void
     {
         // Check badge exists
-        if (!isset($this->title) || !isset($this->iconURL) || !isset($this->subtitle_action) ||
-            !isset($this->subtitle_subject) || !isset($this->progression_1) || !isset($this->progression_2)
-            || !isset($this->progression_3) || empty(trim($this->title)) || empty(trim($this->iconURL)) ||
-            empty(trim($this->subtitle_action)) || empty(trim($this->subtitle_subject))) {
+        if (!isset($this->title) || !isset($this->iconURL) || !isset($this->subtitle) ||
+            !isset($this->badgeDescription) || !isset($this->xBronze) || !isset($this->xSilver)
+            || !isset($this->xGold) || empty(trim($this->title)) || empty(trim($this->iconURL)) ||
+            empty(trim($this->subtitle)) || empty(trim($this->badgeDescription))) {
             // Throw error
             throw new MissingValuesException("Missing required information to create a badge.");
         }
 
         // SQL parameterised query
         $stmt = DatabaseHandler::getPDO()->prepare("UPDATE badge SET title= :title, iconURL = :iconURL, 
-        subtitle_action = :subtitle_action, subtitle_subject = :subtitle_subject, progression_1 = :progression_1, 
-        progression_2 = :progression_2, progression_3 = :progression_3;");
+        subtitle = :subtitle, badgeDescription = :badgeDescription, xBronze = :xBronze, 
+        xSilver = :xSilver, xGold = :xGold;");
 
         try {
-            $stmt->execute([":title" => $this->title, ":iconURL" => $this->iconURL, ":subtitle_action" => $this->subtitle_action,
-                ":subtitle_subject" => $this->subtitle_subject, ":progression_1" => $this->progression_1,
-                ":progression_2" => $this->progression_2, ":progression_3" => $this->progression_3]);
+            $stmt->execute([":title" => $this->title, ":iconURL" => $this->iconURL, ":subtitle" => $this->subtitle,
+                ":badgeDescription" => $this->badgeDescription, ":xBronze" => $this->xBronze,
+                ":xSilver" => $this->xSilver, ":xGold" => $this->xGold]);
         } catch (PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -56,10 +57,10 @@ class Badge extends StoredObject
     public static function create(array $fields): StoredObject
     {
         // Checking that required fields are passed
-        if (!isset($fields['title']) || !isset($fields['iconURL']) || !isset($fields['subtitle_action']) ||
-            !isset($fields['subtitle_subject']) || !isset($fields['progression_1']) || !isset($fields['progression_2'])
-            || !isset($fields['progression_3']) || empty(trim($fields['title'])) || empty(trim($fields['iconURL'])) ||
-            empty(trim($fields['subtitle_action'])) || empty(trim($fields['subtitle_subject']))) {
+        if (!isset($fields['title']) || !isset($fields['iconURL']) || !isset($fields['subtitle']) ||
+            !isset($fields['badgeDescription']) || !isset($fields['xBronze']) || !isset($fields['xSilver'])
+            || !isset($fields['xGold']) || empty(trim($fields['title'])) || empty(trim($fields['iconURL'])) ||
+            empty(trim($fields['subtitle'])) || empty(trim($fields['badgeDescription']))) {
             // Throw error
             throw new MissingValuesException("Missing required information to create a badge.");
         }
@@ -68,21 +69,21 @@ class Badge extends StoredObject
         $badge = new Badge();
         $badge->setTitle($fields['title']);
         $badge->setIconURL($fields['iconURL']);
-        $badge->setSubtitleAction($fields['subtitle_action']);
-        $badge->setSubtitleSubject($fields['subtitle_subject']);
-        $badge->setProgression1(intval($fields['progression_1']));
-        $badge->setProgression2(intval($fields['progression_2']));
-        $badge->setProgression3(intval($fields['progression_3']));
+        $badge->setSubtitleAction($fields['subtitle']);
+        $badge->setSubtitleSubject($fields['badgeDescription']);
+        $badge->setProgression1(intval($fields['xBronze']));
+        $badge->setProgression2(intval($fields['xSilver']));
+        $badge->setProgression3(intval($fields['xGold']));
 
         // Create parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, iconURL, subtitle_action, subtitle_subject, progression_1, progression_2, progression_3)
-            VALUES (:title, :iconURL, :subtitle_action, :subtitle_subject, :progression_1, :progression_2, :progression_3);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, iconURL, subtitle, badgeDescription, xBronze, xSilver, xGold)
+            VALUES (:title, :iconURL, :subtitle, :badgeDescription, :xBronze, :xSilver, :xGold);");
 
         // Attempt execution of SQL command, throwing database error if failed
         try {
-            $stmt->execute([":title" => $badge->getTitle(), ":iconURL" => $badge->getIconURL(), ":subtitle_action" =>
-                $badge->getSubtitleAction(), ":subtitle_subject" => $badge->getSubtitleSubject(), ":progression_1" => $badge->getProgression1(),
-                ":progression_2" => $badge->getProgression2(), ":progression_3" => $badge->getProgression3()]);
+            $stmt->execute([":title" => $badge->getTitle(), ":iconURL" => $badge->getIconURL(), ":subtitle" =>
+                $badge->getSubtitleAction(), ":badgeDescription" => $badge->getSubtitleSubject(), ":xBronze" => $badge->getProgression1(),
+                ":xSilver" => $badge->getProgression2(), ":xGold" => $badge->getProgression3()]);
         } catch (\PDOException $e) {
             // Throw message received by database
             throw new DatabaseException($e->getMessage());
@@ -128,11 +129,11 @@ class Badge extends StoredObject
         $badge->id = $row["id"];
         $badge->setTitle($row['title']);
         $badge->setIconURL($row['iconURL']);
-        $badge->setSubtitleAction($row['subtitle_action']);
-        $badge->setSubtitleSubject($row['subtitle_subject']);
-        $badge->setProgression1(intval($row['progression_1']));
-        $badge->setProgression2(intval($row['progression_2']));
-        $badge->setProgression3(intval($row['progression_3']));
+        $badge->setSubtitleAction($row['subtitle']);
+        $badge->setSubtitleSubject($row['badgeDescription']);
+        $badge->setProgression1(intval($row['xBronze']));
+        $badge->setProgression2(intval($row['xSilver']));
+        $badge->setProgression3(intval($row['xGold']));
 
         return $badge;
     }
@@ -190,19 +191,19 @@ class Badge extends StoredObject
         return $this->iconURL;
     }
     public function getSubtitleAction(): string {
-        return $this->subtitle_action;
+        return $this->subtitle;
     }
     public function getSubtitleSubject(): string {
-        return $this->subtitle_subject;
+        return $this->badgeDescription;
     }
     public function getProgression1(): int {
-        return $this->progression_1;
+        return $this->xBronze;
     }
     public function getProgression2(): int {
-        return $this->progression_2;
+        return $this->xSilver;
     }
     public function getProgression3(): int {
-        return $this->progression_3;
+        return $this->xGold;
     }
 
     // Required setters
@@ -212,19 +213,19 @@ class Badge extends StoredObject
     public function setIconURL(string $iconURL): void {
         $this->iconURL = $iconURL;
     }
-    public function setSubtitleAction(string $subtitle_action): void {
-        $this->subtitle_action = $subtitle_action;
+    public function setSubtitleAction(string $subtitle): void {
+        $this->subtitle = $subtitle;
     }
-    public function setSubtitleSubject(string $subtitle_subject): void {
-        $this->subtitle_subject = $subtitle_subject;
+    public function setSubtitleSubject(string $badgeDescription): void {
+        $this->badgeDescription = $badgeDescription;
     }
     public function setProgression1(int $value): void {
-        $this->progression_1 = $value;
+        $this->xBronze = $value;
     }
     public function setProgression2(int $value): void {
-        $this->progression_2 = $value;
+        $this->xSilver = $value;
     }
     public function setProgression3(int $value): void {
-        $this->progression_3 = $value;
+        $this->xGold = $value;
     }
 }
