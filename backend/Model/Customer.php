@@ -182,4 +182,59 @@ class Customer extends Account {
 
         // Call superclass method
     }
+
+    /**
+     * Returns a personal impact metric calculation.
+     *
+     * Possible metrics are described in the source code for the ImpactMetric enum.
+     *
+     * @param ImpactMetric $metric
+     * @return int|float
+     */
+    public function getImpactMetric(ImpactMetric $metric): int|float {
+        switch ($metric) {
+            case ImpactMetric::Bundles_Collected:
+                return $this->calculateBundlesCollected();
+                break;
+
+            case ImpactMetric::CO2_Saved:
+                return $this->calculateCO2KgSaved();
+                break;
+
+            default:
+                return -1;
+        }
+    }
+
+    /**
+     * Returns the customer's total number of bundles collected (i.e. completed reservations).
+     *
+     * @return int the customer's total number of bundles collected (i.e. completed reservations)
+     * @throws DatabaseException
+     */
+    private function calculateBundlesCollected(): int {
+        // Prepare SQL statement to count the number of completed customer reservations (i.e. collected bundles)
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT COUNT(*) FROM reservation WHERE purchaserID=:purchaserID AND reservationStatus='completed';");
+
+        // Attempt to execute statement
+        try {
+            $stmt->execute(["purchaserID" => $this->userID]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Return the output of COUNT(*) (i.e. the number of bundles collected)
+        return $stmt->fetchColumn();
+    }
+
+    /**
+     * Returns a customer's estimated C02(kg) savings.
+     *
+     * @return float the customer's estimated C02(kg) savings
+     * @throws DatabaseException
+     */
+    private function calculateCO2KgSaved(): float {
+        // Multiply total bundles collected by a constant, which is the baseline estimate of CO2(kg) savings per bundle collected.
+        return (float)$this->calculateBundlesCollected() * 2.0;
+    }
 }

@@ -4,9 +4,15 @@
 namespace TTE\App\Tests\Model;
 
 use PHPUnit\Framework\TestCase;
+use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
+use TTE\App\Model\ImpactMetric;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\Reservation;
+use TTE\App\Model\ReservationStatus;
+use TTE\App\Model\Seller;
 
 // Global for session to run test
 $_SESSION = array();
@@ -58,24 +64,79 @@ class CustomerTest extends TestCase {
     }
 
     public function testDeleteCustomer(): void {
-    // Create customer to test deletion
-    $customer = Customer::create([
-        'username' => 'testDeleteCustomer',
-        'password' => 'password',
-        'email' => 'testDeleteCustomer@example.com',
-    ]);
+        // Create customer to test deletion
+        $customer = Customer::create([
+            'username' => 'testDeleteCustomer',
+            'password' => 'password',
+            'email' => 'testDeleteCustomer@example.com',
+        ]);
 
-    // Ensure customer exists before deletion
-    $this->assertTrue(Customer::existsWithID($customer->getUserID()));
+        // Ensure customer exists before deletion
+        $this->assertTrue(Customer::existsWithID($customer->getUserID()));
 
-    // Delete the customer
-    Customer::delete($customer->getUserID());
+        // Delete the customer
+        Customer::delete($customer->getUserID());
 
-    // Ensure customer no longer exists
-    $this->assertFalse(Customer::existsWithID($customer->getUserID()));
+        // Ensure customer no longer exists
+        $this->assertFalse(Customer::existsWithID($customer->getUserID()));
 
-    // Ensure loading deleted customer throws exception
-    $this->expectException(DatabaseException::class);
-    Customer::load($customer->getUserID());
+        // Ensure loading deleted customer throws exception
+        $this->expectException(DatabaseException::class);
+        Customer::load($customer->getUserID());
+    }
+
+    public function testGetImpactMetric() {
+        // Create customer for testing
+        $customer = Customer::create([
+            'username' => 'testCustomer1',
+            'password' => 'password',
+            'email' => 'testCustomer1@example.com',
+        ]);
+
+        // Create seller for testing
+        $seller = Seller::create(array(
+            "email" => "testSeller1@example.com",
+            "password" => "testingPassword123",
+            "name" => "Test Name",
+            "address" => "34 Testing Street",
+        ));
+
+        // Create bundle for testing
+        $bundle = Bundle::create([
+            "bundleStatus" => BundleStatus::Available,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "quantity" => 1,
+        ]);
+
+        // Create reservation for testing
+        $reservation = Reservation::create([
+            'purchaserID' => $customer->getUserID(),
+            'bundleID' => $bundle->getID(),
+            'status' => ReservationStatus::Active,
+            'claimCode' => 'abcxyz'
+        ]);
+
+        // Currently, both personal impact metric calculations should equal zero
+        $this->assertEquals(0, $customer->getImpactMetric(ImpactMetric::Bundles_Collected));
+        $this->assertEquals(0.0, $customer->getImpactMetric(ImpactMetric::CO2_Saved)); // Float
+
+        // Mark reservation as completed (to accurately test calculations)
+        Reservation::markCollected($reservation->getID());
+
+        // Following a single bundle being collected, the metric calculations should have changed:
+        //  - Expected Bundles_Collected = 1
+        //  - Expected CO2_Saved > 0 (i.e. greater than prev. value)
+        $this->assertEquals(1, $customer->getImpactMetric(ImpactMetric::Bundles_Collected));
+        $this->assertGreaterThan(0.0, $customer->getImpactMetric(ImpactMetric::CO2_Saved));
+
+        // Cleanup
+        Reservation::delete($reservation->getID());
+        Bundle::delete($bundle->getID());
+        Seller::delete($seller->getUserID());
+        Customer::delete($customer->getUserID());
     }
 }
