@@ -10,7 +10,7 @@ class Issue extends StoredObject {
 
     private int $customerID;
 
-    private int $bundleID;
+    private int $reservationID;
 
     private \DateTimeImmutable $createdAt;
 
@@ -30,7 +30,7 @@ class Issue extends StoredObject {
      */
     public function update(): void {
         // Ensure that all required object fields are set (note that $this->resolvedAt can be null, so is not checked)
-        if (!isset($this->id) || !isset($this->customerID) || !isset($this->bundleID) || !isset($this->createdAt) || !isset($this->description) || !isset($this->sellerResponse) || !isset($this->status)) {
+        if (!isset($this->id) || !isset($this->customerID) || !isset($this->reservationID) || !isset($this->createdAt) || !isset($this->description) || !isset($this->sellerResponse) || !isset($this->status)) {
             throw new MissingValuesException("Cannot perform issue update operation (not all required object fields are set).");
         }
 
@@ -56,26 +56,25 @@ class Issue extends StoredObject {
      *
      * Accepted fields (all are mandatory):
      *  - customerID:       int
-     *  - bundleID:         int
+     *  - reservationID:    int
      *  - description:      string
-     *  - sellerResponse:   string
      *
      * Note: 'status' and 'created at' fields are populated automatically.
      *
      * @throws MissingValuesException if not all required fields are provided.
-     * @throws NoSuchBundleException if the bundle ID given does not correspond to an existing bundle.
+     * @throws NoSuchReservationException if the reservation ID given does not correspond to an existing resevation.
      * @throws NoSuchCustomerException if the customer ID given does not correspond to an existing customer.
      * @throws DatabaseException if the issue record cannot be created.
      */
     public static function create(array $fields): Issue {
         // Ensure that all required fields were passed
-        if (!isset($fields["customerID"]) || !isset($fields["bundleID"]) || !isset($fields["description"]) || !isset($fields["sellerResponse"])) {
+        if (!isset($fields["customerID"]) || !isset($fields["reservationID"]) || !isset($fields["description"])) {
             throw new MissingValuesException("Missing required values in 'fields' parameter.");
         }
 
-        // Ensure that bundle ID passed is valid
-        if (!Bundle::existsWithID($fields["bundleID"])) {
-            throw new NoSuchBundleException("Cannot create issue linked to non-existent bundle.");
+        // Ensure that reservation ID passed is valid
+        if (!Reservation::existsWithID($fields["reservationID"])) {
+            throw new NoSuchReservationException("Cannot create issue linked to non-existent reservation.");
         }
 
         // Ensure that customer ID passed is valid
@@ -84,13 +83,13 @@ class Issue extends StoredObject {
         }
 
         // Prepare parameterised statement
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO issue (customerID, bundleID, issueDescription, sellerResponse, issueStatus) VALUES (:customerID, :bundleID, :issueDescription, :sellerResponse, :issueStatus);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO issue (customerID, reservationID, issueDescription, sellerResponse, issueStatus) VALUES (:customerID, :reservationID, :issueDescription, :sellerResponse, :issueStatus);");
 
         // Attempt to create database record
         try {
             $stmt->execute([
                 "customerID"        => $fields["customerID"],
-                "bundleID"          => $fields["bundleID"],
+                "reservationID"     => $fields["reservationID"],
                 "issueDescription"  => $fields["description"],
                 "sellerResponse"    => "", // A new issue will not have a seller response yet, but an empty string is safer than NULL.
                 "issueStatus"       => IssueStatus::Ongoing->value,
@@ -138,7 +137,7 @@ class Issue extends StoredObject {
         $issue = new Issue();
         $issue->id = $row["issueID"];
         $issue->customerID = $row["customerID"];
-        $issue->bundleID = $row["bundleID"];
+        $issue->reservationID = $row["reservationID"];
         $issue->createdAt = new \DateTimeImmutable($row["createdAt"]);
         $issue->resolvedAt = $row["resolvedAt"] === null ? null : new \DateTimeImmutable($row["resolvedAt"]);
         $issue->description = $row["issueDescription"];
@@ -206,16 +205,29 @@ class Issue extends StoredObject {
     }
 
     public function getBundleID(): int {
-        return $this->bundleID;
+        return $this->getReservation()->getBundleID();
+    }
+
+    public function getReservationID(): int {
+        return $this->reservationID;
     }
 
     /**
-     * Returns a Bundle object relating to this issue's associated bundle.
+     * Returns a Reservation object relating to this issue's associated reservation
+     * @throws DatabaseException
+     * @throws NoSuchReservationException
+     */
+    public function getReservation(): Reservation {
+        return Reservation::load($this->reservationID);
+    }
+
+    /**
+     * Returns a Bundle object relating to this issue's associated reservation's bundle.
      *
      * @throws DatabaseException if the bundle could not be loaded.
      */
     public function getBundle(): Bundle {
-        return Bundle::load($this->bundleID);
+        return Bundle::load($this->getBundleID());
     }
 
     public function getCreationDate(): \DateTimeImmutable {
