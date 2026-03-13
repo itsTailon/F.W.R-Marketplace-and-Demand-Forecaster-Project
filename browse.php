@@ -25,10 +25,22 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 <div class="dashboard-wrapper">
     <div class="dashboard">
         <form id="searchform" method="GET">
-            <div class="textbox textbox--size-fill" data-type="text" data-label="Search" data-name="searchbar" data-id="searchbar" id="searchbar-textbox"></div>
-            <input class="button" id="searchsubmitbutton" type="submit" value="Search">
-        </form>
+            <div id="basic-search">
+                <h2>Search for an item</h2><br>
+                <article id = "basic-search-parallel">
+                    <input type="text" name="searchbar" id="searchbar" class="searchformelem">
+                    <input class="button searchformelem" id="searchsubmitbutton" type="submit" value="Search">
+                </article>
+            </div>
 
+            <div id="advanced-filters">
+                <h3>Advanced filters</h3>
+                <article>
+                    <label for="location" id="location-label">Location:</label><br>
+                    <input type="text" name="location" id="location" class="searchformelem"/>
+                </article>
+            </div>
+        </form>
 
         <div id = "searchresults">
         <?php
@@ -37,6 +49,10 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         $results = Bundle::searchBundles($query);
 
         for ($i = 0; $i < count($results); $i++) {
+            $seller = Seller::load($results[$i]->getSellerID());
+
+            if ($_GET['location'] && $_GET['location'] != $seller->getAddress()) continue;
+
             $results[$i]->display();
         }
         ?>
