@@ -79,6 +79,13 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
                     <span class="bundle-view__seller"><?php echo (Seller::load($bundle->getSellerID()))->getName(); ?></span>
                     <span class="bundle-view__date"></span>
+                    <span class="bundle-view__quantity">
+                        <?php if ($bundle->getQuantity() > 0) : // Bundle in in stock ?>
+                            <b>In stock:</b> <?php echo $bundle->getQuantity(); ?>
+                        <?php else : // Bundle is NOT in stock ?>
+                            <i>Out of stock</i>
+                        <?php endif; ?>
+                    </span>
                     <div class="bundle-view__price">
                         <span>£<?php echo $priceStr; ?></span>
                         <?php

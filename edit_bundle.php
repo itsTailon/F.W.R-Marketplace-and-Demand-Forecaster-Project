@@ -94,6 +94,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 $categoryList = Category::getCategoryList();
 $myCategory = $bundle->getCategory();
+$quantity = $bundle->getQuantity();
 
 ?>
 
@@ -161,6 +162,12 @@ $myCategory = $bundle->getCategory();
         ?>
     </ul>
     <br>
+    <div class="edit-form__field">
+        <label for="quantity">Quantity</label>
+        <div class="textbox" data-type="text" data-id="quantity" data-label="Quantity" id="quantity-textbox" data-value="<?php
+        print($quantity);
+        ?>"></div>
+    </div>
     <div class="edit-form__field">
         <label for="rrp">Recommended Retail Price</label>
         <div class="textbox" data-type="text" data-id="rrp" data-label="Price in £" id="rrp-textbox" data-value="<?php

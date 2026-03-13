@@ -180,8 +180,10 @@ class DatabaseHandler {
 
                 CREATE TABLE IF NOT EXISTS badge (
                     badgeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    iconURL VARCHAR(255) NOT NULL, -- 'loyal_customer.png'
                     title VARCHAR(128) NOT NULL, -- 'Loyal Customer'
-                    iconURL VARCHAR(255) NOT NULL -- 'loyal_customer.png'
+                    subtitle VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {x} times'
+                    badgeDescription VARCHAR(255) NOT NULL -- 'Reserve the same bundle {y} more times to earn this badge!'
                 );
     
                 CREATE TABLE IF NOT EXISTS customer_badge (
