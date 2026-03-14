@@ -23,13 +23,6 @@ class BadgeTest extends TestCase{
      */
     public function testCreateBadge() {
 
-        // Create customer for means of testings
-        $customer = Customer::create(
-            array("username" => "testingUser",
-            "email" => "testingCust@gmail.com",
-            "password" => "testingPassword!23")
-        );
-
         // Badge fields as to test failed creation attempts prior to creating valid Badge
         $badgeFields= array("title" => "Test Badge",
                 "iconURL" => "http://example.com/test.png",
@@ -61,7 +54,6 @@ class BadgeTest extends TestCase{
                     Badge::delete($badge->getId());
                 }
 
-                Customer::delete($customer->getUserID());
 
                 // Fail test as no error was thrown
                 $this->fail("Badge created with invalid input.");
@@ -86,8 +78,6 @@ class BadgeTest extends TestCase{
                 Badge::delete($badge->getId());
             }
 
-            Customer::delete($customer->getUserID());
-
             // Fail test but with message of wrong exception thrown than what expected
             $this->fail("Exception was thrown but wrong for test case.");
 
@@ -97,8 +87,6 @@ class BadgeTest extends TestCase{
             if (isset($badge)) {
                 Badge::delete($badge->getId());
             }
-
-            Customer::delete($customer->getUserID());
 
             // Fail test as no error was thrown
             $this->fail("Badge created with invalid input.");
@@ -122,8 +110,6 @@ class BadgeTest extends TestCase{
                 Badge::delete($badge->getId());
             }
 
-            Customer::delete($customer->getUserID());
-
             // Fail test but with message of wrong exception thrown than what expected
             $this->fail("Exception was thrown but wrong for test case.");
 
@@ -133,8 +119,6 @@ class BadgeTest extends TestCase{
             if (isset($badge)) {
                 Badge::delete($badge->getId());
             }
-
-            Customer::delete($customer->getUserID());
 
             // Fail test as no error was thrown
             $this->fail("Badge created with invalid input.");
@@ -158,8 +142,6 @@ class BadgeTest extends TestCase{
                 Badge::delete($badge->getId());
             }
 
-            Customer::delete($customer->getUserID());
-
             // Fail test but with message of wrong exception thrown than what expected
             $this->fail("Exception was thrown but wrong for test case.");
 
@@ -169,8 +151,6 @@ class BadgeTest extends TestCase{
             if (isset($badge)) {
                 Badge::delete($badge->getId());
             }
-
-            Customer::delete($customer->getUserID());
 
             // Fail test as no error was thrown
             $this->fail("Badge created with invalid input.");
@@ -194,8 +174,6 @@ class BadgeTest extends TestCase{
                 Badge::delete($badge->getId());
             }
 
-            Customer::delete($customer->getUserID());
-
             // Fail test but with message of wrong exception thrown than what expected
             $this->fail("Exception was thrown but wrong for test case.");
 
@@ -205,8 +183,6 @@ class BadgeTest extends TestCase{
             if (isset($badge)) {
                 Badge::delete($badge->getId());
             }
-
-            Customer::delete($customer->getUserID());
 
             // Fail test as no error was thrown
             $this->fail("Badge created with invalid input.");
@@ -219,7 +195,7 @@ class BadgeTest extends TestCase{
         try {
             $badge = Badge::create($badgeFields);
         } catch (Exception $e) {
-            $this->fail("Badge failed to create when should have.");
+            $this->fail($e->getMessage());
         }
 
         // Compare all fields of created badge in DB to those of the object
@@ -252,20 +228,12 @@ class BadgeTest extends TestCase{
 
         // Cleanup before ending test for create()
         Badge::delete($badge->getId());
-        Customer::delete($customer->getUserID());
     }
 
     /**
      * Testing method for updating attributes of badge in the DB
      */
     public function testUpdateBadge() {
-
-        // Create customer for means of testings
-        $customer = Customer::create(
-            array("username" => "testingUser",
-                "email" => "testingCust@gmail.com",
-                "password" => "testingPassword!23")
-        );
 
         // Badge fields for creating badge
         $badgeFields= array("title" => "Test Badge",
@@ -279,6 +247,13 @@ class BadgeTest extends TestCase{
 
         // Create valid badge
         $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
 
 
         // Test string handling for title (with spaces)
@@ -466,12 +441,6 @@ class BadgeTest extends TestCase{
      * Method that tests the load() method of the Badge class
      */
     public function testLoadBadge() {
-        // Create customer for means of testings
-        $customer = Customer::create(
-            array("username" => "testingUser",
-                "email" => "testingCust@gmail.com",
-                "password" => "testingPassword!23")
-        );
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
@@ -485,6 +454,13 @@ class BadgeTest extends TestCase{
 
         // Create valid badge
         $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
 
         // Try loading non-existent badge (ID of -1 will never exist)
         $thrown = false;
@@ -503,7 +479,24 @@ class BadgeTest extends TestCase{
         }
 
         // Load valid badge and compare to ensure it is correct
-        $this->assertTrue($badge == Badge::load($badge->getId()));
+        try {
+            $db_badge = Badge::load($badge->getId());
+        } catch (DatabaseException $e) {
+            // Cleanup
+            Badge::delete($badge->getId());
+            Customer::delete($customer->getUserID());
+
+            // Fail test
+            $this->fail('Database Exception was thrown.');
+        }
+
+        $this->assertEquals($badge->getTitle(), $db_badge->getTitle());
+        $this->assertEquals($badge->getIconURL(), $db_badge->getIconURL());
+        $this->assertEquals($badge->getSubtitle(), $db_badge->getSubtitle());
+        $this->assertEquals($badge->getBadgeDescription(), $db_badge->getBadgeDescription());
+        $this->assertEquals($badge->getXBronze(), $db_badge->getXBronze());
+        $this->assertEquals($badge->getXSilver(), $db_badge->getXSilver());
+        $this->assertEquals($badge->getXGold(), $db_badge->getXGold());
 
         // Cleanup
         Badge::delete($badge->getId());
@@ -514,12 +507,6 @@ class BadgeTest extends TestCase{
      * Test method existsWithID() for Badge object
      */
     public function testExistsWithID() {
-        // Create customer for means of testings
-        $customer = Customer::create(
-            array("username" => "testingUser",
-                "email" => "testingCust@gmail.com",
-                "password" => "testingPassword!23")
-        );
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
@@ -533,6 +520,13 @@ class BadgeTest extends TestCase{
 
         // Create badge
         $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
 
         // Confirm "True" output if badge does exist
         $this->assertTrue(Badge::existsWithID($badge->getId()));
@@ -546,15 +540,9 @@ class BadgeTest extends TestCase{
     }
 
     /**
-     * Method testing delete() for Badge class
+     * Test method existsWithIDByTitle() for Badge object
      */
-    public function testBadgeDelete(){
-        // Create customer for means of testings
-        $customer = Customer::create(
-            array("username" => "testingUser",
-                "email" => "testingCust@gmail.com",
-                "password" => "testingPassword!23")
-        );
+    public function testExistsWithIDByTitle() {
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
@@ -568,6 +556,119 @@ class BadgeTest extends TestCase{
 
         // Create badge
         $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
+
+        try {
+            // Confirm "True" output if badge does exist
+            $this->assertTrue(Badge::existsWithIDByTitle($badge->getTitle()));
+
+            // Delete and then test again for the same ID
+            Badge::delete($badge->getId());
+            $this->assertFalse(Badge::existsWithIDByTitle($badge->getTitle()));
+
+        } catch (Exception $e) {
+            Badge::delete($badge->getId());
+        }
+        // Final cleanup
+        Customer::delete($customer->getUserID());
+    }
+
+    /**
+     * Method that tests the loadByTitle() method of the Badge class
+     */
+    public function testLoadByTitle() {
+
+        // Badge fields to create badge
+        $badgeFields= array("title" => "Test Badge",
+            "iconURL" => "http://example.com/test.png",
+            "subtitle" => "Test this badge {x} times.",
+            "badgeDescription" => "Test this badge {x} times to earn badge.",
+            "xBronze" => 1,
+            "xSilver" => 5,
+            "xGold" => 10,
+        );
+
+        // Create valid badge
+        $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
+
+        // Try loading non-existent badge
+        $thrown = false;
+        try {
+            $attempted_badge = Badge::loadByTitle("Doesn't Exist");
+        } catch (DatabaseException $e) {
+            $thrown = true;
+        }
+        if (!$thrown) {
+            //Cleanup
+            Badge::delete($badge->getId());
+            Customer::delete($customer->getUserID());
+
+            // Fail test
+            $this->fail('Badge "successfully" loaded but title that was false.');
+        }
+
+        try {
+            $db_badge = Badge::loadByTitle($badge->getTitle());
+        } catch (DatabaseException $e) {
+            // Cleanup
+            Badge::delete($badge->getId());
+            Customer::delete($customer->getUserID());
+
+            // Fail
+            $this->fail('Database Exception was thrown.');
+        }
+
+        // Load valid badge and compare to ensure it is correct
+        $this->assertEquals($badge->getTitle(), $db_badge->getTitle());
+        $this->assertEquals($badge->getIconURL(), $db_badge->getIconURL());
+        $this->assertEquals($badge->getSubtitle(), $db_badge->getSubtitle());
+        $this->assertEquals($badge->getBadgeDescription(), $db_badge->getBadgeDescription());
+        $this->assertEquals($badge->getXBronze(), $db_badge->getXBronze());
+        $this->assertEquals($badge->getXSilver(), $db_badge->getXSilver());
+        $this->assertEquals($badge->getXGold(), $db_badge->getXGold());
+
+        // Cleanup
+        Badge::delete($badge->getId());
+        Customer::delete($customer->getUserID());
+    }
+
+    /**
+     * Method testing delete() for Badge class
+     */
+    public function testBadgeDelete(){
+
+        // Badge fields to create badge
+        $badgeFields= array("title" => "Test Badge",
+            "iconURL" => "http://example.com/test.png",
+            "subtitle" => "Test this badge {x} times.",
+            "badgeDescription" => "Test this badge {x} times to earn badge.",
+            "xBronze" => 1,
+            "xSilver" => 5,
+            "xGold" => 10,
+        );
+
+        // Create badge
+        $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
 
         // Confirm badge exists within the database
         $this->assertTrue(Badge::existsWithID($badge->getId()));

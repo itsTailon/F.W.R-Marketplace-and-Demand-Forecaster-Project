@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use PDO;
 use PDOException;
 use TTE\App\Model\StoredObject;
 use TTE\App\Model\BadgeTier;
@@ -56,10 +57,11 @@ class Badge extends StoredObject
      * Method that creates a new Badge object
      * @param array $fields required
      * @return Badge the newly formed badge object
-     * @throws DatabaseException|MissingValuesException
+     * @throws DatabaseException|MissingValuesException|BadgeAlreadyExistsException
      */
     public static function create(array $fields): Badge
     {
+
         // Checking that required fields are passed
         if (!isset($fields['title']) || !isset($fields['iconURL']) || !isset($fields['subtitle']) ||
             !isset($fields['badgeDescription']) || !isset($fields['xBronze']) || !isset($fields['xSilver'])
@@ -78,6 +80,12 @@ class Badge extends StoredObject
         $badge->setXBronze(intval($fields['xBronze']));
         $badge->setXSilver(intval($fields['xSilver']));
         $badge->setXGold(intval($fields['xGold']));
+
+        // Check if badge with given title already exists
+        if (!Badge::existsWithIDByTitle($badge->getTitle())) {
+            throw new BadgeAlreadyExistsException("Badge with such title already exists.");
+        }
+
 
         // Create parameterised SQL command
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, iconURL, subtitle, badgeDescription, xBronze, xSilver, xGold)
@@ -101,6 +109,45 @@ class Badge extends StoredObject
         // Return formed badge object
         return $badge;
 
+    }
+
+    /**
+     * Method loading a Badge object representing the one holding given title
+     * @param string $title
+     * @return Badge
+     * @throws DatabaseException
+     */
+    public static function loadByTitle(string $title): Badge
+    {
+        // SQL statement formed and executed
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE title=:title;");
+        try {
+            $stmt->execute([":title" => $title]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Get results
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Ensure badge does exist
+        if ($row === false) {
+            // Throw error given that badge doesn't exist
+            throw new DatabaseException(("No badge with $title title found."));
+        }
+
+        // Construct badge object and perform required data type conversions
+        $badge = new Badge;
+        $badge->id = intval($row["badgeID"]);
+        $badge->setTitle($row['title']);
+        $badge->setIconURL($row['iconURL']);
+        $badge->SetSubtitle($row['subtitle']);
+        $badge->SetBadgeDescription($row['badgeDescription']);
+        $badge->setXBronze(intval($row['xBronze']));
+        $badge->setXSilver(intval($row['xSilver']));
+        $badge->setXGold(intval($row['xGold']));
+
+        return $badge;
     }
 
     /**
@@ -130,7 +177,7 @@ class Badge extends StoredObject
 
         // Construct badge object and perform required data type conversions
         $badge = new Badge;
-        $badge->id = $row["badgeID"];
+        $badge->id = intval($row["badgeID"]);
         $badge->setTitle($row['title']);
         $badge->setIconURL($row['iconURL']);
         $badge->SetSubtitle($row['subtitle']);
@@ -166,6 +213,29 @@ class Badge extends StoredObject
     }
 
     /**
+     * Check badge with badge title passed exists or not
+     * @param string $title of badge who's existence is to be verified
+     * @return bool return true if does exist false if not
+     * @throws DatabaseException
+     */
+    public static function existsWithIDByTitle(string $title): bool
+    {
+        // SQL parameterised statement
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM badge WHERE title=:title;");
+
+        try {
+            // Execute statement with given badge ID
+            $stmt->execute([":title" => $title]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Get result and return boolean value depending
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return !($row === false);
+    }
+
+    /**
      * Delete badge of passed ID
      * @throws NoSuchBadgeException|DatabaseException
      */
@@ -180,6 +250,27 @@ class Badge extends StoredObject
 
         try {
             $stmt->execute([":id" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete badge of passed title
+     * @param string $title
+     * @throws NoSuchBadgeException|DatabaseException
+     */
+    public static function deleteByTitle(string $title): void {
+        // Check if badge exists
+        if (!Badge::existsWithIDByTitle($title)) {
+            // Throw exception
+            throw new NoSuchBadgeException("No badge with title $title");
+        }
+        // SQL statement defined and executed
+        $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM badge WHERE title=:title;");
+
+        try {
+            $stmt->execute([":title" => $title]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }

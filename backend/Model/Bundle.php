@@ -104,6 +104,38 @@ class Bundle extends StoredObject {
 
                 }
             }
+
+            // Get how many weeks have elapsed since start of week
+            $start = $streak->getStartDate();
+            $now = new DateTimeImmutable("now");
+
+            $diff = $start->diff($now);
+
+            $weeksElapsed = intdiv($diff->days, 7);
+
+            // Default tier value
+            $tier = null;
+
+            // Compare to required values for each tier
+            if ($weeksElapsed >= 3 && $weeksElapsed < 10 ) {
+                $tier = BadgeTier::Bronze;
+            } else if ($weeksElapsed >= 10 && $weeksElapsed < 20 ) {
+                $tier = BadgeTier::Silver;
+            } else if ($weeksElapsed >= 20) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Get Dedicated Save badge
+            $dedicatedSaver = Badge::loadByTitle("Dedicated Saver");
+
+            // Update information in database
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier = :tier, progress = :progress) WHERE (customerID = :id, badgeID = :id););");
+                $stmt->execute([":tier" => $tier, ":progress" => $weeksElapsed, ":id" => $this->id, ":badgeID" => $dedicatedSaver->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
         }
 
     }

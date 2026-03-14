@@ -3,8 +3,10 @@
 namespace TTE\App\Model;
 
 use MongoDB\BSON\PackedArray;
+use PDOException;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
+use DateTimeImmutable;
 
 class Customer extends Account {
 
@@ -29,9 +31,17 @@ class Customer extends Account {
             'password' => $fields['password']
         ]);
 
-        // Create the customer in the database
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username) VALUES (:id, :username);");
-        $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username']]);
+        // Get creation date
+        $creationDate = new DateTimeImmutable("now");
+
+
+        try {
+            // Create the customer in the database
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username, creationDate) VALUES (:id, :username, :creationDate);");
+            $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username'], "creationDate" => $creationDate]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
 
         // Create and return a customer object
         $customer = new Customer();
@@ -52,6 +62,40 @@ class Customer extends Account {
 
         // Create a streak attached to customer, that has null for all current date values
         Streak::create($customerID);
+
+        // Get all existing badges that a customer can hold
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT badgeID FROM badge;");
+        try {
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Check first output of executed query to ensure some result was returned
+        $first_row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$first_row) {
+            // Throw exception as no badges exist
+            throw new DatabaseException("Missing badges to present to customer.");
+        }
+
+        // Else, add this first returned ID as one of the customer's badges
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
+            $stmt->execute([":badgeID" => $first_row["badgeID"], ":customerID" => $customer->getUserID()]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Add all other existing badges iteratively
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
+                $stmt->execute([":badgeID" => $row["badgeID"], ":customerID" => $customer->getUserID()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        }
 
         // Return required output
         return $customer;
@@ -154,6 +198,14 @@ class Customer extends Account {
             throw new DatabaseException("No customer found with ID $id");
         }
 
+        // Remove all badges attaches to this customer in customer_badge
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer_badge WHERE customerID=:customerID;");
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
         // Create SQL command to delete customer, corresponding account instance, and streak of given ID
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
         try {
@@ -236,5 +288,109 @@ class Customer extends Account {
     private function calculateCO2KgSaved(): float {
         // Multiply total bundles collected by a constant, which is the baseline estimate of CO2(kg) savings per bundle collected.
         return (float)$this->calculateBundlesCollected() * 2.0;
+    }
+
+    /**
+     * Method that retrieves all data relating to badges attached to current customer
+     * @param int $customerID ID of the customer whose badges are being loaded
+     * @throws DatabaseException|NoSuchCustomerException
+     */
+    public static function loadBadges(int $customerID): array{
+
+        // Retrieving all badges of customer and iterating through them
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer_badges WHERE customerID=:id;");
+            $stmt->execute([":id" => $customerID]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException("Failed to load customer's badges.");
+        }
+
+        // Array that will contain arrays containing each badge's content
+        $badges = array();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+
+            // Create array holding details of badge
+            $badge = array(
+                "badgeID" => intval($row["badgeID"]),
+                "customerID" => intval($row["customerID"]),
+                "tier" => BadgeTier::from($row["tier"]),
+                "progress" => intval($row["progress"]),
+            );
+
+            // Get title of the badge  for given iteration
+            $badgeDetails = Badge::load($badge["badgeID"]);
+
+            // Check if badge is titled "Rescue Vet"
+            if ($badgeDetails->getTitle() == "Rescue Vet") {
+                // Get creation date of customer's account
+                $creationDate = Customer::getCreationDate($customerID);
+                // Get current date
+                $currentDate = new DateTimeImmutable('now');
+
+                // Compare dates and set progress value for Rescue Vet badge (even if no change to avoid excessive calls)
+                $dateDiff = $currentDate->diff($creationDate);
+                $monthDiff = ($dateDiff->y * 12) + $dateDiff->m;
+
+                // Calculate tier given difference
+                if ($monthDiff >= 3 && $monthDiff < 6) {
+                    // Update tier and progress
+                    $tier = BadgeTier::Bronze;
+                } else if ($monthDiff >= 6 && $monthDiff < 12) {
+                    $tier = BadgeTier::Silver;
+                } else if ($monthDiff >= 12) {
+                    $tier = BadgeTier::Gold;
+                }
+
+                try {
+                    $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badges SET (progress=:progress AND tier=:tier) WHERE (customerID=:customerID AND badgeID=:rescVetTitle);");
+                    $stmt->execute([":progress" => $monthDiff, ":tier" => $tier, ":rescVetTitle" => $badgeDetails->getTitle()]);
+
+                } catch (\PDOException $e) {
+                    throw new DatabaseException($e->getMessage());
+                }
+
+                // Update value of this $badge to match database
+                $badge["progress"] = $monthDiff;
+            }
+
+            // Add array to $badges array
+            $badges[] = $badge;
+        }
+
+        // Return array of array representing badges
+        return $badges;
+    }
+
+    /**
+     * @param int $id ID of the customer whose creation date is required
+     * @throws NoSuchCustomerException|DatabaseException|\Exception
+     * @return DateTimeImmutable of creation date of customer's account
+     */
+    public static function getCreationDate(int $id): DateTimeImmutable {
+        // Check customer ID does exist
+        if (!Customer::existsWithID($id)) {
+            // Throw error
+            throw new NoSuchCustomerException("No customer found with ID $id");
+        }
+
+        // Retrieve customer's creation date
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT creationDate FROM customer WHERE customerID=:id;");
+            $stmt->execute([":id" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Get output of SQL request
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Ensure output exists
+        if (!$row) {
+            throw new DatabaseException("Failed to retrieve creation date.");
+        }
+
+        // Return DateTimeImmutable of creation date
+        return new DateTimeImmutable($row["creationDate"]);
     }
 }

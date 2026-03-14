@@ -139,4 +139,11 @@ class CustomerTest extends TestCase {
         Seller::delete($seller->getUserID());
         Customer::delete($customer->getUserID());
     }
+
+    /**
+     * Method testing the getCreationDate() method from Customer
+     */
+    public function testGetCreationDate() {
+        // TODO: Complete test of method.
+    }
 }
