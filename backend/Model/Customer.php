@@ -293,7 +293,8 @@ class Customer extends Account {
     /**
      * Method that retrieves all data relating to badges attached to current customer
      * @param int $customerID ID of the customer whose badges are being loaded
-     * @throws DatabaseException|NoSuchCustomerException
+     * @throws DatabaseException|NoSuchCustomerException|NoSuchBadgeException
+     * @return array of badge information in relation to customer whose ID was passed as a parameter
      */
     public static function loadBadges(int $customerID): array{
 
@@ -498,15 +499,19 @@ class Customer extends Account {
         }
 
         // Load in and return badges
-        return array(
-            Badge::loadByTitle("Rescue Vet"),
-            Badge::loadByTitle("Bargain Hunter"),
-            Badge::loadByTitle("Dedicated Saver"),
-            Badge::loadByTitle("Loyal Customer"),
-            Badge::loadByTitle("Experienced Saver"),
-            Badge::loadByTitle("Explorer"),
-            Badge::loadByTitle("Eco Warrior"),
-        );
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer_badge WHERE customerID = :customerID;");
+            $stmt->execute([":customerID" => $customerID]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        if (!(count($rows) > 0)) {
+            throw new NoSuchBadgeException("Failed to load badges for customer with ID $customerID.");
+        }
+
+        return $rows;
     }
 
     /**
