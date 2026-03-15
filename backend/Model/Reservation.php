@@ -135,76 +135,11 @@ class Reservation extends StoredObject
                     $progress = 0;
             }
 
-            // Get all past complete reservations for given customer and find ones for which all bundle information but ID (and quantity) are the same
-            try {
-                // Forming view connecting reservations and existent bundles (with their details)
-                $stmt = DatabaseHandler::getPDO()->prepare("
-                SELECT
-                    (reservationTable.reservationID,
-                    reservationTable.claimCode,
-                    reservationTable.purchaserID,
-                    reservationTable.reservationStatus,
-                    bundleTable.bundleID,
-                    bundleTable.bundleStatus,
-                    bundleTable.details,
-                    bundleTable.discountedPrice,
-                    bundleTable.quantity,
-                    bundleTable.rrp,
-                    bundleTable.sellerID,
-                    bundleTable.title)
-                    FROM reservation reservationTable INNER JOIN bundle bundleTable ON reservationTable.bundleID = bundleTable.bundleID
-                    WHERE reservationTable.purchaserID = :customerID AND reservationTable.reservationStatus = :status
-                    ");
-
-                // Execute SQL query
-                $stmt->execute([":customerID" => $this->purchaserID, ":status" => BundleStatus::Collected]);
-            } catch (\PDOException $e) {
-                throw new DatabaseException($e->getMessage());
-            }
-
-            // Retrieve output of query
-            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            // Check if there is any output
-            if (!count($rows) > 0) {
-                // Keep track of largest occurrence count
-                $most_occurrences = null;
-
-                // Get occurrence count of the same seller
-                $sellers = array();
-                foreach ($rows as $row) {
-                    // Check if seller already present in $sellers
-                    if (isset($sellers[$row["sellerID"]])) {
-                        // Increase quantity by one
-                        $quantity = $row["quantity"] + 1;
-                        $sellers[$row["sellerID"]]["quantity"] = $quantity;
-                    } else {
-                        $sellers[$row["sellerID"]] = array(
-                            "sellerID" => $row["sellerID"],
-                            "quantity" => 1,
-                        );
-                    }
-
-                    // Compare with most occurrences count
-                    if ($most_occurrences == null) {
-                        $most_occurrences = $sellers[$row["sellerID"]];
-                    } else if ($row["quantity"] > $rows[$most_occurrences]["quantity"]) {
-                        // Update tracked seller
-                        $most_occurrences = $sellers[$row["sellerID"]];
-                    }
-                }
-
-                // TODO: COMPLETE THIS
-
-
-            }
-
-
             // Update progression and tier for badge
             try {
                 $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier = :tier AND progress = :progress) WHERE (badgeID = :badgeID AND customerID = :customerID);");
                 $stmt->execute([":tier" => $tier, ":progress" => $progress, ":badgeID" => $bargainHunterCustomer["badgeID"], ":customerID" => $bargainHunterCustomer["customerID"]]);
-                        } catch (\PDOException $e) {
+            } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
         }

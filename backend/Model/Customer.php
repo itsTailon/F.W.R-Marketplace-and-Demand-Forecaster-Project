@@ -297,6 +297,158 @@ class Customer extends Account {
      */
     public static function loadBadges(int $customerID): array{
 
+        // Get all past complete reservations for given customer and find ones for which all bundle information but ID (and quantity) are the same
+        try {
+            // Forming view connecting reservations and existent bundles (with their details)
+            $stmt = DatabaseHandler::getPDO()->prepare("
+                SELECT
+                    (reservationTable.reservationID,
+                    reservationTable.claimCode,
+                    reservationTable.purchaserID,
+                    reservationTable.reservationStatus,
+                    bundleTable.bundleID,
+                    bundleTable.bundleStatus,
+                    bundleTable.details,
+                    bundleTable.discountedPrice,
+                    bundleTable.quantity,
+                    bundleTable.rrp,
+                    bundleTable.sellerID,
+                    bundleTable.title)
+                    FROM reservation reservationTable INNER JOIN bundle bundleTable ON reservationTable.bundleID = bundleTable.bundleID
+                    WHERE reservationTable.purchaserID = :customerID AND reservationTable.reservationStatus = :status
+                    ");
+
+            // Execute SQL query
+            $stmt->execute([":customerID" => $customerID, ":status" => BundleStatus::Collected]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Retrieve output of query
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Check if there is any output
+        if (count($rows) > 0) {
+
+            // Keep track of number of different sellers
+            $seller_count = null;
+            // Keep track of the bundle that has been purchased the most
+            $bundle_purchase_count = null;
+
+            // Hold sellers to verify whether one has been counted or not
+            $sellers = array();
+            // Hold bundles to check which have been considered or not
+            $bundles = array();
+            foreach ($rows as $row) {
+                // Check if field exists for this bundle
+                if (isset($bundles[$row["bundleID"]])) {
+                    // Check the contents of the bundle being inspected
+                    if (
+                        $row["title"] == $bundles[$row["bundleID"]]["title"] &&
+                        $row["details"] == $bundles[$row["bundleID"]]["details"] &&
+                        $row["sellerID"] == $bundles[$row["bundleID"]]["sellerID"]
+                    ) {
+                        // Update instance count and check if large enough to be highest
+                        $bundles[$row["bundleID"]]["count"]++;
+                        if ($bundles[$row["bundleID"]]["count"] > $bundle_purchase_count) {
+                            $bundle_purchase_count = $bundles[$row["bundleID"]]["count"];
+                        }
+                    }
+                } else {
+                    // Add bundle to bundles array
+                    $bundles[$row["bundleID"]] = array(
+                        "title" => $row["title"],
+                        "details" => $row["details"],
+                        "sellerID" => $row["sellerID"],
+                        "count" => 1
+                    );
+                }
+
+                // Check if seller already present in $sellers
+                if (!isset($sellers[$row["sellerID"]])) {
+                    // Add to list of sellers
+                    $sellers[$row["sellerID"]] = array(
+                        "sellerID" => $row["sellerID"]
+                    );
+                }
+                // Increase distinct seller count
+                $seller_count++;
+            }
+
+            // Compare to tier boundaries to set values for
+            $tier = null;
+            if (10 <= $seller_count && $seller_count < 20) {
+                $tier = BadgeTier::Bronze;
+            } else if (20 <= $seller_count && $seller_count < 50) {
+                $tier = BadgeTier::Silver;
+            } else if (50 <= $seller_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Get appropriate badge ID
+            $explorer_badge = Badge::loadByTitle("Explorer");
+
+            // Set values for tier and progress appropriately in DB
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
+                $stmt->execute([":tier" => $tier, ":progress" => $seller_count, ":customerID" => $customerID, ":badgeID" => $explorer_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+            // Allocating appropriate tier for Loyal Customer badge
+            $loyal_customer_badge = Badge::loadByTitle("Loyal Customer");
+
+            $tier = null;
+            if (3 <= $bundle_purchase_count && $bundle_purchase_count < 5) {
+                $tier = BadgeTier::Bronze;
+            } else if (5 <= $bundle_purchase_count && $bundle_purchase_count < 10) {
+                $tier = BadgeTier::Silver;
+            } else if (10 <= $bundle_purchase_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
+                $stmt->execute([":tier" => $tier, ":progress" => $bundle_purchase_count, ":customerID" => $customerID, ":badgeID" => $loyal_customer_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+
+            // Allocating appropriate tier for Loyal Customer badge
+            $experienced_saver_badge = Badge::loadByTitle("Loyal Customer");
+
+            $bundle_overall_count = count($rows);
+
+            $tier = null;
+            if (10 <= $bundle_overall_count && $bundle_overall_count < 30) {
+                $tier = BadgeTier::Bronze;
+            } else if (30 <= $bundle_overall_count && $bundle_overall_count < 75) {
+                $tier = BadgeTier::Silver;
+            } else if (75 <= $bundle_overall_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
+                $stmt->execute([":tier" => $tier, ":progress" => $bundle_overall_count, ":customerID" => $customerID, ":badgeID" => $experienced_saver_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+
+        } else {
+            // Exception as not the number of entries expected
+            throw new DatabaseException("Failed in creating valid view for complete reservations and bundle information.");
+        }
+
+
+
+        // TODO: INTEGRATE THIS INTO ABOVE CONTENT
+
         // Retrieving all badges of customer and iterating through them
         try {
             $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer_badges WHERE customerID=:id;");
