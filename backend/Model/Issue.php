@@ -16,6 +16,8 @@ class Issue extends StoredObject {
 
     private ?\DateTimeImmutable $resolvedAt = null;
 
+    private string $title;
+
     private string $description;
 
     private string $sellerResponse;
@@ -30,18 +32,19 @@ class Issue extends StoredObject {
      */
     public function update(): void {
         // Ensure that all required object fields are set (note that $this->resolvedAt can be null, so is not checked)
-        if (!isset($this->id) || !isset($this->customerID) || !isset($this->reservationID) || !isset($this->createdAt) || !isset($this->description) || !isset($this->sellerResponse) || !isset($this->status)) {
+        if (!isset($this->id) || !isset($this->customerID) || !isset($this->reservationID) || !isset($this->createdAt) || !isset($this->title) || !isset($this->description) || !isset($this->sellerResponse) || !isset($this->status)) {
             throw new MissingValuesException("Cannot perform issue update operation (not all required object fields are set).");
         }
 
         // Prepare parameterised statement.
         // Note: createdAt, bundleID and customerID are not updated in the database, as they are intended to be immutable.
-        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE issue SET resolvedAt=:resolvedAt, issueDescription=:issueDescription, sellerResponse=:sellerResponse, issueStatus=:issueStatus WHERE issueID=:issueID;");
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE issue SET resolvedAt=:resolvedAt, title=:title, issueDescription=:issueDescription, sellerResponse=:sellerResponse, issueStatus=:issueStatus WHERE issueID=:issueID;");
 
         // Attempt to update database record.
         try {
             $stmt->execute([
                 "resolvedAt"        => $this->resolvedAt?->format("Y-m-d H:i:s"), // If not null (?->), convert to MySQL-compatible date/time string format ("YYYY-MM-DD hh:mm:ss").
+                "title"             => $this->title,
                 "issueDescription"  => $this->description,
                 "sellerResponse"    => $this->sellerResponse,
                 "issueStatus"       => $this->status->value,
@@ -57,6 +60,7 @@ class Issue extends StoredObject {
      * Accepted fields (all are mandatory):
      *  - customerID:       int
      *  - reservationID:    int
+     *  - title:            string
      *  - description:      string
      *
      * Note: 'status' and 'created at' fields are populated automatically.
@@ -68,7 +72,7 @@ class Issue extends StoredObject {
      */
     public static function create(array $fields): Issue {
         // Ensure that all required fields were passed
-        if (!isset($fields["customerID"]) || !isset($fields["reservationID"]) || !isset($fields["description"])) {
+        if (!isset($fields["customerID"]) || !isset($fields["reservationID"]) || !isset($fields["title"]) || !isset($fields["description"])) {
             throw new MissingValuesException("Missing required values in 'fields' parameter.");
         }
 
@@ -90,6 +94,7 @@ class Issue extends StoredObject {
             $stmt->execute([
                 "customerID"        => $fields["customerID"],
                 "reservationID"     => $fields["reservationID"],
+                "title"             => $fields["title"],
                 "issueDescription"  => $fields["description"],
                 "sellerResponse"    => "", // A new issue will not have a seller response yet, but an empty string is safer than NULL.
                 "issueStatus"       => IssueStatus::Ongoing->value,
@@ -140,6 +145,7 @@ class Issue extends StoredObject {
         $issue->reservationID = $row["reservationID"];
         $issue->createdAt = new \DateTimeImmutable($row["createdAt"]);
         $issue->resolvedAt = $row["resolvedAt"] === null ? null : new \DateTimeImmutable($row["resolvedAt"]);
+        $issue->title = $row["title"];
         $issue->description = $row["issueDescription"];
         $issue->sellerResponse = $row["sellerResponse"];
         $issue->status = IssueStatus::from($row["issueStatus"]);
@@ -236,6 +242,14 @@ class Issue extends StoredObject {
 
     public function getResolvedDate(): ?\DateTimeImmutable {
         return $this->resolvedAt;
+    }
+
+    public function getTitle(): string {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void {
+        $this->title = $title;
     }
 
     public function getDescription(): string {

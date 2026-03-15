@@ -2,6 +2,7 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\SellerRegistrationRequest;
 use TTE\App\Model\DatabaseHandler;
+use TTE\App\Model\Maintainer;
 
 $DOCUMENT_TITLE = "Seller Registration Requests";
 
@@ -67,7 +68,6 @@ try {
                         <button id="approve-btn" class="button button--rounded button--green registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Approve</button>
                         <script src="assets/js/account_approve.js"></script>
                         <button id="deny-btn" class="button button--rounded red registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Deny</button>
-                        <script src="assets/js/account_approve.js"></script>
                         <a class="button button--rounded registration-requests-request-nav-view" href="/view_request.php?id=<?php echo $requestID; ?>">View</a>
                     </nav>
                 </div>
