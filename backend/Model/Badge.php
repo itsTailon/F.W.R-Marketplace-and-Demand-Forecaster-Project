@@ -82,7 +82,7 @@ class Badge extends StoredObject
         $badge->setXGold(intval($fields['xGold']));
 
         // Check if badge with given title already exists
-        if (!Badge::existsWithIDByTitle($badge->getTitle())) {
+        if (Badge::existsWithIDByTitle($badge->getTitle())) {
             throw new BadgeAlreadyExistsException("Badge with such title already exists.");
         }
 
@@ -115,7 +115,7 @@ class Badge extends StoredObject
      * Method loading a Badge object representing the one holding given title
      * @param string $title
      * @return Badge
-     * @throws DatabaseException
+     * @throws DatabaseException|NoSuchBadgeException
      */
     public static function loadByTitle(string $title): Badge
     {
@@ -131,9 +131,9 @@ class Badge extends StoredObject
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
         // Ensure badge does exist
-        if ($row === false) {
+        if ($row == false) {
             // Throw error given that badge doesn't exist
-            throw new DatabaseException(("No badge with $title title found."));
+            throw new NoSuchBadgeException(("No badge with $title title found."));
         }
 
         // Construct badge object and perform required data type conversions
@@ -154,7 +154,7 @@ class Badge extends StoredObject
      * Method loading a Badge object representing the one holding given id value
      * @param int $id
      * @return Badge
-     * @throws DatabaseException
+     * @throws DatabaseException|NoSuchBadgeException
      */
     public static function load(int $id): Badge
     {
@@ -172,7 +172,7 @@ class Badge extends StoredObject
         // Ensure badge does exist
         if ($row === false) {
             // Throw error given that badge doesn't exist
-            throw new DatabaseException(("No badge with badge ID of $id"));
+            throw new NoSuchBadgeException(("No badge with badge ID of $id"));
         }
 
         // Construct badge object and perform required data type conversions

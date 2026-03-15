@@ -466,7 +466,7 @@ class BadgeTest extends TestCase{
         $thrown = false;
         try {
             $attempted_badge = Badge::load(-1);
-        } catch (DatabaseException $e) {
+        } catch (NoSuchBadgeException $e) {
             $thrown = true;
         }
         if (!$thrown) {
@@ -608,7 +608,7 @@ class BadgeTest extends TestCase{
         $thrown = false;
         try {
             $attempted_badge = Badge::loadByTitle("Doesn't Exist");
-        } catch (DatabaseException $e) {
+        } catch (NoSuchBadgeException $e) {
             $thrown = true;
         }
         if (!$thrown) {
@@ -617,7 +617,7 @@ class BadgeTest extends TestCase{
             Customer::delete($customer->getUserID());
 
             // Fail test
-            $this->fail('Badge "successfully" loaded but title that was false.');
+            $this->fail('Badge "successfully" loaded by title that was false.');
         }
 
         try {
@@ -646,9 +646,62 @@ class BadgeTest extends TestCase{
     }
 
     /**
+     * Method testing deleteByTitle() for Badge class
+     */
+    public function testBadgeDeleteByTitle() {
+        // Badge fields to create badge
+        $badgeFields= array("title" => "Test Badge",
+            "iconURL" => "http://example.com/test.png",
+            "subtitle" => "Test this badge {x} times.",
+            "badgeDescription" => "Test this badge {x} times to earn badge.",
+            "xBronze" => 1,
+            "xSilver" => 5,
+            "xGold" => 10,
+        );
+
+        // Create badge
+        $badge = Badge::create($badgeFields);
+
+        // Create customer for means of testings
+        $customer = Customer::create(
+            array("username" => "testingUser",
+                "email" => "testingCust@gmail.com",
+                "password" => "testingPassword!23")
+        );
+
+        // Confirm badge exists within the database
+        $this->assertTrue(Badge::existsWithID($badge->getId()));
+
+        // Run the deletion method for given badge and confirm it now doesn't exist
+        Badge::deleteByTitle($badge->getTitle());
+        $this->assertFalse(Badge::existsWithID($badge->getId()));
+
+        // Attempting deleting badge that doesn't exist
+        $thrown = false;
+        try {
+            Badge::delete($badge->getId());
+        } catch (NoSuchBadgeException $e) {
+            $thrown = true;
+        } catch (DatabaseException $e) {
+            $this->fail("Database Exception thrown when shouldn't have.");
+        }
+        if (!$thrown) {
+            // Cleanup before failing test
+            Badge::deleteByTitle($badge->getTitle());
+            Customer::delete($customer->getUserID());
+
+            $this->fail("Badge deletion method given a false ID yet didn't throw Exception.");
+        }
+
+        // Remaining cleanup (Customer)
+        Customer::delete($customer->getUserID());
+
+    }
+
+    /**
      * Method testing delete() for Badge class
      */
-    public function testBadgeDelete(){
+    public function testBadgeDelete() {
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",

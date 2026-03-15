@@ -38,7 +38,7 @@ class Customer extends Account {
         try {
             // Create the customer in the database
             $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username, creationDate) VALUES (:id, :username, :creationDate);");
-            $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username'], "creationDate" => $creationDate]);
+            $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username'], "creationDate" => $creationDate->format('Y-m-d H:i:s')]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -71,23 +71,8 @@ class Customer extends Account {
             throw new DatabaseException($e->getMessage());
         }
 
-        // Check first output of executed query to ensure some result was returned
-        $first_row = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if (!$first_row) {
-            // Throw exception as no badges exist
-            throw new DatabaseException("Missing badges to present to customer.");
-        }
-
-        // Else, add this first returned ID as one of the customer's badges
-        try {
-            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
-            $stmt->execute([":badgeID" => $first_row["badgeID"], ":customerID" => $customer->getUserID()]);
-        } catch (\PDOException $e) {
-            throw new DatabaseException($e->getMessage());
-        }
-
-        // Add all other existing badges iteratively
+        // Add all badges attached to customer to customer_badge entries
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             try {
                 $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
@@ -303,7 +288,7 @@ class Customer extends Account {
             // Forming view connecting reservations and existent bundles (with their details)
             $stmt = DatabaseHandler::getPDO()->prepare("
                 SELECT
-                    (reservationTable.reservationID,
+                    reservationTable.reservationID,
                     reservationTable.claimCode,
                     reservationTable.purchaserID,
                     reservationTable.reservationStatus,
@@ -314,13 +299,13 @@ class Customer extends Account {
                     bundleTable.quantity,
                     bundleTable.rrp,
                     bundleTable.sellerID,
-                    bundleTable.title)
+                    bundleTable.title
                     FROM reservation reservationTable INNER JOIN bundle bundleTable ON reservationTable.bundleID = bundleTable.bundleID
                     WHERE reservationTable.purchaserID = :customerID AND reservationTable.reservationStatus = :status
                     ");
 
             // Execute SQL query
-            $stmt->execute([":customerID" => $customerID, ":status" => BundleStatus::Collected]);
+            $stmt->execute([":customerID" => $customerID, ":status" => ReservationStatus::Completed->value]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -390,8 +375,8 @@ class Customer extends Account {
 
             // Set values for tier and progress appropriately in DB
             try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
-                $stmt->execute([":tier" => $tier, ":progress" => $seller_count, ":customerID" => $customerID, ":badgeID" => $explorer_badge->getId()]);
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $seller_count, ":customerID" => $customerID, ":badgeID" => $explorer_badge->getId()]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
@@ -410,15 +395,15 @@ class Customer extends Account {
 
             // Update DB record
             try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
-                $stmt->execute([":tier" => $tier, ":progress" => $bundle_purchase_count, ":customerID" => $customerID, ":badgeID" => $loyal_customer_badge->getId()]);
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $bundle_purchase_count, ":customerID" => $customerID, ":badgeID" => $loyal_customer_badge->getId()]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
 
 
             // Allocating appropriate tier for Loyal Customer badge
-            $experienced_saver_badge = Badge::loadByTitle("Loyal Customer");
+            $experienced_saver_badge = Badge::loadByTitle("Experienced Saver");
 
             $bundle_overall_count = count($rows);
 
@@ -433,8 +418,8 @@ class Customer extends Account {
 
             // Update DB record
             try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
-                $stmt->execute([":tier" => $tier, ":progress" => $bundle_overall_count, ":customerID" => $customerID, ":badgeID" => $experienced_saver_badge->getId()]);
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $bundle_overall_count, ":customerID" => $customerID, ":badgeID" => $experienced_saver_badge->getId()]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
@@ -456,16 +441,13 @@ class Customer extends Account {
 
             // Update DB record
             try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
-                $stmt->execute([":tier" => $tier, ":progress" => $co2_waste, ":customerID" => $customerID, ":badgeID" => $eco_warrior_badge->getId()]);
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $co2_waste, ":customerID" => $customerID, ":badgeID" => $eco_warrior_badge->getId()]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
 
 
-        } else {
-            // Exception as not the number of entries expected
-            throw new DatabaseException("Failed in creating valid view for complete reservations and bundle information.");
         }
 
         // Load in Rescue Vet badge
@@ -491,8 +473,8 @@ class Customer extends Account {
         }
 
         try {
-            $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badges SET (progress=:progress AND tier=:tier) WHERE (customerID=:customerID AND badgeID=:badgeID);");
-            $stmt->execute([":progress" => $monthDiff, ":tier" => $tier, ":badgeID" => $rescue_vet_badge->getId()]);
+            $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET progress=:progress, tier=:tier WHERE (customerID=:customerID AND badgeID=:badgeID);");
+            $stmt->execute([":progress" => $monthDiff, ":tier" => $tier->value, ":badgeID" => $rescue_vet_badge->getId(), ":customerID" => $customerID]);
 
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
@@ -511,7 +493,19 @@ class Customer extends Account {
             throw new NoSuchBadgeException("Failed to load badges for customer with ID $customerID.");
         }
 
-        return $rows;
+        // Identify badges by title
+        $badge_array = array();
+        foreach ($rows as $row) {
+            $badge = Badge::load($row['badgeID']);
+            $badge_array[$badge->getTitle()] = array(
+                "badgeID" => $row['badgeID'],
+                "customerID" => $row['customerID'],
+                "tier" => $row['tier'],
+                "progress" => $row['progress'],
+            );
+        }
+
+        return $badge_array;
     }
 
     /**

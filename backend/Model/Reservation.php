@@ -56,10 +56,7 @@ class Reservation extends StoredObject
      * Updates the database with the values stored in the current instance of the reservation object
      *
      * @return void
-     *
-     * @throws DatabaseException
-     * @throws NoSuchReservationException
-     * @throws NoSuchCustomerException
+     * @throws DatabaseException|NoSuchReservationException|NoSuchCustomerException|NoSuchBadgeException
      */
     public function update(): void {
         // Throw error if reservation with given id does not exist
@@ -89,7 +86,7 @@ class Reservation extends StoredObject
 
             // Get badge details for Bargain Hunter relating to customer
             $badges = Customer::loadBadges($this->purchaserID);
-            $bargainHunter = Badge::load("Bargain Hunter");
+            $bargainHunter = Badge::loadByTitle("Bargain Hunter");
             $bargainHunterCustomer = $badges[$bargainHunter->getId()];
 
             // Switch-case to assign right value depending on current tier
@@ -137,8 +134,8 @@ class Reservation extends StoredObject
 
             // Update progression and tier for badge
             try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier = :tier AND progress = :progress) WHERE (badgeID = :badgeID AND customerID = :customerID);");
-                $stmt->execute([":tier" => $tier, ":progress" => $progress, ":badgeID" => $bargainHunterCustomer["badgeID"], ":customerID" => $bargainHunterCustomer["customerID"]]);
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier = :tier, progress = :progress WHERE badgeID = :badgeID AND customerID = :customerID;");
+                $stmt->execute([":tier" => $tier?->value, ":progress" => $progress, ":badgeID" => $bargainHunterCustomer["badgeID"], ":customerID" => $bargainHunterCustomer["customerID"]]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
