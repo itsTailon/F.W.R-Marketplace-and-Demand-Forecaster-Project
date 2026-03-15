@@ -264,11 +264,6 @@ class Bundle extends StoredObject {
             throw new NoSuchCategoryException("No category exists with name '" . $categoryName . "'.");
         }
 
-        // Check bundle doesn't already have an attached category
-        if ($this->getCategory() != null) {
-            throw new CategoryAlreadyExistsException("Category '" . $categoryName . "' already attached to bundle.");
-        }
-
         // If category exists, add to bundle
         $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle_category (bundleID, categoryName) VALUES (:bundleID, :categoryName);)");
         try {
