@@ -334,7 +334,6 @@ class Customer extends Account {
             $seller_count = null;
             // Keep track of the bundle that has been purchased the most
             $bundle_purchase_count = null;
-
             // Hold sellers to verify whether one has been counted or not
             $sellers = array();
             // Hold bundles to check which have been considered or not
@@ -439,79 +438,75 @@ class Customer extends Account {
                 throw new DatabaseException($e->getMessage());
             }
 
+            // Get value for CO2 waste
+            $co2_waste =  (1.3 * $bundle_overall_count); // TODO: UPDATE MULTIPLIER TO AGREED AMOUNT AFTER MEETING
+
+            // Allocating appropriate tier for Eco Warrior badge
+            $eco_warrior_badge = Badge::loadByTitle("Eco Warrior");
+
+            $tier = null;
+            if (10 <= $co2_waste && $co2_waste < 50) {
+                $tier = BadgeTier::Bronze;
+            } else if (50 <= $co2_waste && $co2_waste < 100) {
+                $tier = BadgeTier::Silver;
+            } else if (100 <= $co2_waste) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier =:tier AND progress = :progress) WHERE (customerID = :customerID AND badgeID = :badgeID);)");
+                $stmt->execute([":tier" => $tier, ":progress" => $co2_waste, ":customerID" => $customerID, ":badgeID" => $eco_warrior_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
 
         } else {
             // Exception as not the number of entries expected
             throw new DatabaseException("Failed in creating valid view for complete reservations and bundle information.");
         }
 
+        // Load in Rescue Vet badge
+        $rescue_vet_badge = Badge::loadByTitle("Rescue Vet");
 
+        // Get creation date of customer's account
+        $creationDate = Customer::getCreationDate($customerID);
+        // Get current date
+        $currentDate = new DateTimeImmutable('now');
 
-        // TODO: INTEGRATE THIS INTO ABOVE CONTENT
+        // Compare dates and set progress value for Rescue Vet badge (even if no change to avoid excessive calls)
+        $dateDiff = $currentDate->diff($creationDate);
+        $monthDiff = ($dateDiff->y * 12) + $dateDiff->m;
 
-        // Retrieving all badges of customer and iterating through them
+        // Calculate tier given difference
+        if ($monthDiff >= 3 && $monthDiff < 6) {
+            // Update tier and progress
+            $tier = BadgeTier::Bronze;
+        } else if ($monthDiff >= 6 && $monthDiff < 12) {
+            $tier = BadgeTier::Silver;
+        } else if ($monthDiff >= 12) {
+            $tier = BadgeTier::Gold;
+        }
+
         try {
-            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer_badges WHERE customerID=:id;");
-            $stmt->execute([":id" => $customerID]);
+            $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badges SET (progress=:progress AND tier=:tier) WHERE (customerID=:customerID AND badgeID=:badgeID);");
+            $stmt->execute([":progress" => $monthDiff, ":tier" => $tier, ":badgeID" => $rescue_vet_badge->getId()]);
+
         } catch (\PDOException $e) {
-            throw new DatabaseException("Failed to load customer's badges.");
+            throw new DatabaseException($e->getMessage());
         }
 
-        // Array that will contain arrays containing each badge's content
-        $badges = array();
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-
-            // Create array holding details of badge
-            $badge = array(
-                "badgeID" => intval($row["badgeID"]),
-                "customerID" => intval($row["customerID"]),
-                "tier" => BadgeTier::from($row["tier"]),
-                "progress" => intval($row["progress"]),
-            );
-
-            // Get title of the badge  for given iteration
-            $badgeDetails = Badge::load($badge["badgeID"]);
-
-            // Check if badge is titled "Rescue Vet"
-            if ($badgeDetails->getTitle() == "Rescue Vet") {
-                // Get creation date of customer's account
-                $creationDate = Customer::getCreationDate($customerID);
-                // Get current date
-                $currentDate = new DateTimeImmutable('now');
-
-                // Compare dates and set progress value for Rescue Vet badge (even if no change to avoid excessive calls)
-                $dateDiff = $currentDate->diff($creationDate);
-                $monthDiff = ($dateDiff->y * 12) + $dateDiff->m;
-
-                // Calculate tier given difference
-                if ($monthDiff >= 3 && $monthDiff < 6) {
-                    // Update tier and progress
-                    $tier = BadgeTier::Bronze;
-                } else if ($monthDiff >= 6 && $monthDiff < 12) {
-                    $tier = BadgeTier::Silver;
-                } else if ($monthDiff >= 12) {
-                    $tier = BadgeTier::Gold;
-                }
-
-                try {
-                    $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badges SET (progress=:progress AND tier=:tier) WHERE (customerID=:customerID AND badgeID=:rescVetTitle);");
-                    $stmt->execute([":progress" => $monthDiff, ":tier" => $tier, ":rescVetTitle" => $badgeDetails->getTitle()]);
-
-                } catch (\PDOException $e) {
-                    throw new DatabaseException($e->getMessage());
-                }
-
-                // Update value of this $badge to match database
-                $badge["progress"] = $monthDiff;
-            }
-
-            // Add array to $badges array
-            $badges[] = $badge;
-        }
-
-        // Return array of array representing badges
-        return $badges;
+        // Load in and return badges
+        return array(
+            Badge::loadByTitle("Rescue Vet"),
+            Badge::loadByTitle("Bargain Hunter"),
+            Badge::loadByTitle("Dedicated Saver"),
+            Badge::loadByTitle("Loyal Customer"),
+            Badge::loadByTitle("Experienced Saver"),
+            Badge::loadByTitle("Explorer"),
+            Badge::loadByTitle("Eco Warrior"),
+        );
     }
 
     /**
