@@ -42,6 +42,9 @@ class ReservationTest extends TestCase
             $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle");
             $stmt5->execute();
 
+            $stmt6 = DatabaseHandler::getPDO()->prepare("TRUNCATE customer_badge");
+            $stmt6->execute();
+
             $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
             $stmt->execute();
         } catch (\PDOException $e) {

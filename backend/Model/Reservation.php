@@ -56,9 +56,7 @@ class Reservation extends StoredObject
      * Updates the database with the values stored in the current instance of the reservation object
      *
      * @return void
-     *
-     * @throws DatabaseException
-     * @throws NoSuchReservationException
+     * @throws DatabaseException|NoSuchReservationException|NoSuchCustomerException|NoSuchBadgeException
      */
     public function update(): void {
         // Throw error if reservation with given id does not exist
@@ -75,6 +73,72 @@ class Reservation extends StoredObject
             $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
+        }
+
+        // Check value of reservation status
+        if ($this->status == ReservationStatus::Completed) {
+
+            // Retrieve bundle for given reservation
+            $bundle = Bundle::load($this->bundleID);
+
+            // Get difference in RRP and discountedPrice
+            $discount = $bundle->getRrpGBX() - $bundle->getDiscountedPriceGBX();
+
+            // Get badge details for Bargain Hunter relating to customer
+            $badges = Customer::loadBadges($this->purchaserID);
+            $bargainHunter = Badge::loadByTitle("Bargain Hunter");
+            $bargainHunterCustomer = $badges[$bargainHunter->getId()];
+
+            // Switch-case to assign right value depending on current tier
+            switch ($bargainHunterCustomer["tier"]) {
+                case null:
+                    // Check if discount was £5 to meet requirement
+                    if (500 >= $discount && $discount < 1000) {
+                            $tier = BadgeTier::Bronze;
+                            $progress = 500;
+                            break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = null;
+                    $progress = 0;
+                    break;
+                case BadgeTier::Bronze:
+                    // Check if discount was £10 to meet requirement
+                    if (1000 >= $discount && $discount < 1500) {
+                        $tier = BadgeTier::Silver;
+                        $progress = 1000;
+                        break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = BadgeTier::Bronze;
+                    $progress = 500;
+                    break;
+                case BadgeTier::Silver:
+                    // Check if discount was £15 to meet requirement
+                    if (1500 >= $discount) {
+                        $tier = BadgeTier::Gold;
+                        $progress = 1500;
+                        break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = BadgeTier::Silver;
+                    $progress = 1000;
+                    break;
+                default:
+                    $tier = null;
+                    $progress = 0;
+            }
+
+            // Update progression and tier for badge
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier = :tier, progress = :progress WHERE badgeID = :badgeID AND customerID = :customerID;");
+                $stmt->execute([":tier" => $tier?->value, ":progress" => $progress, ":badgeID" => $bargainHunterCustomer["badgeID"], ":customerID" => $bargainHunterCustomer["customerID"]]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
         }
     }
 

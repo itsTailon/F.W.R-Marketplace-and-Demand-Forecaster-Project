@@ -4,12 +4,17 @@
 namespace TTE\App\Tests\Model;
 
 use PHPUnit\Framework\TestCase;
+use TTE\App\Model\Badge;
+use TTE\App\Model\BadgeTier;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
+use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\ImpactMetric;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBadgeException;
+use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\Reservation;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Model\Seller;
@@ -137,6 +142,65 @@ class CustomerTest extends TestCase {
         Reservation::delete($reservation->getID());
         Bundle::delete($bundle->getID());
         Seller::delete($seller->getUserID());
+        Customer::delete($customer->getUserID());
+    }
+
+    /**
+     * Method testing the loading of badges attached to Customer
+     */
+    public function testLoadBadges() {
+        // Create customer for testing
+        $customer = Customer::create([
+            'username' => 'testCustomer1',
+            'password' => 'password',
+            'email' => 'testCustomer1@example.com',
+        ]);
+
+        // Badge fields to create badge
+        $badgeFields= array("title" => "Test Badge",
+            "iconURL" => "http://example.com/test.png",
+            "subtitle" => "Test this badge {x} times.",
+            "badgeDescription" => "Test this badge {x} times to earn badge.",
+            "xBronze" => 1,
+            "xSilver" => 5,
+            "xGold" => 10,
+        );
+
+        // Create badge
+        $badge = Badge::create($badgeFields);
+
+        // Add badge to customer (manually) for tests
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (customerID, badgeID, tier, progress) VALUES (:customerID, :badgeID, :tier, :progress)");
+            $stmt->execute([":customerID" => $customer->getUserID(), ":badgeID" => $badge->getId(), ":tier" => BadgeTier::Silver->value, ":progress" => 8]);
+        } catch (\PDOException $e) {
+            // Cleanup
+            Badge::delete($badge->getId());
+            Customer::delete($customer->getUserID());
+
+            // Fail test
+            $this->fail($e->getMessage());
+        }
+
+        try {
+            $badges = Customer::loadBadges($customer->getUserID());
+        } catch (\Exception $e) {
+            // Cleanup
+            Badge::delete($badge->getId());
+            Customer::delete($customer->getUserID());
+
+            $this->fail($e->getMessage());
+        }
+
+        // Compare values within array returned for badge passed in (as core badges may or may not be present
+        $testBadge = $badges[$badge->getTitle()];
+
+        $this->assertTrue($testBadge["badgeID"] == $badge->getID());
+        $this->assertTrue($testBadge["tier"] == BadgeTier::Silver->value);
+        $this->assertTrue($testBadge["progress"] == 8);
+
+        // Cleanup
+        Badge::delete($badge->getId());
         Customer::delete($customer->getUserID());
     }
 }
