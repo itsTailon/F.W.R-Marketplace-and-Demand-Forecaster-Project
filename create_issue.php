@@ -25,6 +25,8 @@ if (!Authenticator::isLoggedIn()) {
 
 $currentUser = $_SESSION['currentUser'];
 
+// Error to show if the reservation does not exist or does not belong to the customer
+// For security reasons, we won't say which
 function showReservationUnavailable() {
     echo <<<XYZ
     <p>ERROR: Reservation not found or does not belong to customer.</p>
@@ -39,6 +41,8 @@ function showReservationUnavailable() {
     die();
 }
 
+// Error to show if the bundle the reservation is for does not exist
+// This should not happen and is just a precaution
 function showReservationNoBundle() {
     echo <<<XYZ
     <p>ERROR: Reservation does not correspond to a valid bundle.</p>
@@ -124,7 +128,6 @@ require_once 'partials/dashboard/dashboard_header.php';
 
 // Include dashboard sidebar
 require_once 'partials/dashboard/dashboard_sidebar.php';
-
 ?>
 
 <section class="issue-form">
@@ -172,7 +175,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     </div>
 </section>
 <script src="/assets/js/issue_form.js"></script>
-
+<script src="/assets/js/create_issue.js"></script>
 <?php
 // Include page footer and closing tags
 require_once 'partials/footer.php';

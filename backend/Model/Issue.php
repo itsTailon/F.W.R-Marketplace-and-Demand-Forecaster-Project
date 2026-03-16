@@ -87,7 +87,7 @@ class Issue extends StoredObject {
         }
 
         // Prepare parameterised statement
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO issue (customerID, reservationID, issueDescription, sellerResponse, issueStatus) VALUES (:customerID, :reservationID, :issueDescription, :sellerResponse, :issueStatus);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO issue (customerID, reservationID, title, issueDescription, sellerResponse, issueStatus) VALUES (:customerID, :reservationID, :title, :issueDescription, :sellerResponse, :issueStatus);");
 
         // Attempt to create database record
         try {
