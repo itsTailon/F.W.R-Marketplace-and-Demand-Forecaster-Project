@@ -1,5 +1,6 @@
 <?php
 use TTE\App\Auth\Authenticator;
+use TTE\App\Model\Customer;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Issue;
 use TTE\App\Model\DatabaseException;
@@ -16,9 +17,9 @@ if (!Authenticator::isLoggedIn()) {
 }
 
 $acc = Authenticator::getCurrentUserSubclass();
-if (!($acc instanceof Seller)) {
+if (!($acc instanceof Customer)) {
     header('Location: /dashboard.php');
-    die('You must be a seller to view this page.');
+    die('You must be a customer to view this page.');
 }
 
 // Include dashboard header (i.e. 'title bar')
@@ -26,20 +27,16 @@ require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 
 if (isset($_GET['all']) && $_GET['all'] == "1") {
-    $all = True;
+    $all = true;
 } else {
-    $all = False;
+    $all = false;
 }
 
 $stmt = DatabaseHandler::getPDO()->prepare(
-    "SELECT issue.issueID
-    FROM issue 
-    INNER JOIN reservation on issue.reservationID = reservation.reservationID 
-    INNER JOIN bundle on reservation.bundleID = bundle.bundleID 
-    WHERE bundle.sellerID = :id"
+    "SELECT issueID FROM issue WHERE customerID=:id"
     . ($all?
         ";"
-      : " AND issueStatus <> 'resolved';")
+        : " AND issueStatus <> 'resolved';")
 );
 
 try {
@@ -63,48 +60,46 @@ try {
         </a>
     </nav>
 
-    <h1 class="issues-list-title">Customer Issues</h1>
+    <h1 class="issues-list-title">My Issues</h1>
 
     <?php if (!$all): ?>
         <nav class="issues-list-nav">
-            <a class="button button--rounded issues-list-viewall-button" href="/issues.php?all=1">Include Resolved Issues</a>
+            <a class="button button--rounded issues-list-viewall-button" href="/view_issues.php?all=1">Include Resolved Issues</a>
         </nav>
     <?php endif; ?>
 
     <?php if (!$data): ?>
-        <span class="issues-list-text-none">No Customer Issues</span>
-    
+        <span class="issues-list-text-none">No Issues</span>
+
     <?php else: ?>
         <div class="issues-list-list">
             <?php foreach ($data as $issue): ?>
                 <?php
-                    try {
-                        $issueObj = Issue::Load($issue["issueID"]);
-                        $bundleObj = $issueObj->getBundle();
-                        $customerObj = $issueObj->getCustomer();
-                    } catch (DatabaseException | NoSuchIssueException $e) {
-                        echo "Error loading this bundle, please try refreshing the page.";
-                        continue;
-                    }
-                    
-                    $bundleTitle = $bundleObj->getTitle();
-                    $customerName = $customerObj->getUsername();
-                    $issueTitle = $issueObj->getTitle(); // NYI
-                    $issueOpenDate = $issueObj->getCreationDate();
-                    $issueStatus = $issueObj->getStatus();
+                try {
+                    $issueObj = Issue::Load($issue["issueID"]);
+                    $bundleObj = $issueObj->getBundle();
+                    $customerObj = $issueObj->getCustomer();
+                } catch (DatabaseException | NoSuchIssueException $e) {
+                    echo "Error loading this bundle, please try refreshing the page.";
+                    continue;
+                }
 
-                    $now = new \DateTimeImmutable();
-                    if ($now->format('Y-m-d') == $issueOpenDate->format('Y-m-d')) {
-                        $issueDateText = "Today at " . $issueOpenDate->format('H:i');
-                    } else {
-                        $issueDateText = $issueOpenDate->format('Y-m-d');
-                    }
+                $bundleTitle = $bundleObj->getTitle();
+                $issueTitle = $issueObj->getTitle(); // NYI
+                $issueOpenDate = $issueObj->getCreationDate();
+                $issueStatus = $issueObj->getStatus();
+
+                $now = new \DateTimeImmutable();
+                if ($now->format('Y-m-d') == $issueOpenDate->format('Y-m-d')) {
+                    $issueDateText = "Today at " . $issueOpenDate->format('H:i');
+                } else {
+                    $issueDateText = $issueOpenDate->format('Y-m-d');
+                }
                 ?>
                 <div class="issues-list-issue">
                     <div>
                         <h2 class="issues-list-issue-bundle-title">Bundle: <?php echo $bundleTitle ?></h2>
                         <p class="issues-list-issue-title">Issue: <?php echo $issueTitle; ?></p>
-                        <p class="issues-list-issue-customer">Customer: <?php echo $customerName; ?></p>
                         <p class="issues-list-issue-time"><i><?php echo $issueDateText; ?></i></p>
                         <?php if ($issueStatus != IssueStatus::Resolved): ?>
                             <p class="issues-list-issue-status-unresolved">Not Resolved</p>
