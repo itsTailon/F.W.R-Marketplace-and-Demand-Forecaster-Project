@@ -85,6 +85,7 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
+                    creationDate DATE DEFAULT CURRENT_DATE, -- for time-related badge 
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                 );
                 
@@ -187,13 +188,16 @@ class DatabaseHandler {
                     badgeDescription VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {y} more times to earn this badge!'
                     xBronze INT NOT NULL, -- the total number of times a bundle must be reserved to achieve bronze
                     xSilver INT NOT NULL, -- the total number of times a bundle must be reserved to achieve silver
-                    xGold INT NOT NULL -- the total number of times a bundle must be reserved to achieve gold
+                    xGold INT NOT NULL, -- the total number of times a bundle must be reserved to achieve gold
+                    CHECK (xBronze > 0 AND xSilver > xBronze AND xGold > xSilver)
                 );
     
                 CREATE TABLE IF NOT EXISTS customer_badge (
                     customerID INT NOT NULL,
                     badgeID INT NOT NULL,
                     tier ENUM('bronze', 'silver', 'gold') DEFAULT NULL,
+                    progress INT DEFAULT 0,
+                    CHECK (progress >= 0),
                     PRIMARY KEY (customerID, badgeID),
                     FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
                     FOREIGN KEY (badgeID) REFERENCES badge(badgeID) ON DELETE CASCADE
