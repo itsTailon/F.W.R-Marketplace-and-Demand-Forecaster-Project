@@ -85,7 +85,7 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
-                    creationDate DATE DEFAULT CURRENT_DATE, -- for time-related badge 
+                    creationDate DATE DEFAULT (CURRENT_DATE), -- for time-related badge 
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                 );
                 
