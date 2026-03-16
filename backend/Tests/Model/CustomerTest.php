@@ -158,7 +158,6 @@ class CustomerTest extends TestCase {
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,

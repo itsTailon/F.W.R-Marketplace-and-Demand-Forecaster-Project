@@ -25,7 +25,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields as to test failed creation attempts prior to creating valid Badge
         $badgeFields= array("title" => "Test Badge",
-                "iconURL" => "http://example.com/test.png",
                 "subtitle" => "Test this badge {x} times.",
                 "badgeDescription" => "Test this badge {x} times to earn badge.",
                 "xBronze" => 1,
@@ -93,38 +92,6 @@ class BadgeTest extends TestCase{
         }
 
         $badgeFields['title'] = $prevValue; // Return value to previous
-
-
-        // Test handling of empty strings passed for iconURL
-        $prevValue = $badgeFields['iconURL']; // Store value to return to
-        $badgeFields['iconURL'] = "       "; // Set value to empty string filled with spaces
-
-        $thrown = false;
-        try {
-            $badge = Badge::create($badgeFields);
-        } catch (MissingValuesException $e) {
-            $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
-            // Clean-up and give exception
-            if (isset($badge)) {
-                Badge::delete($badge->getId());
-            }
-
-            // Fail test but with message of wrong exception thrown than what expected
-            $this->fail("Exception was thrown but wrong for test case.");
-
-        }
-        if (!$thrown) {
-            // Clean-up
-            if (isset($badge)) {
-                Badge::delete($badge->getId());
-            }
-
-            // Fail test as no error was thrown
-            $this->fail("Badge created with invalid input.");
-        }
-
-        $badgeFields['iconURL'] = $prevValue; // Return value to previous
 
 
         // Test passing of empty string to subtitle attribute
@@ -205,9 +172,6 @@ class BadgeTest extends TestCase{
                 case "title":
                     $this->assertEquals($fieldValue, $badge_db->getTitle());
                     break;
-                case "iconURL":
-                    $this->assertEquals($fieldValue, $badge_db->getIconURL());
-                    break;
                 case "subtitle":
                     $this->assertEquals($fieldValue, $badge_db->getSubtitle());
                     break;
@@ -237,7 +201,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields for creating badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -285,35 +248,6 @@ class BadgeTest extends TestCase{
 
         $badge->setTitle($prevValue); // Return value to previous
 
-
-        // Test handling of empty strings passed for iconURL
-        $prevValue = $badge->getIconURL(); // Store value to return to
-        $badge->setIconURL("       "); // Set value to empty string filled with spaces
-
-        $thrown = false;
-        try {
-            $badge->update();
-        } catch (MissingValuesException $e) {
-            $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
-            // Clean-up and give exception
-            Badge::delete($badge->getId());
-            Customer::delete($customer->getUserID());
-
-            // Fail test but with message of wrong exception thrown than what expected
-            $this->fail("Exception was thrown but wrong for test case.");
-
-        }
-        if (!$thrown) {
-            // Clean-up
-            Badge::delete($badge->getId());
-            Customer::delete($customer->getUserID());
-
-            // Fail test as no error was thrown
-            $this->fail("Badge created with invalid input.");
-        }
-
-        $badge->setIconURL($prevValue); // Return value to previous
 
 
         // Test passing of empty string to subtitle attribute
@@ -379,7 +313,6 @@ class BadgeTest extends TestCase{
         // Valid fields of different value to original badge fields
         $updatedBadgeFields = array(
             "title" => $badge->getTitle(),
-            "iconURL" => $badge->getIconURL(),
             "subtitle" => "Change Subtitle",
             "badgeDescription" => "Change Badge Description",
             "xBronze" => $badge->getXBronze(),
@@ -389,7 +322,6 @@ class BadgeTest extends TestCase{
 
         // Set badge fields to updated badge fields
         $badge->setTitle($updatedBadgeFields["title"]);
-        $badge->setIconURL($updatedBadgeFields["iconURL"]);
         $badge->setSubtitle($updatedBadgeFields["subtitle"]);
         $badge->setBadgeDescription($updatedBadgeFields["badgeDescription"]);
         $badge->setXBronze($updatedBadgeFields["xBronze"]);
@@ -409,9 +341,6 @@ class BadgeTest extends TestCase{
             switch ($fieldName) {
                 case "title":
                     $this->assertEquals($fieldValue, $badge_db->getTitle());
-                    break;
-                case "iconURL":
-                    $this->assertEquals($fieldValue, $badge_db->getIconURL());
                     break;
                 case "subtitle":
                     $this->assertEquals($fieldValue, $badge_db->getSubtitle());
@@ -444,7 +373,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -491,7 +419,6 @@ class BadgeTest extends TestCase{
         }
 
         $this->assertEquals($badge->getTitle(), $db_badge->getTitle());
-        $this->assertEquals($badge->getIconURL(), $db_badge->getIconURL());
         $this->assertEquals($badge->getSubtitle(), $db_badge->getSubtitle());
         $this->assertEquals($badge->getBadgeDescription(), $db_badge->getBadgeDescription());
         $this->assertEquals($badge->getXBronze(), $db_badge->getXBronze());
@@ -510,7 +437,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -546,7 +472,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -586,7 +511,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -633,7 +557,6 @@ class BadgeTest extends TestCase{
 
         // Load valid badge and compare to ensure it is correct
         $this->assertEquals($badge->getTitle(), $db_badge->getTitle());
-        $this->assertEquals($badge->getIconURL(), $db_badge->getIconURL());
         $this->assertEquals($badge->getSubtitle(), $db_badge->getSubtitle());
         $this->assertEquals($badge->getBadgeDescription(), $db_badge->getBadgeDescription());
         $this->assertEquals($badge->getXBronze(), $db_badge->getXBronze());
@@ -651,7 +574,6 @@ class BadgeTest extends TestCase{
     public function testBadgeDeleteByTitle() {
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,
@@ -705,7 +627,6 @@ class BadgeTest extends TestCase{
 
         // Badge fields to create badge
         $badgeFields= array("title" => "Test Badge",
-            "iconURL" => "http://example.com/test.png",
             "subtitle" => "Test this badge {x} times.",
             "badgeDescription" => "Test this badge {x} times to earn badge.",
             "xBronze" => 1,

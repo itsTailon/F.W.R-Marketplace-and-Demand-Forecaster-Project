@@ -93,10 +93,21 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 }
             }
 
+            if ($badge["tier"] == null) {
+                // Form the URL for the given badge to be presented
+                $iconURL = strtolower(trim($current_badge->getTitle()) . "locked" . "png");
+
+            } else {
+                // Form the URL for the given badge to be presented
+                $iconURL = strtolower(trim($current_badge->getTitle()) . $badge["tier"] . "png");
+
+            }
+
             $badge_contents = array(
                 "badgeID" => $badge->getBadgeID(),
                 "badgeDescription" => $description,
                 "badgeSubtitle" => $subtitle,
+                "badgeIconURL" => $iconURL,
             );
 
             // Adding to array, pointed at by title

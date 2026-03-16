@@ -15,7 +15,6 @@ class Badge extends StoredObject
     private int $id;
     private string $title;
     const MAX_LEN_TITLE = 128;
-    private string $iconURL;
     private string $subtitle;
     private string $badgeDescription;
     private int $xBronze;
@@ -31,21 +30,21 @@ class Badge extends StoredObject
     public function update(): void
     {
         // Check badge exists
-        if (!isset($this->title) || !isset($this->iconURL) || !isset($this->subtitle) ||
+        if (!isset($this->title) || !isset($this->subtitle) ||
             !isset($this->badgeDescription) || !isset($this->xBronze) || !isset($this->xSilver)
-            || !isset($this->xGold) || empty(trim($this->title)) || empty(trim($this->iconURL)) ||
+            || !isset($this->xGold) || empty(trim($this->title)) ||
             empty(trim($this->subtitle)) || empty(trim($this->badgeDescription))) {
             // Throw error
             throw new MissingValuesException("Missing required information to create a badge.");
         }
 
         // SQL parameterised query
-        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE badge SET title= :title, iconURL = :iconURL, 
+        $stmt = DatabaseHandler::getPDO()->prepare("UPDATE badge SET title= :title, 
         subtitle = :subtitle, badgeDescription = :badgeDescription, xBronze = :xBronze, 
         xSilver = :xSilver, xGold = :xGold;");
 
         try {
-            $stmt->execute([":title" => $this->getTitle(), ":iconURL" => $this->getIconURL(), ":subtitle" => $this->getSubtitle(),
+            $stmt->execute([":title" => $this->getTitle(), ":subtitle" => $this->getSubtitle(),
                 ":badgeDescription" => $this->getBadgeDescription(), ":xBronze" => $this->getXBronze(),
                 ":xSilver" => $this->getXSilver(), ":xGold" => $this->getXGold()]);
         } catch (\PDOException $e) {
@@ -63,9 +62,9 @@ class Badge extends StoredObject
     {
 
         // Checking that required fields are passed
-        if (!isset($fields['title']) || !isset($fields['iconURL']) || !isset($fields['subtitle']) ||
+        if (!isset($fields['title']) || !isset($fields['subtitle']) ||
             !isset($fields['badgeDescription']) || !isset($fields['xBronze']) || !isset($fields['xSilver'])
-            || !isset($fields['xGold']) || empty(trim($fields['title'])) || empty(trim($fields['iconURL'])) ||
+            || !isset($fields['xGold']) || empty(trim($fields['title'])) ||
             empty(trim($fields['subtitle'])) || empty(trim($fields['badgeDescription']))) {
             // Throw error
             throw new MissingValuesException("Missing required information to create a badge.");
@@ -74,7 +73,6 @@ class Badge extends StoredObject
         // Create new badge object
         $badge = new Badge();
         $badge->setTitle($fields['title']);
-        $badge->setIconURL($fields['iconURL']);
         $badge->setSubtitle($fields['subtitle']);
         $badge->setBadgeDescription($fields['badgeDescription']);
         $badge->setXBronze(intval($fields['xBronze']));
@@ -88,12 +86,12 @@ class Badge extends StoredObject
 
 
         // Create parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, iconURL, subtitle, badgeDescription, xBronze, xSilver, xGold)
-            VALUES (:title, :iconURL, :subtitle, :badgeDescription, :xBronze, :xSilver, :xGold);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+            VALUES (:title, :subtitle, :badgeDescription, :xBronze, :xSilver, :xGold);");
 
         // Attempt execution of SQL command, throwing database error if failed
         try {
-            $stmt->execute([":title" => $badge->getTitle(), ":iconURL" => $badge->getIconURL(), ":subtitle" =>
+            $stmt->execute([":title" => $badge->getTitle(), ":subtitle" =>
                 $badge->getSubtitle(), ":badgeDescription" => $badge->getBadgeDescription(), ":xBronze" => $badge->getXBronze(),
                 ":xSilver" => $badge->getXSilver(), ":xGold" => $badge->getXGold()]);
         } catch (\PDOException $e) {
@@ -140,7 +138,6 @@ class Badge extends StoredObject
         $badge = new Badge;
         $badge->id = intval($row["badgeID"]);
         $badge->setTitle($row['title']);
-        $badge->setIconURL($row['iconURL']);
         $badge->SetSubtitle($row['subtitle']);
         $badge->SetBadgeDescription($row['badgeDescription']);
         $badge->setXBronze(intval($row['xBronze']));
@@ -179,7 +176,6 @@ class Badge extends StoredObject
         $badge = new Badge;
         $badge->id = intval($row["badgeID"]);
         $badge->setTitle($row['title']);
-        $badge->setIconURL($row['iconURL']);
         $badge->SetSubtitle($row['subtitle']);
         $badge->SetBadgeDescription($row['badgeDescription']);
         $badge->setXBronze(intval($row['xBronze']));
@@ -283,9 +279,6 @@ class Badge extends StoredObject
     public function getTitle(): string {
         return $this->title;
     }
-    public function getIconURL(): string {
-        return $this->iconURL;
-    }
     public function getSubtitle(): string {
         return $this->subtitle;
     }
@@ -305,9 +298,6 @@ class Badge extends StoredObject
     // Required setters
     public function setTitle(string $title): void {
         $this->title = $title;
-    }
-    public function setIconURL(string $iconURL): void {
-        $this->iconURL = $iconURL;
     }
     public function setSubtitle(string $subtitle): void {
         $this->subtitle = $subtitle;
