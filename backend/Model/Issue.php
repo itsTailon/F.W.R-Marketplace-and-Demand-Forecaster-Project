@@ -147,7 +147,7 @@ class Issue extends StoredObject {
         $issue->resolvedAt = $row["resolvedAt"] === null ? null : new \DateTimeImmutable($row["resolvedAt"]);
         $issue->title = $row["title"];
         $issue->description = $row["issueDescription"];
-        $issue->sellerResponse = $row["sellerResponse"];
+        $issue->sellerResponse = $row["sellerResponse"] === null ? "" : $row["sellerResponse"];
         $issue->status = IssueStatus::from($row["issueStatus"]);
 
         return $issue;
