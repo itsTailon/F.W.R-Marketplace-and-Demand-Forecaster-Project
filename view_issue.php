@@ -105,14 +105,14 @@ try {
         </div>
     <?php elseif (Authenticator::getCurrentUser() == $seller->getUserID()): ?>
         <form id = "sellerresponseform" method = "post">
-            <label for = "response" id = "responselabel">Choose a response to resolve this issue</label>
+            <label for = "response" id = "responselabel">Choose a response to resolve this issue</label><br>
             <select id = "response" name = "response">
                 <option value = "Refund will be issued in store.">Refund will be issued in store.</option>
                 <option value = "Please contact the store directly to resolve this.">Please contact the store directly to resolve this.</option>
                 <option value = "Issue closed as resolved.">Issue closed as resolved.</option>
                 <option value = "Issue closed as spam.">Issue closed as spam.</option>
             </select>
-            <input type="submit" value="Close Issue"/>
+            <input type="submit" class = "button" value="Close Issue"/>
         </form>
     <?php
     if ($_POST["response"]) {
@@ -121,9 +121,9 @@ try {
             $issue->update();
         } catch (IssueAlreadyResolvedException $e) { // No need to cause a fuss if the issue was already resolved
         } catch (DatabaseException $e) {
-            echo "Problems were encountered with the database while marking the issue as resolved. The error message provided was: " . $e->getMessage() . ".";
+            die("Problems were encountered with the database while marking the issue as resolved. The error message provided was: " . $e->getMessage() . ".");
         } catch (MissingValuesException $e) {
-            echo "There were required values missing from the Issue object";
+            die("There were required values missing from the Issue object");
         }
     }
     endif; ?>
