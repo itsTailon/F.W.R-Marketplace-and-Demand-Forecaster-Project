@@ -37,6 +37,12 @@ class Reservation extends StoredObject
     }
 
     public function setStatus(ReservationStatus $status): void{
+        // If the status is being set to 'no show' or 'cancelled', update the bundle quantity (+1).
+        if ($status == ReservationStatus::NoShow || $status == ReservationStatus::Cancelled) {
+            $bundle = Bundle::load($this->getBundleID());
+            $bundle->setQuantity($bundle->getQuantity() + 1);
+        }
+
         $this->status = $status;
     }
 
