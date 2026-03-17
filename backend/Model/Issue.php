@@ -48,6 +48,7 @@ class Issue extends StoredObject {
                 "issueDescription"  => $this->description,
                 "sellerResponse"    => $this->sellerResponse,
                 "issueStatus"       => $this->status->value,
+                "issueID"           => $this->id,
             ]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
