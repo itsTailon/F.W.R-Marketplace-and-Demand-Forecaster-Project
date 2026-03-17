@@ -2,6 +2,7 @@
 
 namespace TTE\App\Model;
 
+use DateTimeImmutable;
 use TTE\App\Model\StoredObject;
 
 class Issue extends StoredObject {
@@ -18,7 +19,7 @@ class Issue extends StoredObject {
 
     private string $description;
 
-    private string $sellerResponse;
+    private ?string $sellerResponse;
 
     private IssueStatus $status;
 
@@ -45,6 +46,7 @@ class Issue extends StoredObject {
                 "issueDescription"  => $this->description,
                 "sellerResponse"    => $this->sellerResponse,
                 "issueStatus"       => $this->status->value,
+                "issueID"           => $this->id,
             ]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
@@ -69,7 +71,7 @@ class Issue extends StoredObject {
      */
     public static function create(array $fields): Issue {
         // Ensure that all required fields were passed
-        if (!isset($fields["customerID"]) || !isset($fields["bundleID"]) || !isset($fields["description"]) || !isset($fields["sellerResponse"])) {
+        if (!isset($fields["customerID"]) || !isset($fields["bundleID"]) || !isset($fields["description"])) {
             throw new MissingValuesException("Missing required values in 'fields' parameter.");
         }
 
