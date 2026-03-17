@@ -72,6 +72,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("ERROR: Required fields missing!");
     }
 } else if ($_SERVER["REQUEST_METHOD"] == "PUT") { // PUT request (respond to issue)
+    // Get input
+    $_PUT = array();
+    parse_str(file_get_contents('php://input'), $_PUT);
+
     // Verify user is a seller
     $accountType = $currentUser->getAccountType();
 
@@ -119,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Check if the seller owns the bundle
     $sellerID = $currentUser->getUserID();
-    if ($bundle->getSellerID() == $sellerID) {
+    if ($bundle->getSellerID() !== $sellerID) {
         // If the seller does not own the bundle, they do not have permission to respond to an issue about it
         http_response_code(403);
         die("ERROR: Issue with that ID does not exist or does not belong to seller.");
@@ -144,12 +148,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("ERROR: Required values are missing.");
     } catch (DatabaseException $e) { // Database error
         http_response_code(500);
-        die();
+        die($e->getMessage());
     } 
 
     // Otherwise, return 200 (success)
     http_response_code(200);
-    die();
+    die("");
 }
 
 ?>
