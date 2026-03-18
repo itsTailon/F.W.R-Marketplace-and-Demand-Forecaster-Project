@@ -240,6 +240,9 @@ document.querySelectorAll('.change-btn').forEach(button => {
 
 document.querySelector('.view-seller-form-buttons-delete').addEventListener('click', function() {
     // get default values
+    if (!confirm('Are you sure you want to delete this Account?')) {
+        return;
+    }
 
     $.ajax({
         type: 'DELETE',

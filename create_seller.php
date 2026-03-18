@@ -102,6 +102,10 @@ $('.create-seller-form').on('submit', function (e) {
     success: function () {
         statusMessage.className = 'success';
         statusMessage.textContent = 'Seller account created!';
+        document.getElementById("create-seller-form").reset();
+
+        
+
     },
     error: function (err) {
         statusMessage.className = 'error';

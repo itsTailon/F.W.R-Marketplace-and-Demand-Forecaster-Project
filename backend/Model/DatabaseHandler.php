@@ -201,6 +201,16 @@ class DatabaseHandler {
                     FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
                     FOREIGN KEY (badgeID) REFERENCES badge(badgeID) ON DELETE CASCADE
                 );
+
+                CREATE TABLE IF NOT EXISTS notifications (
+                    notificationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    userID INT NOT NULL,
+                    title TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    isRead BOOLEAN DEFAULT FALSE,
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (userID) REFERENCES account(userID) ON DELETE CASCADE
+                );
                 END
             );
 
