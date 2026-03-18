@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             }
 
             $badge_contents = array(
-                "badgeID" => $badge->getBadgeID(),
+                "badgeID" => $badge["badgeID"],
                 "badgeDescription" => $description,
                 "badgeSubtitle" => $subtitle,
                 "badgeIconURL" => $iconURL,
