@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
         $badge_array = array();
         foreach ($badges as $badge) {
             // Get title of badge
-            $current_badge = Badge::load($badge->getBadgeID());
+            $current_badge = Badge::load($badge->getId());
 
             $description = null;
             $subtitle = null;
