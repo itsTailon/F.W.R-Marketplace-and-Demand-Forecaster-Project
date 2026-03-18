@@ -279,6 +279,7 @@ class DatabaseHandler {
 
             "customer" => [
                 "bundle_load",
+                "badge_load",
                 "streak_load",
                 "streak_delete",
                 "reservation_create",
