@@ -111,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             );
 
             // Adding to array, pointed at by title
-            $badges[$current_badge->getTitle()] = $badge_contents;
+            $badge_array[$current_badge->getTitle()] = $badge_contents;
         }
 
         // Return the badge through a JSON-encoded message
