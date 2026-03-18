@@ -71,9 +71,11 @@ class Customer extends Account {
             throw new DatabaseException($e->getMessage());
         }
 
+        // Get all output badges from query
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         // Add all badges attached to customer to customer_badge entries
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        foreach ($rows as $row) {
             try {
                 $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
                 $stmt->execute([":badgeID" => $row["badgeID"], ":customerID" => $customer->getUserID()]);
