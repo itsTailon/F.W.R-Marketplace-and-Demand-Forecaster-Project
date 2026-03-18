@@ -74,6 +74,10 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         $subtitle = str_replace("{x}", $current_badge->getXGold(), $current_badge->getSubtitle());
                         $description = "You have achieved the utmost grade for this badge!";
                         break;
+                    default:
+                        $subtitle = "Badge is locked.";
+                        $description = str_replace("{x}", strval($current_badge->getXBronze() - $badge["progress"]), str_replace("Upgrade", "Unlock", $current_badge->getBadgeDescription()));
+                        break;
                 }
             } else {
                 // Set message depending on current tier
@@ -90,16 +94,21 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                         $subtitle = str_replace("{x}", $current_badge->getXGold(), $current_badge->getSubtitle());
                         $description = "You have achieved the utmost grade for this badge!";
                         break;
+                    default:
+                        $subtitle = "Badge is locked.";
+                        $description = str_replace("{x}", strval($current_badge->getXBronze() - $badge["progress"]), str_replace("Upgrade", "Unlock", $current_badge->getBadgeDescription()));
+                        break;
+
                 }
             }
 
             if ($badge["tier"] == null) {
                 // Form the URL for the given badge to be presented
-                $iconURL = strtolower(trim($current_badge->getTitle()) . "locked" . "png");
+                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . "locked" . "png");
 
             } else {
                 // Form the URL for the given badge to be presented
-                $iconURL = strtolower(trim($current_badge->getTitle()) . $badge["tier"] . "png");
+                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . $badge["tier"] . "png");
 
             }
 
