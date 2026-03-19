@@ -22,6 +22,7 @@ class Bundle extends StoredObject {
     private int $rrpGBX;
 
     private int $discountedPriceGBX;
+    private DateTimeImmutable $expiryDate;
 
     private int $sellerID;
 
@@ -29,9 +30,7 @@ class Bundle extends StoredObject {
 
     /**
      * Take current values of all attributes of the Bundle object
-     * @throws DatabaseException|NoSuchBundleException|MissingValuesException
-     * @throws NoSuchCustomerException
-     * @throws NoSuchStreakException
+     * @throws DatabaseException|NoSuchBundleException|MissingValuesException|NoSuchCustomerException|NoSuchStreakException|NoSuchBadgeException
      */
     public function update(): void
     {
@@ -44,7 +43,7 @@ class Bundle extends StoredObject {
 
         // Check if current object values are all set
         if (!isset($this->id) || !isset($this->status) || !isset($this->title) || !isset($this->details) || !isset($this->rrpGBX) ||
-            !isset($this->discountedPriceGBX) || empty(trim($this->getTitle())) || empty(trim($this->getDetails())) || empty(trim($this->getQuantity()))) {
+            !isset($this->discountedPriceGBX) || !isset($this->expiryDate) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -52,14 +51,14 @@ class Bundle extends StoredObject {
 
 
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, expiryDate = :expiryDate, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":quantity" => $this->getQuantity() ,":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
+            $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":expiryDate" => $this->getExpiryDate()->format("Y-m-d"), ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":quantity" => $this->getQuantity() ,":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
                 ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID() ,":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
@@ -150,7 +149,7 @@ class Bundle extends StoredObject {
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
-        if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
+        if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['expiryDate']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
             !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details'])) || empty(trim($fields['quantity']))) {
 
             // Produce error message if field exists with no content
@@ -165,18 +164,19 @@ class Bundle extends StoredObject {
         $bundle->setDetails($fields['details']);
         $bundle->setRrpGBX($fields['rrp']);
         $bundle->setDiscountedPriceGBX($fields['discountedPrice']);
+        $bundle->setExpiryDate($fields['expiryDate']);
         $bundle->setSellerID($fields['sellerID']);
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
         $bundle->setQuantity($fields['quantity']);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, quantity, rrp, discountedPrice, sellerID, purchaserID) 
-            VALUES (:bundleStatus, :title, :details, :quantity, :rrp, :discountedPrice, :sellerID, :purchaserID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, quantity, rrp, discountedPrice, expiryDate, sellerID, purchaserID) 
+            VALUES (:bundleStatus, :title, :details, :quantity, :rrp, :discountedPrice, :expiryDate, :sellerID, :purchaserID);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":quantity" => $bundle->getQuantity(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
+            $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":expiryDate" => $bundle->getExpiryDate()->format("Y-m-d"), ":details" => $bundle->getDetails(), ":quantity" => $bundle->getQuantity(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
                 ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
@@ -198,8 +198,8 @@ class Bundle extends StoredObject {
      *
      * @param int $id ID of the bundle to be loaded.
      *
+     * @return Bundle a Bundle object representing the loaded bundle
      * @throws DatabaseException if no bundle exists with the given ID.
-     * @return StoredObject a Bundle object representing the loaded bundle
      */
     public static function load(int $id): Bundle {
         // Attempt to retrieve bundle record with the given ID
@@ -218,6 +218,7 @@ class Bundle extends StoredObject {
         $bundle = new Bundle();
         $bundle->id = $row['bundleID'];
         $bundle->status = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
+        $bundle->setExpiryDate(DateTimeImmutable::createFromFormat("Y-m-d", $row['expiryDate'])); // Time is set to midnight by default
         $bundle->title = $row['title'];
         $bundle->details = $row['details'];
         // MySQL DECIMAL values are returned by PDO as strings, so convert to ints representing pence (ints to avoid FP errors)
@@ -287,7 +288,7 @@ class Bundle extends StoredObject {
 
     /**
      * @param string $categoryName name of category to be added to bundle
-     * @throws DatabaseException|NoSuchCategoryException|CategoryAlreadyExistsException
+     * @throws DatabaseException|NoSuchCategoryException
      * @return void
      */
     public function addCategory(string $categoryName): void {
@@ -341,9 +342,9 @@ class Bundle extends StoredObject {
     }
 
     /**
-     * @param string $categoryName name of category to remove
-     * @throws DatabaseException|NoSuchCategoryException
+     * Remove category attached to bundle
      * @return void
+     * @throws DatabaseException|NoSuchCategoryException
      */
     public function removeCategory(): void {
         $categoryName = $this->getCategory();
@@ -444,6 +445,14 @@ class Bundle extends StoredObject {
         }
 
         $this->rrpGBX = $gbx;
+    }
+
+    public function getExpiryDate(): DateTimeImmutable {
+        return $this->expiryDate;
+    }
+
+    public function setExpiryDate(DateTimeImmutable $expiryDate): void {
+        $this->expiryDate = $expiryDate;
     }
 
     public function getDiscountedPriceGBX(): int {
