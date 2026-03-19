@@ -39,7 +39,7 @@ function getTimeSince(timestamp) {
         return sec + (sec === 1 ? ' second ago' : ' seconds ago');
     }
     else {
-        return 'error';
+        return 'Just Now';
     }
 
 }

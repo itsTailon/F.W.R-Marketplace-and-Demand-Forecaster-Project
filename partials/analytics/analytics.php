@@ -4,8 +4,10 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
 use TTE\App\Model\Account;
+use TTE\App\Model\Reservation;
 use TTE\App\Model\Customer;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
 
 
 
@@ -14,48 +16,61 @@ $userID = $user->getUserID();
 
 $bundles = Seller::getAllBundlesForUser($userID);
 
-$collected = 0;
-$noshow = 0;
-$cancelled = 0;
-foreach ($bundles as $b) {
-    switch ($b['bundleStatus']) {
-        case 'collected':
-            $collected++;
-            break;
-        case 'cancelled':
-            $cancelled++;
-            break;
-        default:
-            break;
+$seller = Seller::load($userID);
+
+// Get quick stats
+
+
+$all_reservations = Reservation::getAllReservationsForUser($userID, "seller");
+
+$revenue = 0;
+$numberOfSales = 0;
+$numberReserved = 0;
+$numberOfReservations = 0;
+
+$pricingEffectivenessData = [0,0,0,0,0,0,0,0,0,0];
+
+// [Collected, No-Show, Expired]
+$sellThroughData = [0,0,0]; // to be added at a later date.
+
+
+foreach($all_reservations as $r) {
+    $numberOfReservations += 1;
+
+    if($r['reservationStatus'] == 'completed') {
+        $revenue += $r['discountedPrice'];
+        $numberOfSales += 1;
+
+        // increment sellThroughData collected
+        $sellThroughData[0] += 1;
+
+        // pricingEffectiveness stuff
+        //get discount percentage
+        $discountPercentage = 1 - ($r['discountedPrice'] / $r['rrp']);
+        $pricingEffectivenessData[floor($discountPercentage * 10)] += 1;
+
+    }
+
+    else if($r['reservationStatus'] == 'active'){
+        $numberReserved += 1;
+    }
+    else if($r['reservaationStatus'] == 'no-show') {
+        $sellThroughData[1] += 1;   
     }
 }
 
-// price effectivness stuff
+$collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfReservations) * 100, 2) : 0;
 
 
-$priceEfCounts = [];
 
-foreach ($bundles as $b) {
-    if($b['bundleStatus'] != 'collected'){
-      continue;
-    }
-    $price = round(100*((float)$b['rrp'] - (float)$b['discountedPrice']));
-    
-    if (!isset($priceEfCounts[$price])) {
-        $priceEfCounts[$price] = 0;
-    }
-    $priceEfCounts[$price]++;
-}
+// --------------
 
-ksort($priceEfCounts);
+// price effectiveness data
 
-$labels = [];
-foreach (array_keys($priceEfCounts) as $price) {
-    $labels[] = '£' . number_format($price / 100, 2);
-}
-$data   = array_values($priceEfCounts);
-$labelsJson = json_encode($labels);
-$dataJson   = json_encode($data);
+
+
+
+
 
 ?>
 
@@ -83,23 +98,311 @@ $dataJson   = json_encode($data);
 
 <div class="analytics-info">
     <h1 class="analytics-title">Analytics</h1>
-    <h3 class="analytics-subtitle">Sell Through</h3>
+    <p class="analytics-subtitle">Your stores analytics</p>
+    <div class="analytics-quick-stats">
+      <div class="analytics-quick-stats-bubble">
+          <span class="analytics-quick-stats-bubble-type">REVENUE</span>
+          <span class="analytics-quick-stats-bubble-value">£<?php echo htmlspecialchars($revenue); ?></span>
+      </div>
+      <div class="analytics-quick-stats-bubble">
+          <span class="analytics-quick-stats-bubble-type">COLLECTION RATE</span>
+          <span class="analytics-quick-stats-bubble-value"><?php echo htmlspecialchars($collectionRate); ?>%</span>
+      </div>
+      <div class="analytics-quick-stats-bubble">
+          <span class="analytics-quick-stats-bubble-type">SALES</span>
+          <span class="analytics-quick-stats-bubble-value"><?php echo htmlspecialchars($numberOfSales); ?></span>
+      </div>
+      <div class="analytics-quick-stats-bubble">
+          <span class="analytics-quick-stats-bubble-type">RESERVATIONS</span>
+          <span class="analytics-quick-stats-bubble-value"><?php echo htmlspecialchars($numberReserved); ?></span>
+      </div>
 
-    <canvas id="analytics-salespiechart" class="analytics-salespiechart"></canvas>
+    </div>
 
-    <br>
-    <br>
-    
-    <h3 class="analytics-subtitle">Price Effectiveness</h3>
-    <canvas id="analytics-sellthrough" class="analytics-sellthrough"></canvas>
-    <br>
-    <br>
+    <div class="analytics-graphs">
+        <div class="analytics-graphs-pricing-effectiveness-bubble">
+            <span class="analytics-graphs-pricing-effectiveness-bubble-title">PRICE EFFECTIVENESS</span>
+            <div>
+                <canvas id="pricingEffectivenessChart"></canvas>
+            </div>
+        </div>
+        <div class="analytics-graphs-sell-through-bubble">
+            <span class="analytics-graphs-pricing-effectiveness-bubble-title">SELL THROUGH</span>
+            <div>
+                <canvas id="sellThroughChart"></canvas>
+            </div>
+            
+        </div>
+    </div>
 
+    <div class="analytics-more-stats">
+        <div class="analytics-more-stats-bubble">
+            <span class="analytics-more-stats-bubble-type">ESTIMATED WASTE AVOIDED</span>
+            <span class="analytics-more-stats-bubble-value">302kg</span>
+        </div>
+        <div class="analytics-more-stats-bubble">
+            <span class="analytics-more-stats-bubble-type">TOP BUNDLE</span>
+            <span class="analytics-more-stats-bubble-value">Apples</span>
+        </div>
+        <div class="analytics-more-stats-bubble">
+            <span class="analytics-more-stats-bubble-type">TOP PICKUP TIME</span>
+            <span class="analytics-more-stats-bubble-value">12:00</span>
+        </div>
+    </div>
+
+    <div class="analytics-graphs-2">
+        <div class="analytics-graphs-2-bubble">
+            <span class="analytics-graphs-2-bubble-type">TOP PICKUP TIMES</span>
+            <div class="analytics-graphs-2-bubble-graph">
+                <canvas id="topPickupTimesChart"></canvas>
+            </div>
+        </div>
+        <div class="analytics-graphs-2-bubble">
+            <span class="analytics-graphs-2-bubble-type">TOP CATEGORIES</span>
+            <div class="analytics-graphs-2-bubble-graph">
+                <canvas id="topCategoriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-seller-actions">
+        <nav class="analytics-seller-actions-nav">
+            <ul>
+               <li class="analytics-seller-actions-nav-left">
+                    <span class="analytics-seller-actions-title">SELLER ACTIONS</span>
+               </li>
+               <li class="analytics-seller-actions-nav-right">
+                    <button class="analytics-seller-actions-create-button" id="openCreateActionButton">Create</button>
+                    <button class="analytics-seller-actions-delete-button">Delete</button>
+               </li> 
+            </ul>
+        </nav>
+
+        <div class="analytics-seller-actions-wrapper">
+            <table class="analytics-seller-actions-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>ACTION</th>
+                        <th>REASON</th>
+                        <th>TIME</th>
+                    </tr>
+                </thead>
+                <tbody id="sellerActionsList">
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 
+<div class="analytics-create-action-wrapper" hidden>
+    <div class="analytics-create-action">
+        <span class="analytics-create-action-title">Record Action</span>
+        <div class="analytics-create-action-inputs">
+            <ul>
+                <li>
+                    <span>Action Taken</span>
+                    <input type="text" id="actionTakenField">
+                </li>
+                <li>
+                    <span>Reasoning</span>
+                    <textarea class="analytics-create-actions-inputs-reason" placeholder="Reasoning for taking Action." id="reasoningField"></textarea>
+                </li>
+            </ul>
+        </div>
+
+        <ul class="analytics-create-action-buttons">
+            <li>
+                <button class="analytics-create-action-buttons-create">Create</button>
+                <button class="analytics-create-action-buttons-cancel">Cancel</button>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="analytics-create-action-overlay" id="createActionOverlay" hidden></div>
 
 
+
+
+<script>
+    //seller actions stuff
+    function loadActions() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        selectAllCheckbox.checked = false;
+
+        $.ajax({
+            type: 'GET',
+            url: '/backend/API/Model/sellerAction.php',
+        success: function(resp) {
+            const actionList = document.getElementById('sellerActionsList');
+            actionList.innerHTML = '';
+
+            resp.forEach(function(action) {
+                const tr = document.createElement('tr');
+                tr.className = 'notification-dropdown__item';
+                tr.dataset.id = action.actionID;
+                tr.innerHTML = `
+                    <td><input type="checkbox" class="action-checkbox" data-id="${action.actionID}"></td>
+                    <td>${action.action}</td>
+                    <td>${action.reason}</td>
+                    <td>${getTimeSince(action.createdAt)}</td>
+                `;
+                actionList.appendChild(tr);
+            });
+
+        },
+        });
+
+
+    }
+
+    loadActions();
+
+
+
+    document.getElementById('openCreateActionButton').addEventListener('click', () => {
+        const createMenu = document.querySelector('.analytics-create-action-wrapper');
+
+        if(createMenu.hidden === true) {
+            const overlay = document.getElementById('createActionOverlay');
+            overlay.hidden = false;
+            createMenu.hidden = false;
+        }
+    });
+
+    document.getElementById('createActionOverlay').addEventListener('click', () => {
+        const overlay = document.getElementById('createActionOverlay');
+
+        if(!overlay.hidden) {
+            overlay.hidden = true;
+            const createMenu = document.querySelector('.analytics-create-action-wrapper');
+            createMenu.hidden = true;
+        }
+    });
+
+    document.querySelector('.analytics-create-action-buttons-cancel').addEventListener('click', () => {
+        const overlay = document.getElementById('createActionOverlay');
+        const createMenu = document.querySelector('.analytics-create-action-wrapper');
+        createMenu.hidden = true;
+        overlay.hidden = true;
+    });
+
+
+
+
+
+    // form submit for the create action
+
+
+    document.querySelector('.analytics-create-action-buttons-create').addEventListener('click', () => {
+        const actionField = document.getElementById('actionTakenField');
+        const reasonField =document.getElementById('reasoningField');
+
+        if(actionField.value === '' || reasonField.value === '') {
+            return;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '/backend/API/Model/sellerAction.php',
+            data: {
+                action: actionField.value,
+                reason:reasonField.value,
+            },
+        success: function() {
+            const createMenu = document.querySelector('.analytics-create-action-wrapper');
+            const overlay = document.getElementById('createActionOverlay');
+
+            createMenu.hidden = true;
+            overlay.hidden = true;
+
+
+            actionField.value = '';
+            reasonField.value = '';
+
+            loadActions();
+
+        }
+        });
+    });
+
+
+
+    // add check box functionality for list
+
+    document.querySelector('.analytics-seller-actions-table').addEventListener('change', function(e) {
+        if(e.target.id === 'selectAll') {
+            // select all logic
+            const allCheckboxes = document.querySelectorAll('input[type="checkbox"');
+            let isChecked = e.target.checked;
+            allCheckboxes.forEach(function(cb) {
+                cb.checked = isChecked;
+            });
+
+        }
+        else {
+            // normal checkbox logic.
+            // check if should change select all button 
+            const allCheckboxes = document.querySelectorAll('.action-checkbox');
+
+
+            let update = true;
+            for(let cb of allCheckboxes) {
+                if(cb.checked === false) {
+                    console.log(cb.checked);
+                    update = false;
+                }
+            }
+            const selectAllCheckbox = document.getElementById('selectAll');
+            if(update) {
+                    selectAllCheckbox.checked = true;
+            }
+            else {
+                selectAllCheckbox.checked = false;
+            }
+            
+
+        }
+    });
+
+
+
+
+    // add delete functionality.
+
+    document.querySelector('.analytics-seller-actions-delete-button').addEventListener('click', () => {
+        const allCheckboxes = document.querySelectorAll('.action-checkbox');
+        ids = [];
+
+        for(let cb of allCheckboxes) {
+            if(cb.checked) {
+                ids.push(cb.dataset.id);
+            }
+        }
+
+        for(let id of ids) {
+            $.ajax({
+                type: 'DELETE',
+                url: '/backend/API/Model/sellerAction.php',
+                data: {
+                    actionID: id,
+                },
+            success: function() {
+                loadActions();
+            },
+            error: function() {
+                console.log("error deleting action");
+            }
+            });
+        }
+
+
+    });
+
+
+</script>
 
 
 
@@ -107,76 +410,143 @@ $dataJson   = json_encode($data);
 
 <script src="assets/js/lib/Chart/chart.umd.min.js"></script>
 <script>
-const labels = ["No-Show", "Collected", "Cancelled"];
-const values = [0, <?php echo $collected?>, <?php echo $cancelled ?>];
+    // chart stuff
 
-new Chart(document.getElementById('analytics-salespiechart'), {
-  type: 'pie',
-  data: {
-    labels: labels,
-    datasets: [{
-      data: values,
-      backgroundColor: ['#4b90ff', '#4aff62', '#ff6565']
-    }]
-  },
-  options: {
-    responsive: false,
-    plugins: {
-      legend: { position: 'bottom' },
-      tooltip: { enabled: true }
-    }
-  }
-});
+    const data = <?php echo json_encode($pricingEffectivenessData); ?>;
+    const labels = ['0-10%','10-20%', '20-30%', '40-50%', '50-60%', '60-70%', '70-80%', '90-100%'];
 
-
-const labels2 = <?php echo $labelsJson ?>;
-const data2 = {
-  labels: labels2,
-  datasets: [
-    {
-      label: 'Dataset 1',
-      data: <?php echo $dataJson ?>,
-      borderColor: '#ff6565',
-      backgroundColor: 'rgba(255, 101, 101, 0.35)',
-    },
-  ]
-};
-new Chart(document.getElementById('analytics-sellthrough'), {
-    type: 'line',
-  data: data2,
-  options: {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          font: {
-            size: 24,
-            weight: 'bold'
-          },
-          display: true,
-          text: 'Discount'
-        }
-      },
-      y: {
-        title: {
-          font: {
-            size: 24,
-            weight: 'bold'
-          },
-          size: 18,
-          display: true,
-          text: 'Sales Volume'
+    new Chart(document.getElementById('pricingEffectivenessChart'), {
+        type: 'bar',
+        options: {
+            animation: true,
+            
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    enabled: true
+                },
+            },  
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Discount Level',
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Sales',
+                    }
+                }
+            }
         },
-        beginAtZero: true
-      }
-    }
-  },
-});
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                barThickness: 35,
+                backgroundColor: 'rgb(208, 220, 255)',
+                borderRadius: 5,
+
+            }]
+        }
+    
+
+
+    });
+
+    // Sell through
+
+    const sellData = <?php echo json_encode($sellThroughData); ?>;;
+    const sellLabels = ['Collected', 'No-Show', 'Expired'];
+    new Chart(document.getElementById('sellThroughChart'), {
+        type: 'doughnut',
+        options: {
+            cutout: 80,
+            animation: true,
+            
+            plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+            },
+            tooltip: {
+                enabled: true
+            }
+            }
+        },
+        data: {
+            labels: sellLabels,
+            datasets: [{
+                data: sellData,
+                backgroundColor: [
+                    'rgb(208, 220, 255)',
+                    'rgb(27, 27, 27)',
+                    'rgb(255, 105, 105)'
+                ]
+            }]
+        }
+    });
+
+    new Chart(document.getElementById('topPickupTimesChart'), {
+        type: 'bar',
+        options: {
+            animation: true,
+            
+            plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: true
+            }
+            }
+        },
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                barThickness: 35,
+                backgroundColor: 'rgb(73, 73, 73)',
+                borderRadius: 5,
+
+            }]
+        }
+
+
+    });
+
+    new Chart(document.getElementById('topCategoriesChart'), {
+        type: 'bar',
+        options: {
+            animation: true,
+            
+            plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                enabled: true
+            }
+            }
+        },
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                barThickness: 35,
+                backgroundColor: 'rgb(255, 125, 125)',
+                borderRadius: 5,
+
+            }]
+        }
+
+
+    });
+    
 </script>
 
 

@@ -211,6 +211,15 @@ class DatabaseHandler {
                     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (userID) REFERENCES account(userID) ON DELETE CASCADE
                 );
+                CREATE TABLE IF NOT EXISTS seller_actions (
+                    actionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    sellerID INT NOT NULL,
+                    action TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE
+
+                );
                 END
             );
 
