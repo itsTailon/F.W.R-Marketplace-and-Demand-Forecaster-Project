@@ -22,6 +22,7 @@ class Bundle extends StoredObject {
     private int $rrpGBX;
 
     private int $discountedPriceGBX;
+
     private DateTimeImmutable $expiryDate;
 
     private int $sellerID;
@@ -30,7 +31,7 @@ class Bundle extends StoredObject {
 
     /**
      * Take current values of all attributes of the Bundle object
-     * @throws DatabaseException|NoSuchBundleException|MissingValuesException|NoSuchCustomerException|NoSuchStreakException|NoSuchBadgeException
+     * @throws DatabaseException|NoSuchBundleException|MissingValuesException
      */
     public function update(): void
     {
@@ -49,6 +50,15 @@ class Bundle extends StoredObject {
             throw new MissingValuesException("Missing information required to create a bundle");
         }
 
+        // Update bundle status depending on quantity taken on
+        if ($this->getQuantity() == 0) {
+            $this->setStatus(BundleStatus::OffSale);
+        }
+
+        if  ($this->getQuantity() > 0) {
+            $this->setStatus(BundleStatus::OnSale);
+        }
+
 
         // SQL query to be executed
         $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, expiryDate = :expiryDate, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
@@ -64,79 +74,6 @@ class Bundle extends StoredObject {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
         }
-
-        // If bundle is collected by customer and there is a customer attached
-        if ($this->getStatus() == BundleStatus::Collected && $this->getPurchaserID() != null) {
-            // Check if customer has an ongoing streak and create one if not
-            $streak = Customer::load($this->getPurchaserID())->getStreak();
-            if ($streak == null) {
-                // Create streak
-                $streak = Streak::create(["customerID" => $this->getPurchaserID()]);
-                // Get current day and time
-                $currentDate = new DateTimeImmutable("now");
-                // Set appropriate values for fields
-                $streak->setStartDate($currentDate);
-                $streak->setCurrentWeekStart($currentDate->modify("+1 week"));
-                $streak->setEndDate($currentDate->modify("+1 week"));
-                $streak->update();
-            } else {
-
-                // Start new streak if "current" streak has already ended
-                if ($streak->getEndDate() < new DateTimeImmutable("now")) {
-                    // Get current date
-                    $currentDate = new DateTimeImmutable("now");
-                    $streak->setStartDate($currentDate);
-                    $streak->setCurrentWeekStart($currentDate);
-                    $streak->setEndDate($currentDate->modify("+1 week"));
-                    // Update streak
-                    $streak->update();
-                } else {
-                    // Check if a bundle has already been collected to continue the streak
-                    if ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
-                        // Changing currentWeekStart and endDate to a weeks time signifying update of streak
-                        $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
-                        $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
-                        // Applying update
-                        $streak->update();
-                    }
-
-
-                }
-            }
-
-            // Get how many weeks have elapsed since start of week
-            $start = $streak->getStartDate();
-            $now = new DateTimeImmutable("now");
-
-            $diff = $start->diff($now);
-
-            $weeksElapsed = intdiv($diff->days, 7);
-
-            // Default tier value
-            $tier = null;
-
-            // Compare to required values for each tier
-            if ($weeksElapsed >= 3 && $weeksElapsed < 10 ) {
-                $tier = BadgeTier::Bronze;
-            } else if ($weeksElapsed >= 10 && $weeksElapsed < 20 ) {
-                $tier = BadgeTier::Silver;
-            } else if ($weeksElapsed >= 20) {
-                $tier = BadgeTier::Gold;
-            }
-
-            // Get Dedicated Save badge
-            $dedicatedSaver = Badge::loadByTitle("Dedicated Saver");
-
-            // Update information in database
-            try {
-                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET (tier = :tier, progress = :progress) WHERE (customerID = :id, badgeID = :id););");
-                $stmt->execute([":tier" => $tier, ":progress" => $weeksElapsed, ":id" => $this->id, ":badgeID" => $dedicatedSaver->getId()]);
-            } catch (\PDOException $e) {
-                throw new DatabaseException($e->getMessage());
-            }
-
-        }
-
     }
 
     /**
@@ -250,6 +187,53 @@ class Bundle extends StoredObject {
 
         // Return true if a bundle exists with the given ID
         return !($row === false);
+    }
+
+    /**
+     * Method that retrieves all bundles that are currently still before their expiration date
+     * @throws DatabaseException
+     * @return array of bundle objects that are still active
+     */
+    public static function loadAllActiveBundles(): array {
+        // SQL parameterised query that retrieves all bundles that have not expired
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate < :timestamp;");
+            $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Use bundleIDs to load all bundle objects with matching IDs and return them
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $bundles = array();
+        foreach ($rows as $row) {
+            $bundles[] = Bundle::load($row["bundleID"]);
+        }
+
+        return $bundles;
+    }
+
+    /**
+     * @return array of bundles that are past their expiration date
+     * @throws DatabaseException
+     */
+    public static function loadAllExpiredBundles(): array {
+        // SQL parameterised query that retrieves all bundles that have not expired
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate >= :timestamp;");
+            $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Use bundleIDs to load all bundle objects with matching IDs and return them
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $bundles = array();
+        foreach ($rows as $row) {
+            $bundles[] = Bundle::load($row["bundleID"]);
+        }
+
+        return $bundles;
     }
 
     /**
@@ -477,6 +461,7 @@ class Bundle extends StoredObject {
      *
      * @param int $sellerID
      * @return void
+     * @throws NoSuchSellerException
      */
     private function setSellerID(int $sellerID): void {
         // Ensure that the given seller ID corresponds to an actual seller
@@ -557,7 +542,7 @@ class Bundle extends StoredObject {
         $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
 
         $stmt = DatabaseHandler::getPDO()->prepare($query);
-        $stmt->execute([":pattern" => $pattern, ":status" => "available"]);
+        $stmt->execute([":pattern" => $pattern, ":status" => "onsale"]);
 
         $rowsRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $rows = array();

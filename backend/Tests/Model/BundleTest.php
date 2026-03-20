@@ -52,7 +52,7 @@ class BundleTest extends TestCase
         // Create associative array with fields required as parameter for update()
         $fields =
             array(
-                "bundleStatus" => BundleStatus::Available,
+                "bundleStatus" => BundleStatus::OnSale,
                 "title" => "Test Bundle Title",
                 "details" => "Test Bundle Details",
                 "rrp" => 599,
@@ -124,7 +124,7 @@ class BundleTest extends TestCase
 
 
         // Change values for $bundle to a set of valid values
-        $bundle->setStatus(BundleStatus::Reserved);
+        $bundle->setStatus(BundleStatus::OffSale);
         $bundle->setPurchaserID($customer->getUserID());
         $bundle->setTitle("Testing Updating Method");
         $bundle->setRrpGBX(700);
@@ -202,7 +202,7 @@ class BundleTest extends TestCase
         // Create associative array with fields required as parameter for create()
         $fields =
             array(
-                "bundleStatus" => BundleStatus::Available,
+                "bundleStatus" => BundleStatus::OnSale,
                 "title" => "Test Bundle Title",
                 "details" => "Test Bundle Details",
                 "rrp" => 599,
@@ -367,7 +367,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -422,7 +422,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -464,7 +464,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -514,7 +514,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -565,7 +565,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -610,7 +610,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -639,7 +639,7 @@ class BundleTest extends TestCase
     public function testSearchBundle() {
         $testSeller = Seller::create(["email" => "testsearchbundle@example.com", "password" => "password",
             "name" => "ex name", "address" => "ex address"]);
-        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Available, "expiryDate" => new DateTimeImmutable("now"),
+        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "expiryDate" => new DateTimeImmutable("now"),
             "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
             "discountedPrice" => 8.00, "quantity" => 1]);
 
@@ -669,7 +669,7 @@ class BundleTest extends TestCase
 
         // Create bundle for testing
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -713,7 +713,7 @@ class BundleTest extends TestCase
         ]);
 
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
@@ -771,7 +771,7 @@ class BundleTest extends TestCase
         ]);
 
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
