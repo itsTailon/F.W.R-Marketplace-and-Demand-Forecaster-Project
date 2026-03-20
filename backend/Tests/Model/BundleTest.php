@@ -5,7 +5,6 @@ namespace TTE\App\Tests\Model;
 use DateInterval;
 use Exception;
 use TTE\App\Model\Category;
-use TTE\App\Model\CategoryAlreadyExistsException;
 use TTE\App\Model\NoSuchAllergenException;
 use TTE\App\Model\NoSuchCategoryException;
 use PHPUnit\Framework\TestCase;
