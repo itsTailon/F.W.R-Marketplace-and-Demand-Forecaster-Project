@@ -100,18 +100,19 @@ class DatabaseHandler {
                 
                 CREATE TABLE IF NOT EXISTS bundle (
                     bundleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    bundleStatus ENUM('available', 'reserved', 'collected', 'cancelled') NOT NULL,
-                    title VARCHAR(128) NOT NULL, -- formerly `name`
-                    details TEXT NOT NULL, -- formerly `description`
+                    bundleStatus ENUM('onsale', 'offsale') NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    details TEXT NOT NULL,
                     quantity INT NOT NULL DEFAULT 1,
-                    CHECK (quantity >= 0), -- prevent negative quantities
                     rrp DECIMAL(8, 2) NOT NULL, -- recommended retail price
                     discountedPrice DECIMAL(8, 2) NOT NULL,
-                    CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
+                    expiryDate DATE NOT NULL,
+                    CHECK (quantity >= 0), -- prevent negative quantities
+                    CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
-                    FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
+                    FOREIGN KEY (purchaserID) REFERENCES customer(customerID) ON DELETE SET NULL
                 );
                 
                 CREATE TABLE IF NOT EXISTS allergen (
