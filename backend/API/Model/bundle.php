@@ -15,12 +15,14 @@ use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Category;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBadgeException;
 use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\FailedOwnershipAuthException;
 use TTE\App\Model\NoSuchCategoryException;
 use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
 use TTE\App\Model\CategoryAlreadyExistsException;
+use TTE\App\Model\NoSuchStreakException;
 
 include '../../../vendor/autoload.php';
 
@@ -50,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Presence check for fields
-        if (!isset($_PUT["title"]) || !isset($_PUT["details"])
+        if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
             || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity'])) {
 
             // Throwing exception if field isn't present in retrieve data
@@ -105,12 +107,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
+        $bundle->setExpiryDate(DateTimeImmutable::createFromFormat("Y-m-d", $_PUT['expiryDate']));
         $bundle->setQuantity($_PUT['quantity']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
 
         // Set allergens
-        // TODO: Make more efficient (add 'setAllergens' method to Bundle, perhaps)
         foreach ($bundle->getAllergens() as $existingAllergen) {
             $bundle->removeAllergen($existingAllergen);
         }
@@ -174,9 +176,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchCategoryException $e) {
         echo json_encode(http_response_code(400));
         die("NSE");
-    } catch (CategoryAlreadyExistsException $e) {
+    } catch (NoSuchBadgeException $e) {
         echo json_encode(http_response_code(400));
-        die("CAE");
+        die("NSBE");
+    } catch (NoSuchStreakException $e) {
+        echo json_encode(http_response_code(400));
+        die("NSSE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -199,6 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
+            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
             "bundleStatus" => BundleStatus::Available,
         );
@@ -333,6 +339,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "quantity" => $bundle->getQuantity(),
             "status" => $bundle->getStatus(),
             "rrpGBX" => $bundle->getRrpGBX(),
+            "expiryDate" => $bundle->getExpiryDate(),
             "discountedPriceGBX" => $bundle->getDiscountedPriceGBX(),
             "sellerID" => $bundle->getSellerID(),
             "purchaserID" => $bundle->getPurchaserID(),
