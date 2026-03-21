@@ -109,6 +109,7 @@ class DatabaseHandler {
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
                     expiryDate DATE NOT NULL,
+                    pickupWindow VARCHAR(11) NOT NULL, -- pickup window as string in format 'hh[COLON]mm-hh[COLON]mm'
                     CHECK (quantity >= 0), -- prevent negative quantities
                     CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,

@@ -6,6 +6,7 @@
 
 // Import bundle from Model directory
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Helpers\TimeTools;
 use TTE\App\Model\Allergen;
 use TTE\App\Model\Bundle;
 use TTE\App\Auth\Authenticator;
@@ -51,9 +52,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
+        // TODO: Remove below temporary code once the frontend handles expiryDate
+        // -- Temporary code to allow testing whilst expiryDate is not passed by frontend: ---
+        $_PUT['expiryDate'] = "2026-10-01";
+        // -----------------------------------------------------------------------------------
+
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity'])) {
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -103,6 +109,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             }
         }
 
+        // Validate pickup window value
+        if (!TimeTools::verifyTimeSlotStringFormat($_PUT['pickupWindow'])) {
+            throw new InvalidArgumentException();
+        }
+
         // Apply changes to bundle
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
@@ -111,6 +122,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundle->setQuantity($_PUT['quantity']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
+        $bundle->setPickupWindow($_PUT['pickupWindow']);
 
         // Set allergens
         foreach ($bundle->getAllergens() as $existingAllergen) {
@@ -151,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         die("MVE");
     } catch (InvalidArgumentException $e) {
         http_response_code(400);
-        die("IAE");
+        die("IAE" . $e->getMessage());
     } catch (DatabaseException $db_e) {
         // Handling exception produced due to database error and producing JSON-encoded response
         echo json_encode(http_response_code(500));
@@ -190,7 +202,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity']) || !isset($_POST['pickupWindow'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -204,9 +216,15 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
-            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
+            // Original code (uncomment when properly implemented)
+//          "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
+
+            // Delete the line below once expiry date frontend code is implemented
+            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", "2026-10-01"),
+
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
-            "bundleStatus" => BundleStatus::Available,
+            "bundleStatus" => BundleStatus::OnSale,
+            "pickupWindow" => $_POST["pickupWindow"],
         );
 
         // Get allergens
@@ -230,6 +248,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             if (!Category::categoryExists($category)) {
                 throw new NoSuchCategoryException("No $category category was found");
             }
+        }
+
+        // Verify time slot value validity
+        if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
+            throw new InvalidArgumentException("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
         }
 
         // Checking that current user has permissions to create a Bundle
@@ -294,7 +317,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Seller not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
         die("NSE");
-    } catch (InvalidArgumentException $ia_e) {
+    } catch (InvalidArgumentException|ValueError $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
         die("IAE");

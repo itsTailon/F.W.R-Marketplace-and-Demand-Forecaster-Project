@@ -8,6 +8,7 @@ $('#submit-btn').click(() => {
     var bundleDiscountPrice = $("#discount-price").val();
     var sellerID = $("#sellerID").val();
     var bundleCategory = $("#category-selector").val();
+    var bundlePickupWindow = $("#pickup-window").val();
 
     $('.error-text').text(""); // Reset red error text
 
@@ -81,7 +82,8 @@ $('#submit-btn').click(() => {
             rrp: bundleRRP * 100,
             discountedPrice: bundleDiscountPrice * 100,
             allergens: JSON.stringify(allergens),
-            categoryName: bundleCategory
+            categoryName: bundleCategory,
+            pickupWindow: bundlePickupWindow
         },
         statusCode: {
             200: () => { // Edit successful

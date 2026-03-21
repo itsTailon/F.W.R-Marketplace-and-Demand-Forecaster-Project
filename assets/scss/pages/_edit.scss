@@ -21,6 +21,7 @@ div.edit-form__field, ul.allergen-list {
     max-width: 550px;
 }
 
+
 li.allergen-list__item {
     padding: 5px;
     border-bottom: 1px solid #c7c7c7;
@@ -89,7 +90,7 @@ div.edit-form__field > label {
     height: fit-content;
 }
 
-div.edit-form__field .textbox, div.edit-form__field textarea.textarea, select.category-selector {
+div.edit-form__field .textbox, div.edit-form__field textarea.textarea, select.category-selector, #pickup-window {
     flex-basis: calc(100% - 170px);
 }
 
