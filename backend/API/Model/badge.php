@@ -104,11 +104,11 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
             if ($badge["tier"] == null) {
                 // Form the URL for the given badge to be presented
-                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . "locked" . "png");
+                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . "locked" . ".png");
 
             } else {
                 // Form the URL for the given badge to be presented
-                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . $badge["tier"] . "png");
+                $iconURL = strtolower(str_replace(" ", "", $current_badge->getTitle()) . $badge["tier"] . ".png");
 
             }
 

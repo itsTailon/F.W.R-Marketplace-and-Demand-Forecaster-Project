@@ -78,6 +78,12 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
             </div>
         </div>
     </div>
+
+    <div class="view-badges">
+        <h2 class="view-badges__heading">Your Badges</h2>
+        <table id="badges-table">
+        </table>
+    </div>
 </div>
 
 
