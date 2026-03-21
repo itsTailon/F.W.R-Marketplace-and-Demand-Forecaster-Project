@@ -257,3 +257,32 @@ $.ajax({
         updateCalendar(); // Update calendar widget
     }
 });
+
+// Get user's badges
+$.ajax({
+    url: "/backend/API/Model/badge.php",
+    type: "GET",
+    success: badges => {
+        // Display badges in table, two per row
+        let tableHtml = "<tr>";
+        let count = 0; // Store how many badges have been displayed so far
+        Object.keys(badges).forEach(badgeTitle => {
+            let badgeDetails = badges[badgeTitle];
+            tableHtml += `
+                <td>
+                    <img class="view-badges-table__thumbnail" src="/assets/icons/${badgeDetails["badgeIconURL"]}">
+                    <h3 class="view-badges-table__heading">${badgeTitle}</h3>
+                    <p>${badgeDetails["badgeSubtitle"]}</p>
+                    <p class="view-badges-table__description">${badgeDetails["badgeDescription"]}</p>
+                </td>
+            `;
+            if (++count % 2 == 0) { // If the badge is the second on the row
+                tableHtml += "</tr><tr>"; // End the row
+            }
+        });
+        if (!tableHtml.endsWith("</tr>")) { // If the final badge was not the second in the row and hence last row was not ended
+            tableHtml += "</tr>"; // End the row
+        }
+        $("#badges-table").html(tableHtml);
+    }
+});
