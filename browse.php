@@ -1,5 +1,6 @@
 <?php
 use TTE\App\Auth\Authenticator;
+use TTE\App\Helpers\TimeTools;
 use TTE\App\Model\Seller;
 use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\Bundle;
@@ -39,6 +40,31 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     <label for="location" id="location-label">Location:</label><br>
                     <input type="text" name="location" id="location" class="searchformelem"/>
                 </article>
+                <article>
+                    <label for="earliest-pickup" id="earliest-pickup-label">Earliest pickup:</label>
+                    <select id="earliest-pickup" name="earliest-pickup" class="dropdown">
+                        <?php
+                        echo '<option selected value = "0">0:00</option>';
+
+                        for ($i = 1; $i < 24; $i++) {
+                            echo '<option value="' . $i . '">' . $i . ':00</option>';
+                        }
+                        ?>
+                    </select>
+                </article>
+                <article>
+                    <label for="latest-pickup" id="latest-pickup-label">Latest pickup:</label>
+                    <select id="latest-pickup" name="latest-pickup" class="dropdown">
+                        <?php
+                        for ($i = 1; $i < 24; $i++) {
+                            $hourAsText = $i . ":00";
+                            echo '<option value="' . $i . '">' . $i . ':00</option>';
+                        }
+
+                        echo '<option selected value = "24">24:00</option>"';
+                        ?>
+                    </select>
+                </article>
             </div>
         </form>
 
@@ -48,13 +74,41 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
         $results = Bundle::searchBundles($query);
 
-        for ($i = 0; $i < count($results); $i++) {
+        $earliestPickupDesired = 3600 * ($_GET['earliest-pickup'] ?? 0); // Time measured in seconds since midnight
+        $latestPickupDesired = 3600 * ($_GET['latest-pickup'] ?? 24); // Ditto
+
+        $nItemsDisplayed = 0; // The number of items that have been displayed
+
+        if ($latestPickupDesired <= $earliestPickupDesired) {
+            echo "<p>Latest pickup time before or equal to earliest pickup time; no results will be shown.</p>\n";
+        } else for ($i = 0; $i < count($results); $i++) {
             $seller = Seller::load($results[$i]->getSellerID());
 
-            if ($_GET['location'] && $_GET['location'] != $seller->getAddress()) continue;
+            if ($_GET['location'] && $_GET['location'] != $seller->getAddress()) {
+                continue;
+            }
+
+            if ($earliestPickupDesired != 0 || $latestPickupDesired != 24 * 3600) { // Only bother doing string manipulation and stuff if the values are actually set
+                $pickupWindow = $results[$i]->getPickupWindow();
+
+                if (!TimeTools::verifyTimeSlotStringFormat($pickupWindow)) {
+                    echo "<p>Time slot for bundle '" . $results[$i]->getTitle() . "' with ID " . $results[$i]->getUserID() . " stored in invalid format in database.\n</p>";
+                }
+
+                $times = explode("-", $pickupWindow); // Get the times that are available
+                $earliestPickupAvailableHHMM = TimeTools::parseTimeString($times[0]); // Get the earliest available pickup
+                $latestPickupAvailableHHMM = TimeTools::parseTimeString($times[1]); // Get the latest available pickup
+                $earliestPickupAvailable = TimeTools::timeAsSecondsFromMidnight($earliestPickupAvailableHHMM[0], $earliestPickupAvailableHHMM[1]); // Convert to int
+                $latestPickupAvailable = TimeTools::timeAsSecondsFromMidnight($latestPickupAvailableHHMM[0], $latestPickupAvailableHHMM[1]); // Convert to int
+
+                if ($earliestPickupDesired >= $latestPickupAvailable || $latestPickupDesired <= $earliestPickupAvailable) continue; // Filter by pickup window
+            }
 
             $results[$i]->display();
+            $nItemsDisplayed++; // Only increment the number of items that have been displayed once we have actually displayed an item
         }
+
+        if ($nItemsDisplayed == 0) echo "<i>No results found</i>\n";
         ?>
         </div>
     </div>

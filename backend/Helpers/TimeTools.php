@@ -52,7 +52,7 @@ class TimeTools {
         }
 
         // Verify the separate time strings
-        if (!self::verifyTimeStringFormat($times[0]) || !self::verifyTimeStringFormat($times[0])) {
+        if (!self::verifyTimeStringFormat($times[0]) || !self::verifyTimeStringFormat($times[1])) {
             return false; // Incorrect formatting
         }
 
