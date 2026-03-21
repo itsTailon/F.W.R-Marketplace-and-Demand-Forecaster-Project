@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
 use TTE\App\Helpers\TimeTools;
+use ValueError;
 
 class Bundle extends StoredObject {
 
@@ -83,8 +84,8 @@ class Bundle extends StoredObject {
      * Create a Bundle object and add entry to database.
      *
      * @param array $fields associative array of fields required for Bundle.
-     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException|ValueError
      * @return Bundle object with fields holding values passed in at call of the function.
+     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException|ValueError
      */
     public static function create(array $fields): Bundle {
 
@@ -98,7 +99,7 @@ class Bundle extends StoredObject {
 
         // Verify time slot value validity
         if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
-            throw new \ValueError("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
+            throw new ValueError("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
         }
 
         // Creating new Bundle object
@@ -414,7 +415,7 @@ class Bundle extends StoredObject {
     public function setTitle(string $title): void {
         // Ensure length of new title complies with DB schema (128)
         if (strlen($title) > self::MAX_LEN_TITLE) {
-            throw new \ValueError("Cannot set bundle title longer than " . self::MAX_LEN_TITLE . " characters");
+            throw new ValueError("Cannot set bundle title longer than " . self::MAX_LEN_TITLE . " characters");
         }
 
         $this->title = $title;
@@ -435,7 +436,7 @@ class Bundle extends StoredObject {
     public function setRrpGBX(int $gbx): void {
         // Ensure value is non-negative
         if ($gbx < 0) {
-            throw new \ValueError("Cannot set RRP to negative value");
+            throw new ValueError("Cannot set RRP to negative value");
         }
 
         $this->rrpGBX = $gbx;
@@ -456,7 +457,7 @@ class Bundle extends StoredObject {
     public function setDiscountedPriceGBX(int $gbx): void {
         // Ensure value is non-negative
         if ($gbx < 0) {
-            throw new \ValueError("Cannot set discounted price to negative value");
+            throw new ValueError("Cannot set discounted price to negative value");
         }
 
         $this->discountedPriceGBX = $gbx;
@@ -511,7 +512,7 @@ class Bundle extends StoredObject {
     public function setQuantity(int $quantity): void {
         // Ensure quantity is valid
         if ($quantity < 0) {
-            throw new \ValueError("Cannot set bundle quantity to negative value");
+            throw new ValueError("Cannot set bundle quantity to negative value");
         }
 
         // Update quantity
@@ -522,12 +523,12 @@ class Bundle extends StoredObject {
      * Sets the pickup window from a string in the format 'hh:mm-hh:mm', validated using TimeTools::verifyTimeSlotStringFormat.
      *
      * @param string $pickupWindow
-     * @throws \ValueError if an invalid pickup window value is passed
+     * @throws ValueError if an invalid pickup window value is passed
      * @return void
      */
     public function setPickupWindow(string $pickupWindow): void {
         if (!TimeTools::verifyTimeSlotStringFormat($pickupWindow)) {
-            throw new \ValueError("Invalid pickup window value '$pickupWindow'.");
+            throw new ValueError("Invalid pickup window value '$pickupWindow'.");
         }
 
         $this->pickupWindow = $pickupWindow;

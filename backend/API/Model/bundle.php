@@ -211,7 +211,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
-            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
+            // Original code (uncomment when properly implemented)
+//          "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
+
+            // Delete the line below once expiry date frontend code is implemented
+            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", "2026-10-01"),
+
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
             "bundleStatus" => BundleStatus::OnSale,
             "pickupWindow" => $_POST["pickupWindow"],
@@ -307,7 +312,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Seller not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
         die("NSE");
-    } catch (InvalidArgumentException $ia_e) {
+    } catch (InvalidArgumentException|ValueError $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
         die("IAE");
