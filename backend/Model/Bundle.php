@@ -5,6 +5,7 @@ namespace TTE\App\Model;
 use DateTimeImmutable;
 use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Helpers\TimeTools;
 
 class Bundle extends StoredObject {
 
@@ -29,6 +30,8 @@ class Bundle extends StoredObject {
 
     private ?int $purchaserID;
 
+    private string $pickupWindow;
+
     /**
      * Take current values of all attributes of the Bundle object
      * @throws DatabaseException|NoSuchBundleException|MissingValuesException
@@ -44,7 +47,7 @@ class Bundle extends StoredObject {
 
         // Check if current object values are all set
         if (!isset($this->id) || !isset($this->status) || !isset($this->title) || !isset($this->details) || !isset($this->rrpGBX) ||
-            !isset($this->discountedPriceGBX) || !isset($this->expiryDate) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
+            !isset($this->discountedPriceGBX) || !isset($this->expiryDate) || !isset($this->pickupWindow) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
@@ -61,7 +64,7 @@ class Bundle extends StoredObject {
 
 
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, expiryDate = :expiryDate, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, expiryDate = :expiryDate, sellerID = :sellerID, purchaserID = :purchaserID, pickupWindow = :pickupWindow WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
@@ -69,7 +72,7 @@ class Bundle extends StoredObject {
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":expiryDate" => $this->getExpiryDate()->format("Y-m-d"), ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":quantity" => $this->getQuantity() ,":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID() ,":id" => $this->id]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID(), "pickupWindow" => $this->pickupWindow , ":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -80,17 +83,22 @@ class Bundle extends StoredObject {
      * Create a Bundle object and add entry to database.
      *
      * @param array $fields associative array of fields required for Bundle.
-     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException
+     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException|ValueError
      * @return Bundle object with fields holding values passed in at call of the function.
      */
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
         if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['expiryDate']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
-            !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details'])) || empty(trim($fields['quantity']))) {
+            !isset($fields['discountedPrice']) || !isset($fields['pickupWindow']) || empty(trim($fields['title'])) || empty(trim($fields['details'])) || empty(trim($fields['quantity']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
+        }
+
+        // Verify time slot value validity
+        if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
+            throw new \ValueError("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
         }
 
         // Creating new Bundle object
@@ -105,16 +113,17 @@ class Bundle extends StoredObject {
         $bundle->setSellerID($fields['sellerID']);
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
         $bundle->setQuantity($fields['quantity']);
+        $bundle->setPickupWindow($fields['pickupWindow']);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, quantity, rrp, discountedPrice, expiryDate, sellerID, purchaserID) 
-            VALUES (:bundleStatus, :title, :details, :quantity, :rrp, :discountedPrice, :expiryDate, :sellerID, :purchaserID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, quantity, rrp, discountedPrice, expiryDate, sellerID, purchaserID, pickupWindow) 
+            VALUES (:bundleStatus, :title, :details, :quantity, :rrp, :discountedPrice, :expiryDate, :sellerID, :purchaserID, :pickupWindow);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
             $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":expiryDate" => $bundle->getExpiryDate()->format("Y-m-d"), ":details" => $bundle->getDetails(), ":quantity" => $bundle->getQuantity(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID(), "pickupWindow" => $bundle->getPickupWindow()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -164,6 +173,7 @@ class Bundle extends StoredObject {
         $bundle->sellerID = $row['sellerID'];
         $bundle->purchaserID = $row['purchaserID'];
         $bundle->setQuantity($row['quantity']);
+        $bundle->pickupWindow = $row['pickupWindow'];
 
         return $bundle;
     }
@@ -494,7 +504,7 @@ class Bundle extends StoredObject {
     }
 
     /**
-     *  Update bundle listing quantity
+     * Update bundle listing quantity
      * @param int $quantity value to be updated to
      * @return void
      */
@@ -506,6 +516,25 @@ class Bundle extends StoredObject {
 
         // Update quantity
         $this->quantity = $quantity;
+    }
+
+    /**
+     * Sets the pickup window from a string in the format 'hh:mm-hh:mm', validated using TimeTools::verifyTimeSlotStringFormat.
+     *
+     * @param string $pickupWindow
+     * @throws \ValueError if an invalid pickup window value is passed
+     * @return void
+     */
+    public function setPickupWindow(string $pickupWindow): void {
+        if (!TimeTools::verifyTimeSlotStringFormat($pickupWindow)) {
+            throw new \ValueError("Invalid pickup window value '$pickupWindow'.");
+        }
+
+        $this->pickupWindow = $pickupWindow;
+    }
+
+    public function getPickupWindow(): string {
+        return $this->pickupWindow;
     }
 
     /**
