@@ -139,6 +139,25 @@ class Account extends StoredObject {
         $account->email = $fields['email'];
         $account->accountType = $fields['accountType'];
 
+        // Assign an appropriate RBAC role to the new user account
+        try {
+            switch($account->accountType) {
+                case "seller":
+                    RBACManager::assignRoleToUser($account->userID, "seller");
+                    break;
+                case "customer":
+                    RBACManager::assignRoleToUser($account->userID, "customer");
+                    break;
+                case "maintainer":
+                    RBACManager::assignRoleToUser($account->userID, "maintainer");
+                    break;
+            }
+        } catch (\Exception $e) {
+            // For an unknown reason, the user could not be assigned a role.
+
+            // Continue gracefully.
+        }
+
         return $account;
     }
 
