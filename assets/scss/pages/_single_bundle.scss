@@ -33,6 +33,11 @@
     font-weight: map.get(config.$font-weights, "light");
   }
 
+  &__quantity, &__pickup-window {
+    display: block;
+    margin-top: 8px;
+  }
+
   &__price {
     display: flex;
     gap: 32px;
