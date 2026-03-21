@@ -6,6 +6,7 @@
 
 // Import bundle from Model directory
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Helpers\TimeTools;
 use TTE\App\Model\Allergen;
 use TTE\App\Model\Bundle;
 use TTE\App\Auth\Authenticator;
@@ -53,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity'])) {
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -103,6 +104,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             }
         }
 
+        // Validate pickup window value
+        if (TimeTools::verifyTimeSlotStringFormat($_PUT['pickupWindow'])) {
+            throw new InvalidArgumentException();
+        }
+
         // Apply changes to bundle
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
@@ -111,6 +117,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $bundle->setQuantity($_PUT['quantity']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
+        $bundle->setPickupWindow($_PUT['pickupWindow']);
 
         // Set allergens
         foreach ($bundle->getAllergens() as $existingAllergen) {
@@ -190,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity']) || !isset($_POST['pickupWindow'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -206,7 +213,8 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "discountedPrice" => $_POST["discountedPrice"],
             "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
-            "bundleStatus" => BundleStatus::Available,
+            "bundleStatus" => BundleStatus::OnSale,
+            "pickupWindow" => $_POST["pickupWindow"],
         );
 
         // Get allergens
@@ -230,6 +238,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             if (!Category::categoryExists($category)) {
                 throw new NoSuchCategoryException("No $category category was found");
             }
+        }
+
+        // Verify time slot value validity
+        if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
+            throw new InvalidArgumentException("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
         }
 
         // Checking that current user has permissions to create a Bundle
