@@ -52,6 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
+        // TODO: Remove below temporary code once the frontend handles expiryDate
+        // -- Temporary code to allow testing whilst expiryDate is not passed by frontend: ---
+        $_PUT['expiryDate'] = "2026-10-01";
+        // -----------------------------------------------------------------------------------
+
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
             || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow'])) {
@@ -105,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Validate pickup window value
-        if (TimeTools::verifyTimeSlotStringFormat($_PUT['pickupWindow'])) {
+        if (!TimeTools::verifyTimeSlotStringFormat($_PUT['pickupWindow'])) {
             throw new InvalidArgumentException();
         }
 
@@ -158,7 +163,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         die("MVE");
     } catch (InvalidArgumentException $e) {
         http_response_code(400);
-        die("IAE");
+        die("IAE" . $e->getMessage());
     } catch (DatabaseException $db_e) {
         // Handling exception produced due to database error and producing JSON-encoded response
         echo json_encode(http_response_code(500));

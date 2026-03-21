@@ -10,6 +10,7 @@ $('#submit-btn').click(() => {
     var bundleRRP = $("#rrp").val();
     var bundleDiscountPrice = $("#discount-price").val();
     var bundleCategory = $("#category-selector").val();
+    var bundlePickupWindow = $("#pickup-window").val();
 
     $('.error-text').text(""); // Reset red error text
 
@@ -88,9 +89,10 @@ $('#submit-btn').click(() => {
             quantity: bundleQuantity,
             rrp: bundleRRP,
             discountedPrice: bundleDiscountPrice,
-            bundleStatus: "available",
+            bundleStatus: "onsale",
             allergens: JSON.stringify(allergens),
-            categoryName: bundleCategory
+            categoryName: bundleCategory,
+            pickupWindow: bundlePickupWindow
         },
         statusCode: {
             200: () => { // Edit successful
