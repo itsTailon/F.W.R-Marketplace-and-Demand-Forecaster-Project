@@ -250,6 +250,53 @@ class DatabaseHandler {
      */
     private static function initBaseData(): void {
 
+        // Initialise database with badge data
+        DatabaseHandler::getPDO()->exec(
+          <<<END
+            INSERT IGNORE badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Rescue Vet", "Hold your account for {x} months.", "Upgrade this badge by remaining a user for another {x} months.", 3, 6, 12);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Bargain Hunter", "Get a discount of {x} on a purchased bundle.", "Upgrade this badge by getting a discount of {x} on a purchased bundle.", 5, 10, 15);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Dedicated Saver", "Hold a streak for {x} weeks.", "Upgrade this badge by continuing your streak for another {x} weeks.", 3, 10, 20);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Loyal Customer", "Purchase the same bundle {x} times.", "Purchase the same bundle another {x} times.", 3, 5, 10);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Experienced Saver", "Reserved {x} bundles.", "Upgrade this badge by reserving {x} more bundles.", 10, 30, 75);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Explorer", "Bought from {x} distinct sellers.", "Upgrade this badge by buying from another {x} sellers.", 10, 20, 50);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Eco Warrior", "Save {x} kilograms of carbon dioxide.", "Upgrade this batch by saving another {x} kilograms of carbon dioxide", 10, 50, 100);
+            
+            
+            END
+
+        );
+
+        // Initialise database with category data
+        $categories = [
+            "Cakes",
+            "Meals",
+            "Brownies",
+            "Savoury Pastries",
+            "Sandwiches",
+            "Groceries",
+            "Sweet Pastries",
+            "Other",
+        ];
+
+        // Add each category if it does not already exist (IGNORE).
+        foreach ($categories as $category) {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT IGNORE INTO category (categoryName) VALUES (:categoryName);");
+            $stmt->execute(["categoryName" => $category]);
+        }
+
         // Initialise database with allergen data
         $allergens = [
             "celery",
@@ -273,7 +320,6 @@ class DatabaseHandler {
             $stmt = DatabaseHandler::getPDO()->prepare("INSERT IGNORE INTO allergen (allergenName) VALUES (:allergenName);");
             $stmt->execute(["allergenName" => $allergen]);
         }
-
 
         // Initialise DB with RBAC roles and permissions
         $rbac = [
