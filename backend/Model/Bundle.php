@@ -208,7 +208,7 @@ class Bundle extends StoredObject {
     public static function loadAllActiveBundles(): array {
         // SQL parameterised query that retrieves all bundles that have not expired
         try {
-            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate < :timestamp;");
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate > :timestamp;");
             $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
@@ -231,7 +231,7 @@ class Bundle extends StoredObject {
     public static function loadAllExpiredBundles(): array {
         // SQL parameterised query that retrieves all bundles that have not expired
         try {
-            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate >= :timestamp;");
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate <= :timestamp;");
             $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
