@@ -31,7 +31,7 @@ $numberOfReservations = 0;
 $pricingEffectivenessData = [0,0,0,0,0,0,0,0,0,0];
 
 
-// pickup window shite
+// pickup window stuff
 $pickupTimeData = [];
 
 //categoryData 
@@ -58,7 +58,7 @@ foreach($all_reservations as $r) {
         $discountPercentage = 1 - ($r['discountedPrice'] / $r['rrp']);
         $pricingEffectivenessData[floor($discountPercentage * 10)] += 1;
 
-        // pickup window shit
+        // pickup window stuff
         if(isset($pickupTimeData[$r['pickupWindow']])) {
             $pickupTimeData[$r['pickupWindow']] += 1;
         }
