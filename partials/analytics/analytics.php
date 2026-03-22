@@ -30,6 +30,15 @@ $numberOfReservations = 0;
 
 $pricingEffectivenessData = [0,0,0,0,0,0,0,0,0,0];
 
+
+// pickup window shite
+$pickupTimeData = [];
+
+//categoryData 
+$categoryData = [];
+
+
+
 // [Collected, No-Show, Expired]
 $sellThroughData = [0,0,0]; // to be added at a later date.
 
@@ -49,23 +58,89 @@ foreach($all_reservations as $r) {
         $discountPercentage = 1 - ($r['discountedPrice'] / $r['rrp']);
         $pricingEffectivenessData[floor($discountPercentage * 10)] += 1;
 
+        // pickup window shit
+        if(isset($pickupTimeData[$r['pickupWindow']])) {
+            $pickupTimeData[$r['pickupWindow']] += 1;
+        }
+        else {
+            $pickupTimeData[$r['pickupWindow']] = 1;
+        }
+
+        
+        // get bundle linked to reservation
+        try {
+            $rBundle = Bundle::load($r['bundleID']);
+            if(isset($categoryData[$rBundle->getCategory()])) {
+                $categoryData[$rBundle->getCategory()] += 1;
+            }
+            else {
+                $categoryData[$rBundle->getCategory()] = 1;
+            }
+        } catch (Exception $e){
+
+        }
+
+
+
     }
 
     else if($r['reservationStatus'] == 'active'){
         $numberReserved += 1;
     }
-    else if($r['reservaationStatus'] == 'no-show') {
+    else if($r['reservationStatus'] == 'no-show') {
         $sellThroughData[1] += 1;   
     }
 }
 
+
+$bundlesExpired = Bundle::loadAllExpiredBundles();
+foreach($bundlesExpired as $eb) {
+    $sellThroughData[2] += $eb->getQuantity();
+} 
+
+
 $collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfReservations) * 100, 2) : 0;
+
+
+// get top pickup time
+
+$topPickupTime = 'None';
+if(count($pickupTimeData) > 0) {
+    $keys = array_keys($pickupTimeData);
+    $values = array_values($pickupTimeData);
+    $topIndex = 0;
+    $topIndexVal = 0;
+    for($i = 0; $i < count($values); $i++) {
+        if($values[$i] > $topIndexVal) {
+            $topIndex = $i;
+            $topIndexVal = $values[$i];
+        }
+    }
+    $topPickupTime = $keys[$topIndex];
+}
+
+$topCategory = 'None';
+if(count($categoryData) > 0) {
+    $keys = array_keys($categoryData);
+    $values = array_values($categoryData);
+    $topIndex = 0;
+    $topIndexVal = 0;
+    for($i = 0; $i < count($values); $i++) {
+        if($values[$i] > $topIndexVal) {
+            $topIndex = $i;
+            $topIndexVal = $values[$i];
+        }
+    }
+    $topCategory = $keys[$topIndex];
+}
+
 
 
 
 // --------------
 
 // price effectiveness data
+
 
 
 
@@ -138,15 +213,15 @@ $collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfR
     <div class="analytics-more-stats">
         <div class="analytics-more-stats-bubble">
             <span class="analytics-more-stats-bubble-type">ESTIMATED WASTE AVOIDED</span>
-            <span class="analytics-more-stats-bubble-value">302kg</span>
+            <span class="analytics-more-stats-bubble-value"><?php echo htmlspecialchars($numberOfSales*1.3); ?>kg</span>
         </div>
         <div class="analytics-more-stats-bubble">
-            <span class="analytics-more-stats-bubble-type">TOP BUNDLE</span>
-            <span class="analytics-more-stats-bubble-value">Apples</span>
+            <span class="analytics-more-stats-bubble-type">TOP CATEGORY</span>
+            <span class="analytics-more-stats-bubble-value"><?php echo htmlspecialchars($topCategory); ?></span>
         </div>
         <div class="analytics-more-stats-bubble">
             <span class="analytics-more-stats-bubble-type">TOP PICKUP TIME</span>
-            <span class="analytics-more-stats-bubble-value">12:00</span>
+            <span class="analytics-more-stats-bubble-value"><?php echo htmlspecialchars($topPickupTime); ?></span>
         </div>
     </div>
 
@@ -469,13 +544,13 @@ $collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfR
             animation: true,
             
             plugins: {
-            legend: {
-                display: true,
-                position: 'bottom',
-            },
-            tooltip: {
-                enabled: true
-            }
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                },
+                tooltip: {
+                    enabled: true
+                }
             }
         },
         data: {
@@ -491,61 +566,105 @@ $collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfR
         }
     });
 
-    new Chart(document.getElementById('topPickupTimesChart'), {
-        type: 'bar',
-        options: {
-            animation: true,
-            
-            plugins: {
-            legend: {
-                display: false
+    // pickupWindow
+
+    const pickupTimeLabels = <?php echo json_encode(array_keys($pickupTimeData)); ?>;
+    const pickupTimeValues = <?php echo json_encode(array_values($pickupTimeData)); ?>;
+
+    if (pickupTimeLabels.length > 0) {
+        new Chart(document.getElementById('topPickupTimesChart'), {
+            type: 'bar',
+            options: {
+                animation: true,
+                plugins: {
+                    legend: {
+                         display: false 
+                    },
+                    tooltip: { 
+                        enabled: true 
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Pickup Time',
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of Collections',
+                        }
+                    }
+                }
             },
-            tooltip: {
-                enabled: true
+            data: {
+                labels: pickupTimeLabels,
+                datasets: [{
+                    data: pickupTimeValues,
+                    barThickness: 35,
+                    backgroundColor: 'rgb(73, 73, 73)',
+                    borderRadius: 5,
+                }]
             }
-            }
-        },
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                barThickness: 35,
-                backgroundColor: 'rgb(73, 73, 73)',
-                borderRadius: 5,
-
-            }]
-        }
+        });
+    } else {
+        document.getElementById('topPickupTimesChart').parentElement.innerHTML = '<p>No pickup data available yet.</p>';
+    }
 
 
-    });
 
-    new Chart(document.getElementById('topCategoriesChart'), {
-        type: 'bar',
-        options: {
-            animation: true,
-            
-            plugins: {
-            legend: {
-                display: false
+    //category stuff
+    const categoryLabels = <?php echo json_encode(array_keys($categoryData)); ?>;
+    const categoryValues = <?php echo json_encode(array_values($categoryData)); ?>;
+
+    if (categoryLabels.length > 0) {
+        new Chart(document.getElementById('topCategoriesChart'), {
+            type: 'bar',
+            options: {
+                animation: true,
+                
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Category',
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number Of Sales',
+                        }
+                    }
+                }
             },
-            tooltip: {
-                enabled: true
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    barThickness: 35,
+                    backgroundColor: 'rgb(255, 125, 125)',
+                    borderRadius: 5,
+
+                }]
             }
-            }
-        },
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                barThickness: 35,
-                backgroundColor: 'rgb(255, 125, 125)',
-                borderRadius: 5,
-
-            }]
-        }
 
 
-    });
+        });
+    }
+    else {
+        document.getElementById('topCategoriesChart').parentElement.innerHTML = '<p>No category data available yet.</p>';
+    }
     
 </script>
 
