@@ -134,6 +134,8 @@ class DatabaseHandler {
                     purchaserID INT NOT NULL,
                     reservationStatus ENUM ('active', 'completed', 'no-show', 'cancelled') NOT NULL,
                     claimCode VARCHAR (16) NOT NULL UNIQUE,
+                    reservationDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    weatherCondition VARCHAR (128) NOT NULL,
                     FOREIGN KEY (bundleID) REFERENCES bundle (bundleID) ON DELETE CASCADE,
                     FOREIGN KEY (purchaserID) REFERENCES customer (customerID) ON DELETE CASCADE
                 );

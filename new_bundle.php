@@ -27,6 +27,10 @@ require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 
 $categoryList = Category::getCategoryList();
+
+$today = new DateTimeImmutable();
+$tomorrow = $today->modify("+1 day");
+
 ?>
 
 <input type="hidden" name="sellerID" value="<?php echo Authenticator::getCurrentUser()->getUserID(); ?>">
@@ -111,6 +115,10 @@ $categoryList = Category::getCategoryList();
             <div class="bundle-creation-form__field">
                 <label for="discount-price">Discounted Price</label>
                 <div class="textbox" data-type="text" data-id="discount-price" data-label="Price in £" id="discount-price-textbox"></div>
+            </div>
+            <div class="bundle-creation-form__field">
+                <label for="expiry-date">Expiry Date</label>
+                <input type="date" id="expiry-date" min="<?php echo $tomorrow->format("Y-m-d"); ?>" value="<?php echo $tomorrow->format("Y-m-d"); ?>">
             </div>
             <div class="bundle-creation-form__btns">
                 <button type="button" class="button button--rounded button--green" id="submit-btn">Submit</button>
