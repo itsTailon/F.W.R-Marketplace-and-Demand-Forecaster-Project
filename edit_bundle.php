@@ -96,6 +96,12 @@ $categoryList = Category::getCategoryList();
 $myCategory = $bundle->getCategory();
 $quantity = $bundle->getQuantity();
 
+$today = new DateTimeImmutable();
+$tomorrow = $today->modify("+1 day");
+
+$expiryDate = $bundle->getExpiryDate();
+$expiryDateFmt = $expiryDate->format("Y-m-d");
+
 ?>
 
 <section class="edit-form">
@@ -215,6 +221,10 @@ $quantity = $bundle->getQuantity();
         <div class="textbox" data-type="text" data-id="discount-price" data-label="Price in £" id="discount-price-textbox" data-value="<?php
         print($dp_pounds_str . '.' . $dp_pence_str); // Format DP as £XX.XX
         ?>"></div>
+    </div>
+    <div class="edit-form__field">
+        <label for="expiry-date">Expiry Date</label>
+        <input type="date" id="expiry-date" min="<?php echo $tomorrow->format("Y-m-d"); ?>" value="<?php echo $expiryDateFmt; ?>">
     </div>
     <br>
     <div class="edit-form__btns">

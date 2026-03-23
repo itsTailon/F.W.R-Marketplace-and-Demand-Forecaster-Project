@@ -11,7 +11,8 @@ $('#submit-btn').click(() => {
     var bundleDiscountPrice = $("#discount-price").val();
     var bundleCategory = $("#category-selector").val();
     var bundlePickupWindow = $("#pickup-window").val();
-
+    var expiryDate = $("#expiry-date").val();
+    
     $('.error-text').text(""); // Reset red error text
 
     // Perform validation checks
@@ -92,7 +93,8 @@ $('#submit-btn').click(() => {
             bundleStatus: "onsale",
             allergens: JSON.stringify(allergens),
             categoryName: bundleCategory,
-            pickupWindow: bundlePickupWindow
+            pickupWindow: bundlePickupWindow,
+            expiryDate: expiryDate
         },
         statusCode: {
             200: () => { // Edit successful
