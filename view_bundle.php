@@ -136,6 +136,58 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                 <p class="bundle-view__desc"><?php echo $bundle->getDetails(); ?></p>
             </div>
 
+            <div class="bundle-view__prediction">
+            <?php
+            $user = Authenticator::getCurrentUserSubclass();
+            if ($user instanceof Seller && $bundle->getSellerID() == $user->getUserID()) {
+                $prediction = \TTE\App\Model\Forecast::getProductionRecommendation($bundle);
+                $collectedNumber = $prediction[0];
+                $noShow = $prediction[1];
+                $quantity = $prediction[2];
+                $time = $prediction[3];
+
+                $adjustment = (int)($collectedNumber/7) - $bundle->getQuantity();
+
+                if($collectedNumber == 0 && $noShow == 0) {
+                    ?>
+                    <p> There are no recorded instances of similar bundles at this time for this account </p>
+                    <?php
+                } else {
+                    ?>
+                    <p><?php echo $collectedNumber?> of these bundles are collected each week, and <?php echo $noShow?> are missed.</p>
+                    <?php
+
+                    if($adjustment = 0) {
+                        ?>
+                        <p> A sufficient number of this bundle type has been posted </p>
+                        <?php
+                    } elseif ($adjustment < 0) {
+                        $adjustment = $adjustment * -1;
+                        ?>
+                        <p> It is recommended that <?php echo $adjustment?> less of this type of bundle should be listed</p>
+                        <?php
+                    } elseif ($adjustment > 0) {
+                        ?>
+                        <p> It is recommended that <?php echo $adjustment?> more of this type of bundle should be listed</p>
+                        <?php
+                    }
+
+                    if($time != null){
+                        ?>
+                        <p> The most popular time for pickup is <?php echo $time?></p>
+                        <?php
+                    } else {
+                        ?>
+                        <p> No bundles of this type have been collected yet</p>
+                        <?php
+                    }
+                }
+                ?>
+                    <div class="bundle-view__recommendation"
+                <?php
+            }
+            ?>
+            </div>
         </div>
     </div>
 </div>

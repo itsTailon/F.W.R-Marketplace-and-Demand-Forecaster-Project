@@ -282,7 +282,13 @@ class Reservation extends StoredObject
         $thisReservation->purchaserID = $fields['purchaserID'];
         $thisReservation->status = $fields['status'];
         $thisReservation->claimCode = $claimCode;
-        $weatherCon = self::getCurrentWeather();
+        if($fields['reservationDate'] == null) {
+            $today = new \DateTime();
+            $today = getdate($today->getTimestamp())['yday'];
+        } else {
+            $today = getdate(strtotime($fields['reservationDate']))['yday'];
+        }
+        $weatherCon = self::getCurrentWeather($today);
         $thisReservation->weatherCondition = $weatherCon;
 
         // Create SQL statement to create reservation record
@@ -304,8 +310,9 @@ class Reservation extends StoredObject
         return $thisReservation;
     }
 
-    private static function getCurrentWeather(): string {
-        return "rainy";
+    private static function getCurrentWeather($index): string {
+        $weathers = array_map('str_getcsv', file(__DIR__ . '/../Dataset/weatherCondition.csv'));
+        return $weathers[$index];
     }
 
     /**
@@ -490,7 +497,7 @@ class Reservation extends StoredObject
 
         // Update bundle status
         $bundle = Bundle::load($this->bundleID);
-        $bundle->setStatus(BundleStatus::Collected);
+        $bundle->setStatus(BundleStatus::OffSale);
         $bundle->setPurchaserID($this->getPurchaserID());
         $bundle->update();
     }
