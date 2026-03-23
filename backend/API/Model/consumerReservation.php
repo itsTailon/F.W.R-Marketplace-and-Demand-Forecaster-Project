@@ -17,6 +17,7 @@ use TTE\App\Model\NoSuchReservationException;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Reservation;
+use TTE\App\Model\Notification;
 
 include '../../../vendor/autoload.php';
 
@@ -63,8 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             // Update the database
             $reservationDetails->update();
             $bundle = Bundle::load($reservationDetails->getBundleID());
-            $bundle->setStatus(BundleStatus::Available);
             $bundle->update();
+
+            
+
+
+            // send notificaiton to Seller
+            Notification::create([
+                'userID' => intval($bundle->getSellerID()),
+                'title' => 'Bundle Reservation Cancelled',
+                'message' => 'A customer has cancelled a reservation on your bundle: ' . $bundle->getTitle() . '.'
+            ]);
 
             exit();
         } else {
@@ -120,6 +130,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
 
         // Create the reservation
         $reservation = Reservation::Create($fields);
+
+        $bundle = Bundle::load($bundleID);
+
+        // // send notificaiton to Seller
+
+        Notification::create([
+            'userID' => $bundle->getSellerID(),
+            'title' => 'Bundle Reservation Created',
+            'message' => 'A customer has made a reservation on your bundle: ' . $bundle->getTitle() . '.'
+        ]);
 
         // Return created reservation
         echo json_encode($reservation);

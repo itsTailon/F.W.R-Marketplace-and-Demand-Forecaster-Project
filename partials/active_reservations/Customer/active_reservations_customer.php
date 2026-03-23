@@ -9,7 +9,15 @@ $acc = Authenticator::getCurrentUser();
 
 $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'buyer');
 
-
+$activeReservations = [];
+$index = 0;
+for($i = 0; $i < count($reservations); $i++) {
+    $rStatus = $reservations[$i]['reservationStatus'];
+    if($rStatus == 'active') {
+        $activeReservations[$index++] = $reservations[$i];
+    }
+}
+$reservations = $activeReservations;
 
 
 ?>

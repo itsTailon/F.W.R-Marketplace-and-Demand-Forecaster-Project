@@ -102,7 +102,7 @@ class Reservation extends StoredObject
 
         // Attempt to execute the statement
         try{
-            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id, ":reservationDate" => $this->reservationDate, ":weatherCondition" => $this->weatherCondition]);
+            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id, ":reservationDate" => $this->reservationDate->format("Y-m-d"), ":weatherCondition" => $this->weatherCondition]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -384,6 +384,8 @@ class Reservation extends StoredObject
             $reservation->purchaserID = $row["purchaserID"];
             $reservation->status = ReservationStatus::from($row["reservationStatus"]);
             $reservation->claimCode = $row["claimCode"];
+            $reservation->reservationDate = new DateTime($row["reservationDate"]);
+            $reservation->weatherCondition = $row["weatherCondition"];
 
             return $reservation;
 
