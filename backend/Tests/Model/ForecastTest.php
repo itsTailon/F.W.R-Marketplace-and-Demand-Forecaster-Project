@@ -2,96 +2,345 @@
 
 namespace TTE\App\Tests\Model;
 
+use DateInterval;
 use PHPUnit\Framework\TestCase;
+use TTE\App\Model\Bundle;
+use TTE\App\Model\BundleStatus;
+use TTE\App\Model\Customer;
+use TTE\App\Model\DatabaseException;
+use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\Forecast;
+use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchCustomerException;
+use TTE\App\Model\NoSuchSellerException;
+use TTE\App\Model\Reservation;
+use TTE\App\Model\ReservationStatus;
+use TTE\App\Model\Seller;
 
 class ForecastTest extends TestCase
 {
-
     /**
-     * test that the count of collected items are correctly spread across the returned arrays
-     *
-     * @return void
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws \DateInvalidOperationException
+     * @throws MissingValuesException
+     * @throws NoSuchSellerException
      */
-    public function testCountSpread(){
-        /*
-         * tests:
-         * - If the amount of no show / collected is correctly represented in the
-         */
+    public function testMovingAverage(){
+        self::cleanTables();
 
-        // Prepare dummy data
-        $testData = array(
-            array("Monday", "", "", "", "", "", "collected"),
-            array("Monday", "", "", "", "", "", "collected"),
-            array("Monday", "", "", "", "", "", "no-show"),
+        $day1 = "2026-03-12 14:56:39.599705";
+        $day2 = "2026-03-4 15:56:39.599705";
 
-            array("Tuesday", "", "", "", "", "", "collected"),
+        // Create customer to get customer ID to create reservation
+        $purchaser = Customer::create([
+            'email' => 'tEmail@email.com',
+            'password' =>  'password123',
+            'username' => 'egUsername'
+        ]);
 
-            array("Wednesday", "", "", "", "", "", "no-show"),
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'test@test.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
 
-            array("Thursday", "", "", "", "", "", "collected"),
-            array("Thursday", "", "", "", "", "", "collected"),
-            array("Thursday", "", "", "", "", "", "collected"),
+        // Create bundle for the reservation to reference
+        $bundle1 = Bundle::create([
+            'bundleStatus' => BundleStatus::Collected,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
 
-            array("Saturday", "", "", "", "", "", "collected"),
-            array("Saturday", "", "", "", "", "", "collected"),
-            array("Saturday", "", "", "", "", "", "collected"),
-            array("Saturday", "", "", "", "", "", "collected"),
-            array("Saturday", "", "", "", "", "", "no-show"),
+        $bundle2 = Bundle::create([
+            'bundleStatus' => BundleStatus::Cancelled,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
 
-            array("Sunday", "", "", "", "", "", "no-show"),
-            array("Sunday", "", "", "", "", "", "no-show"),
-            array("Sunday", "", "", "", "", "", "no-show"),
-        );
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle1->getID(),
+            'status' => ReservationStatus::NoShow,
+            'claimCode' => 'abcdabcdabcdaaad',
+            'reservationDate' => $day2
+        ]);
 
-        $testCount = Forecast::countSpread($testData);
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::NoShow,
+            'claimCode' => 'abcdabcdabcdabce',
+            'reservationDate' => $day2
+        ]);
 
-        $collectCount = $testCount[0];
-        $noShowCount = $testCount[1];
+        // Create test reservation
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle1->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdabcd',
+            'reservationDate' => $day1
+        ]);
 
-        // check in number of 'collected' were correctly distributed
-        self::assertTrue($collectCount["Monday"] == 2);
-        self::assertTrue($collectCount["Tuesday"] == 1);
-        self::assertTrue($collectCount["Wednesday"] == 0);
-        self::assertTrue($collectCount["Thursday"] == 3);
-        self::assertTrue($collectCount["Friday"] == 0);
-        self::assertTrue($collectCount["Saturday"] == 4);
-        self::assertTrue($collectCount["Sunday"] == 0);
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdaaaf',
+            'reservationDate' => $day1
+        ]);
 
-        // check in number of 'no-show' were correctly distributed
-        self::assertTrue($noShowCount["Monday"] == 1);
-        self::assertTrue($noShowCount["Tuesday"] == 0);
-        self::assertTrue($noShowCount["Wednesday"] == 1);
-        self::assertTrue($noShowCount["Thursday"] == 0);
-        self::assertTrue($noShowCount["Friday"] == 0);
-        self::assertTrue($noShowCount["Saturday"] == 1);
-        self::assertTrue($noShowCount["Sunday"] == 3);
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdabcg',
+            'reservationDate' => $day1
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdaaah',
+            'reservationDate' => $day1
+        ]);
+
+        $reservations = Reservation::getAllReservationsForUser($seller->getUserID(), 'seller');
+
+        // (string $filterCategory, string $startTime, string $endTime, int $minDiscount, int $maxDiscount,$filterWeatherConditions, $reservations)
+        $forecast = Forecast::movingAverage('any', 0, 24, 0, 100, 'any', $reservations);
+
+        self::assertEquals($forecast["AvgThursdayCollected"], 2);
+        self::assertEquals($forecast["AvgWednesdayNoShow"], 1);
+
+        self::cleanTables();
     }
 
     /**
-     * test the format that the forecast data is returned
-     *
-     * @return void
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws \DateInvalidOperationException
+     * @throws MissingValuesException
+     * @throws NoSuchSellerException
      */
-    public function testGetDataFormat() {
-        /*
-         * tests:
-         * - Test that forecast is returned in the correct format
-         */
-        $testForecast = Forecast::sellerWeeklyForecast(1, "00:00", "24:00", "0", "100");
-        self::assertTrue(is_int($testForecast['AvgMondayCollected']));
-        self::assertTrue(is_int($testForecast['AvgTuesdayCollected']));
-        self::assertTrue(is_int($testForecast['AvgWednesdayCollected']));
-        self::assertTrue(is_int($testForecast['AvgThursdayCollected']));
-        self::assertTrue(is_int($testForecast['AvgFridayCollected']));
-        self::assertTrue(is_int($testForecast['AvgSaturdayCollected']));
-        self::assertTrue(is_int($testForecast['AvgSundayCollected']));
-        self::assertTrue(is_int($testForecast['AvgMondayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgTuesdayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgWednesdayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgThursdayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgFridayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgSaturdayNoShow']));
-        self::assertTrue(is_int($testForecast['AvgSundayNoShow']));
+    public function testForecastNextWeekSeasonal(){
+        self::cleanTables();
+
+        Forecast::getLastWeeksReservations(11);
+
+        $today = new \DateTime();
+        $lastWeekStart = new \DateTime();
+        $lastWeekStart->sub(DateInterval::createFromDateString('+' . (getdate($lastWeekStart->getTimestamp())['wday'] + 6) . ' days'));
+
+        $today = date_format($today, 'Y/m/d H:i:s');
+        $lastWeekStart = date_format($lastWeekStart, 'Y/m/d H:i:s');
+
+        // Create customer to get customer ID to create reservation
+        $purchaser = Customer::create([
+            'email' => 'tEmail@email.com',
+            'password' =>  'password123',
+            'username' => 'egUsername'
+        ]);
+
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'test@test.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for the reservation to reference
+        $bundle1 = Bundle::create([
+            'bundleStatus' => BundleStatus::Collected,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        $bundle2 = Bundle::create([
+            'bundleStatus' => BundleStatus::Cancelled,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle1->getID(),
+            'status' => ReservationStatus::NoShow,
+            'claimCode' => 'abcdabcdabcdaaad',
+            'reservationDate' => $today
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::NoShow,
+            'claimCode' => 'abcdabcdabcdabce',
+            'reservationDate' => $today
+        ]);
+
+        // Create test reservation
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle1->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdabcd',
+            'reservationDate' => $today
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdaaaf',
+            'reservationDate' => $lastWeekStart
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdabcg',
+            'reservationDate' => $lastWeekStart
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle2->getID(),
+            'status' => ReservationStatus::Completed,
+            'claimCode' => 'abcdabcdabcdaaah',
+            'reservationDate' => $lastWeekStart
+        ]);
+
+        $data = Forecast::getLastWeeksReservations($seller->getUserID());
+        $weeklyForecast = Forecast::forecastNextWeekSeasonal('any', 0, 24, 0, 100, 'any', $data);
+
+        self::assertEquals($weeklyForecast['neededBundlesMonday'], 3);
+
+        self::assertEquals($weeklyForecast['probabilityCollectedMonday'], 1);
+    }
+
+    public function testGetDataFormatWithNoShow() {
+        $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
+        $stmt->execute();
+
+        $stmt3 = DatabaseHandler::getPDO()->prepare("TRUNCATE account;");
+        $stmt3->execute();
+
+        $stmt1 = DatabaseHandler::getPDO()->prepare("TRUNCATE seller");
+        $stmt1->execute();
+
+        $stmt2 = DatabaseHandler::getPDO()->prepare("TRUNCATE customer");
+        $stmt2->execute();
+
+        $stmt4 = DatabaseHandler::getPDO()->prepare("TRUNCATE reservation");
+        $stmt4->execute();
+
+        $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle");
+        $stmt5->execute();
+
+        $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
+        $stmt->execute();
+
+        // Create customer to get customer ID to create reservation
+        $purchaser = Customer::create([
+            'email' => 'tEmail@email.com',
+            'password' =>  'password123',
+            'username' => 'egUsername'
+        ]);
+
+        // Create seller to get a seller ID to create a bundle
+        $seller = Seller::create([
+            'email' => 'test@test.com',
+            'password' => 'password',
+            'name' => 'sampleShop',
+            'address' => '2 Example Avenue',
+        ]);
+
+        // Create bundle for the reservation to reference
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::Available,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'sellerID' => $seller->getUserID(),
+        ]);
+
+        // Create test reservation
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle->getID(),
+            'status' => ReservationStatus::Active,
+            'claimCode' => 'abcdabcdabcdabcd'
+        ]);
+
+        Reservation::create([
+            'purchaserID' => $purchaser->getUserID(),
+            'bundleID' => $bundle->getID(),
+            'status' => ReservationStatus::Active,
+            'claimCode' => 'abcdabcdabcdaaad'
+        ]);
+
+        $fortnite = array(
+            'baller' => 2
+        );
+
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation");
+
+        // Attempt to execute the statement
+        try{
+            $stmt->execute();
+            $reservations1 = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e){
+            throw new DatabaseException($e->getMessage());
+        }
+
+        $fortnite['feet'] = 12;
+
+        $day = idate($reservations1[0]['reservationDate']);
+
+        $fitnit = $fortnite;
+
+        Forecast::getLastWeeksReservations(1);
+    }
+
+    public static function cleanTables(){
+        $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
+        $stmt->execute();
+
+        $stmt3 = DatabaseHandler::getPDO()->prepare("TRUNCATE account;");
+        $stmt3->execute();
+
+        $stmt1 = DatabaseHandler::getPDO()->prepare("TRUNCATE seller");
+        $stmt1->execute();
+
+        $stmt2 = DatabaseHandler::getPDO()->prepare("TRUNCATE customer");
+        $stmt2->execute();
+
+        $stmt4 = DatabaseHandler::getPDO()->prepare("TRUNCATE reservation");
+        $stmt4->execute();
+
+        $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle");
+        $stmt5->execute();
+
+        $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 1;");
+        $stmt->execute();
     }
 }

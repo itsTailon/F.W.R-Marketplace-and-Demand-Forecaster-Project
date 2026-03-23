@@ -2,6 +2,8 @@
 
 namespace TTE\App\Model;
 
+use DateTime;
+
 class Reservation extends StoredObject
 {
     private int $id;
@@ -14,6 +16,28 @@ class Reservation extends StoredObject
 
     private string $claimCode;
     const LENGTH = 16;
+
+    private DateTime $reservationDate;
+
+    private string $weatherCondition;
+
+    public function getWeatherCondition(): string
+    {
+        return $this->weatherCondition;
+    }
+
+    public function setWeatherCondition(string $weatherCondition): void
+    {
+        $this->weatherCondition = $weatherCondition;
+    }
+
+    public function getReservationDate(): DateTime {
+        return $this->reservationDate;
+    }
+
+    public function setReservationDate(DateTime $reservationDate): void {
+        $this->reservationDate = $reservationDate;
+    }
 
     public function getID(): int {
         return $this->id;
@@ -68,11 +92,11 @@ class Reservation extends StoredObject
 
         // Create SQL statement to update reservation record
         $stmt = DatabaseHandler::getPDO()->prepare("UPDATE reservation 
-            SET bundleID = :bundleID, purchaserID = :purchaserID, reservationStatus = :reservationStatus, claimCode = :claimCode WHERE reservationID = :id");
+            SET bundleID = :bundleID, purchaserID = :purchaserID, reservationStatus = :reservationStatus, claimCode = :claimCode, reservationDate = :reservationDate, weatherCondition = :weatherCondition WHERE reservationID = :id");
 
         // Attempt to execute the statement
         try{
-            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id]);
+            $stmt->execute([":bundleID" => $this->bundleID, ":purchaserID" => $this->purchaserID, ":reservationStatus" => $this->status->value, ":claimCode" => $this->claimCode, ":id" => $this->id, ":reservationDate" => $this->reservationDate, ":weatherCondition" => $this->weatherCondition]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
@@ -119,15 +143,17 @@ class Reservation extends StoredObject
         $thisReservation->purchaserID = $fields['purchaserID'];
         $thisReservation->status = $fields['status'];
         $thisReservation->claimCode = $claimCode;
+        $weatherCon = self::getCurrentWeather();
+        $thisReservation->weatherCondition = $weatherCon;
 
         // Create SQL statement to create reservation record
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode) 
-            VALUES (:bundleID, :purchaserID, :reservationStatus, :claimCode);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode, weatherCondition, reservationDate) 
+            VALUES (:bundleID, :purchaserID, :reservationStatus, :claimCode, :weatherCondition, :reservationDate);");
 
         // Attempt to execute the statement
         try{
             $stmt->execute([":bundleID" => $fields['bundleID'], ":purchaserID" => $fields['purchaserID']
-                ,":reservationStatus" => $fields['status']->value, ":claimCode" => $claimCode]);
+                ,":reservationStatus" => $fields['status']->value, ":weatherCondition" => $weatherCon, ":claimCode" => $claimCode, ":reservationDate" => $fields['reservationDate']]);
         } catch (\PDOException $e){
             throw new DatabaseException($e->getMessage());
         }
@@ -137,6 +163,10 @@ class Reservation extends StoredObject
 
         // Return the reservation object
         return $thisReservation;
+    }
+
+    private static function getCurrentWeather(): string {
+        return "rainy";
     }
 
     /**
@@ -205,6 +235,7 @@ class Reservation extends StoredObject
             $reservation->purchaserID = $row["purchaserID"];
             $reservation->status = ReservationStatus::from($row["reservationStatus"]);
             $reservation->claimCode = $row["claimCode"];
+            $reservation->reservationDate = $row["reservationDate"];
 
             return $reservation;
 
