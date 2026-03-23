@@ -281,13 +281,6 @@ class DatabaseHandler {
 
         // Initialise database with category data
         $categories = [
-            "Cakes",
-            "Meals",
-            "Brownies",
-            "Savoury Pastries",
-            "Sandwiches",
-            "Groceries",
-            "Sweet Pastries",
             "Other",
         ];
 
@@ -348,6 +341,7 @@ class DatabaseHandler {
                 "seller_delete",
                 "seller_create",
                 "seller_update",
+                "manage_categories",
             ]
         ];
 
