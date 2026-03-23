@@ -553,11 +553,6 @@ Stylesheet for base typographical styles/formatting
   margin-top: 32px;
 }
 
-.bundle-view__prediction{
-  display: block;
-  margin-top: 32px;
-}
-
 .single-bundle-container {
   display: flex;
   flex-direction: column;

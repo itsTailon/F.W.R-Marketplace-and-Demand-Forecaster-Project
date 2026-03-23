@@ -312,7 +312,7 @@ class Reservation extends StoredObject
 
     private static function getCurrentWeather($index): string {
         $weathers = array_map('str_getcsv', file(__DIR__ . '/../Dataset/weatherCondition.csv'));
-        return $weathers[$index];
+        return $weathers[$index][0];
     }
 
     /**
