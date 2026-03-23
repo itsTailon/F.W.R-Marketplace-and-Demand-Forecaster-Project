@@ -1,4 +1,3 @@
-
 $('#submit-btn').click(() => {
     // Get values in input fields/textboxes
     var bundleName = $("#name").val();
@@ -9,6 +8,7 @@ $('#submit-btn').click(() => {
     var sellerID = $("#sellerID").val();
     var bundleCategory = $("#category-selector").val();
     var bundlePickupWindow = $("#pickup-window").val();
+    var expiryDate = $("#expiry-date").val();
 
     $('.error-text').text(""); // Reset red error text
 
@@ -83,7 +83,8 @@ $('#submit-btn').click(() => {
             discountedPrice: bundleDiscountPrice * 100,
             allergens: JSON.stringify(allergens),
             categoryName: bundleCategory,
-            pickupWindow: bundlePickupWindow
+            pickupWindow: bundlePickupWindow,
+            expiryDate: expiryDate
         },
         statusCode: {
             200: () => { // Edit successful

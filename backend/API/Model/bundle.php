@@ -52,14 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             throw new InvalidArgumentException("Invalid bundle ID");
         }
 
-        // TODO: Remove below temporary code once the frontend handles expiryDate
-        // -- Temporary code to allow testing whilst expiryDate is not passed by frontend: ---
-        $_PUT['expiryDate'] = "2026-10-01";
-        // -----------------------------------------------------------------------------------
-
         // Presence check for fields
         if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow'])) {
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow']) || !isset($_PUT['expiryDate'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -202,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity']) || !isset($_POST['pickupWindow'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity']) || !isset($_POST['pickupWindow']) || !isset($_POST['expiryDate'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -216,11 +211,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
-            // Original code (uncomment when properly implemented)
-//          "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
-
-            // Delete the line below once expiry date frontend code is implemented
-            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", "2026-10-01"),
+            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
 
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
             "bundleStatus" => BundleStatus::OnSale,
@@ -302,6 +293,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         echo json_encode(http_response_code(403));
         die("NSP");
     } catch (DatabaseException $e) {
+        echo $e->getMessage();
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
         die("DBE");
