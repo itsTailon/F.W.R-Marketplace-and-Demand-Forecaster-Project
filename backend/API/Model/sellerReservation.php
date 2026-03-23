@@ -15,6 +15,7 @@ use TTE\App\Model\NoSuchReservationException;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Reservation;
+use TTE\App\Model\Notification;
 
 include '../../../vendor/autoload.php';
 
@@ -35,21 +36,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new MissingValuesException("Missing fields");
             }
 
+
+
+
+            
             // Get id of reservation and the status to update it with
             $id = $_POST['reservationID'];
             $status = $_POST['reservationStatus'];
 
-            // Check if the given status is valid
-            switch ($status) {
-                case "Completed":
-                    $rStatus = ReservationStatus::Completed;
-                    break;
-                case "NoShow":
-                    $rStatus = ReservationStatus::NoShow;
-                    break;
-                default:
-                    throw new InvalidArgumentException("Invalid status");
-            }
 
             // Check if reservation with given exists
             if (!Reservation::existsWithID($id)) {
@@ -60,8 +54,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new NoSuchPermissionException("User not have permission to load reservations");
             }
 
-                // Load reservation
+            // Load reservation
             $reservation = Reservation::load($id);
+
+            // load bundle linked to reservation
+            $bundle = Bundle::load($reservation->getBundleID());
+
+            // Check if the given status is valid
+            switch ($status) {
+                case "Completed":
+                    $rStatus = ReservationStatus::Completed;
+                    break;
+                case "NoShow":
+                    $rStatus = ReservationStatus::NoShow;
+                    // notify customer.
+                    Notification::create([
+                        "userID" => $reservation->getPurchaserID(),
+                        "title" => "Reservation Cancelled", 
+                        "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked no show."
+                    ]);
+                    break;
+                default:
+                    throw new InvalidArgumentException("Invalid status");
+            }
+
 
             // Set reservation status to new status
             $reservation->setStatus($rStatus);
@@ -92,6 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Claim reservation
             $reservation = Reservation::load($id);
             $reservation->claimReservation($claimCode);
+            // notify customer.
+            Notification::create([
+                "userID" => $reservation->getPurchaserID(),
+                "title" => "Reservation Completed", 
+                "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked completed."
+            ]);
 
             exit();
         }
@@ -152,7 +174,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $reservation->setStatus(ReservationStatus::Cancelled);
         $reservation->update();
 
-        $bundle->setStatus(BundleStatus::Available);
+        
+        // notify customer 
+        Notification::create([
+            "userID" => $reservation->getPurchaserID(),
+            "title" => "Reservation Cancelled",
+            "message" => "Your reservation of " . $bundle->getTitle() . ' has been cancelled by the seller.'
+        ]);
+
         $bundle->update();
 
         exit();
