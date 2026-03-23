@@ -45,7 +45,7 @@ class Forecast
                 // Check if datum needs to be filtered out
                 (int)$row[2] >= $minDiscount
                 && (int)$row[2] <= $maxDiscount
-                && ($filterCategory == 'any' || $row[5] == $filterCategory)
+                && ($filterCategory == 'any' || $row[4] == $filterCategory)
                 && ($filterWeatherConditions == 'any' || $row[5] == $filterWeatherConditions)
                 && $startTime <= (int)$row[6]
                 && $endTime >= (int)$row[6]
@@ -570,9 +570,14 @@ class Forecast
         return array($trueProduction, $predictedProduction);
     }
 
+    /**
+     * @throws DatabaseException
+     */
     public static function getProductionRecommendation(Bundle $bundle): array {
         // get the value list for average listings for this bundle
-        $movingAvg = self::movingAverage($bundle->getCategory(), 0, 24, 0, 100, 'any', Reservation::getAllReservationsForUser($bundle->getSellerId(), "seller"));
+        $category = $bundle->getCategory();
+        $reservations = Reservation::getAllReservationsForUser($bundle->getSellerId(), "seller");
+        $movingAvg = self::movingAverage($category, 0, 24, 0, 100, 'any', $reservations);
 
         // get probability list
         $probabilities = Self::calculateProbabilitySpread();
@@ -582,7 +587,7 @@ class Forecast
         $collected = 0;
         $noShow = 0;
         foreach ($movingAvg as $movingAvgValue) {
-            if($count == 7){
+            if($count <= 7){
                 $collected += $movingAvgValue;
             } else {
                 $noShow += $movingAvgValue;
@@ -590,8 +595,6 @@ class Forecast
 
             $count++;
         }
-        $collected = intdiv($collected, 7);
-        $noShow = intdiv($noShow, 7);
 
         $quantity = $collected - $bundle->getQuantity();
 
@@ -601,12 +604,15 @@ class Forecast
         while ($count <= 24) {
             if($probabilities['time'][strval($count)] > $highestProb){
                 $highestProb = $probabilities['time'][strval($count)];
+                $bestTime = $count;
             }
              $count++;
         }
 
+        $timeFormat = strval($bestTime) . ":00-" . strval($bestTime+1) . ":00";
+
         // return array of data
-        return array($collected, $noShow, $quantity, $highestProb);
+        return array($collected, $noShow, $quantity, $timeFormat);
     }
 }
 
