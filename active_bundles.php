@@ -62,9 +62,7 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
         <ul class="active-bundles-list">
             <?php foreach ($bundles as $b): ?>
                 <?php
-                if($b['bundleStatus'] != 'available' && $b['bundleStatus'] != 'reserved') {
-                    continue;
-                }
+
                 $bundle = Bundle::load($b['bundleID']);
                 ?>
             <li>
