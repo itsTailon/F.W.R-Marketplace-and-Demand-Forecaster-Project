@@ -3,6 +3,7 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Auth\NoSuchPermissionException;
 use TTE\App\Auth\RBACManager;
+use TTE\App\Model\Bundle;
 use TTE\App\Model\Forecast;
 
 include '../../../vendor/autoload.php';
@@ -38,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
                 // Get the forecast
                 $data = \TTE\App\Model\Reservation::getAllReservationsForUser($sellerID, "seller");
-                $weeklyForecast = Forecast::movingAverage($_GET["startTime"], $_GET["endTime"], $_GET["minDiscount"], $_GET["maxDiscount"], $data);
+                $weeklyForecast = Forecast::movingAverage($_GET["filterCategory"],intval($_GET["startTime"]), intval($_GET["endTime"]), intval($_GET["minDiscount"]), intval($_GET["maxDiscount"]), $_GET["filterWeatherCondition"], $data);
                 echo json_encode($weeklyForecast);
 
                 exit();
@@ -70,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 }
 
                 $data = Forecast::getLastWeeksReservations($sellerID);
-                $weeklyForecast = Forecast::forecastNextWeekSeasonal($_GET["filterCategory"],$_GET["startTime"], $_GET["endTime"], $_GET["minDiscount"], $_GET["maxDiscount"], $_GET["filterWeatherCondition"], $data);
+                $weeklyForecast = Forecast::forecastNextWeekSeasonal($_GET["filterCategory"],intval($_GET["startTime"]), intval($_GET["endTime"]), intval($_GET["minDiscount"]), intval($_GET["maxDiscount"]), $_GET["filterWeatherCondition"], $data);
                 echo json_encode($weeklyForecast);
 
                 exit();
@@ -86,7 +87,21 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 echo json_encode(Forecast::compareWithGroundTruth($sellerID, "Seasonal"));
             }
         } elseif ($_GET["type"] == "ProductionRec") {
+            if (!isset($_GET["bundleID"])){
+                throw new InvalidArgumentException("Missing parameters");
+            }
 
+            // Get current seller's id
+            $sellerID = Authenticator::getCurrentUser()->getUserID();
+
+            // Check if they have permissions to view forecasts
+            if (!RBACManager::isCurrentUserPermitted("forecast_view")) {
+                throw new NoSuchPermissionException("Seller $sellerID does not have permission to view forecasts");
+            }
+
+            $bundle = Bundle::load(intval($_GET["bundleID"]));
+
+            echo json_encode(Forecast::getProductionRecommendation($bundle));
         }
     } catch (InvalidArgumentException $e) {
         echo json_encode(http_response_code(400));
