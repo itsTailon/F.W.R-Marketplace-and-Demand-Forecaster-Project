@@ -9,11 +9,13 @@ This file will include all other compilable SCSS files, and will itself be compi
 
 @use 'components/buttons';
 @use 'components/text_inputs';
+@use 'components/nav';
+@use 'components/dropdowns';
 
 @use 'layout/dashboard_header';
 @use 'layout/dashboard_sidebar';
 @use 'layout/dashboard_buttons';
-
+@use 'layout/site_footer';
 
 @use 'pages/index';
 @use 'pages/dashboard';
@@ -30,5 +32,12 @@ This file will include all other compilable SCSS files, and will itself be compi
 @use 'pages/browse';
 @use 'pages/http404';
 @use 'pages/account_settings';
-
-
+@use 'pages/requests';
+@use 'pages/view_request';
+@use 'pages/view_all_sellers';
+@use 'pages/issue_form';
+@use 'pages/create_seller';
+@use 'pages/view_seller';
+@use 'pages/issues';
+@use 'pages/single_issue';
+@use 'pages/notifications';

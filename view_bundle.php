@@ -79,6 +79,16 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
                     <span class="bundle-view__seller"><?php echo (Seller::load($bundle->getSellerID()))->getName(); ?></span>
                     <span class="bundle-view__date"></span>
+                    <span class="bundle-view__quantity">
+                        <?php if ($bundle->getQuantity() > 0) : // Bundle in in stock ?>
+                            <b>In stock:</b> <?php echo $bundle->getQuantity(); ?>
+                        <?php else : // Bundle is NOT in stock ?>
+                            <i>Out of stock</i>
+                        <?php endif; ?>
+                    </span>
+
+                    <span class="bundle-view__pickup-window"><b>Pickup:</b> <?php echo $bundle->getPickupWindow(); ?> any day we're open</span>
+
                     <div class="bundle-view__price">
                         <span>£<?php echo $priceStr; ?></span>
                         <?php
@@ -86,7 +96,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                             if ($user instanceof Seller && $bundle->getSellerID() == $user->getUserID()) {
                                 ?><a href="edit_bundle.php?id=<?php echo $bundle->getID(); ?>" class="bundle-view__edit-btn button button--rounded button--green">Edit</a><?php
                             } else if ($user instanceof \TTE\App\Model\Customer) {
-                                if ($bundle->getStatus() == \TTE\App\Model\BundleStatus::Available) {
+                                if ($bundle->getStatus() == \TTE\App\Model\BundleStatus::OnSale) {
                                     ?>
                                     <button id="reserve-btn" class="bundle-view__reserve-btn button button--rounded button--green">Reserve</button>
                                     <script src="assets/js/bundle_reserve.js"></script>

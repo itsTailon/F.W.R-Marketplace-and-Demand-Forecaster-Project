@@ -14,7 +14,7 @@ class Graph {
     - cols: How many vertical, equally spaced faded lines there will be
     - padding: Space between the corners of the canvas and beginning/end of graph
     */
-    constructor(type, width, height, rows, cols, padding) {
+    constructor(type, width, height, rows, cols, padding, graphId = "graph") {
         this.type = type;
         this.width = width;
         this.height = height;
@@ -31,7 +31,7 @@ class Graph {
         this.rowHeight = (height - 2*padding) / rows;
 
         // Get canvas, set dimensions, and get context
-        this.canvas = document.getElementById("graph");
+        this.canvas = document.getElementById(graphId);
         this.canvas.width = width;
         this.canvas.height = height;
         this.ctx = this.canvas.getContext("2d");
@@ -328,3 +328,100 @@ function getForecast() {
 getForecast();
 
 $("#update-btn").click(getForecast); // If update button clicked, re-run get forecast
+
+
+
+// When start hour number field is changed, make sure it is two digits
+$("#seasonal-start-hr").on("input", () => {
+    let val = $("#seasonal-start-hr").val();
+    if (val.length == 1) $("#seasonal-start-hr").val("0" + val);
+});
+
+// Do the same for start minute, end hour, and end minute
+$("#seasonal-start-min").on("input", () => {
+    let val = $("#seasonal-start-min").val();
+    if (val.length == 1) $("#seasonal-start-min").val("0" + val);
+});
+
+$("#seasonal-end-hr").on("input", () => {
+    let val = $("#seasonal-end-hr").val();
+    if (val.length == 1) $("#seasonal-end-hr").val("0" + val);
+});
+
+$("#seasonal-end-min").on("input", () => {
+    let val = $("#seasonal-end-min").val();
+    if (val.length == 1) $("#seasonal-end-min").val("0" + val);
+});
+
+const seasonalGraph = new Graph("bar", 1000, 500, 8, 7, 50, "seasonal-graph");
+
+seasonalGraph.setXAxisLabels(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
+seasonalGraph.generateYAxisLabels(0, 200);
+seasonalGraph.addKey("#3393dc", "Needed Bundles");
+
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Get the seasonal forecast with the set variables and update graph with results
+function getSeasonalForecast() {
+    $.ajax({
+        url: '/backend/API/Model/forcast.php',
+        type: 'GET',
+        data: {
+            type: "Seasonal",
+            dataNeeded: "Forecast",
+            filterCategory: $("#forecast-seasonal-category").val(),
+            startTime: `${$("#seasonal-start-hr").val()}:${$("#seasonal-start-min").val()}`,
+            endTime: `${$("#seasonal-end-hr").val()}:${$("#seasonal-end-min").val()}`,
+            minDiscount: $("#seasonal-min-discount").val(),
+            maxDiscount: $("#seasonal-max-discount").val(),
+            filterWeatherCondition: $("#seasonal-weather").val()
+        },
+        success: function(data) {
+            let maxValue = getMaxValue([
+                data["neededBundlesMonday"],
+                data["neededBundlesTuesday"],
+                data["neededBundlesWednesday"],
+                data["neededBundlesThursday"],
+                data["neededBundlesFriday"],
+                data["neededBundlesSaturday"],
+                data["neededBundlesSunday"]
+            ]);
+
+            let maxAxisValue = 10; // Y axis will default go up to 10
+            if (maxValue > 10) { // If the highest bar is more than 10
+                // Y axis is maxValue rounded to the nearest 10
+                maxAxisValue = Math.ceil(maxValue / 10) * 10;
+            }
+
+            
+            seasonalGraph.generateYAxisLabels(0, maxAxisValue);
+
+            // Plot data.
+            seasonalGraph.plotBar("Monday", data["neededBundlesMonday"], "Needed Bundles");
+            seasonalGraph.plotBar("Tuesday", data["neededBundlesTuesday"], "Needed Bundles");
+            seasonalGraph.plotBar("Wednesday", data["neededBundlesWednesday"], "Needed Bundles");
+            seasonalGraph.plotBar("Thursday", data["neededBundlesThursday"], "Needed Bundles");
+            seasonalGraph.plotBar("Friday", data["neededBundlesFriday"], "Needed Bundles");
+            seasonalGraph.plotBar("Saturday", data["neededBundlesSaturday"], "Needed Bundles");
+            seasonalGraph.plotBar("Sunday", data["neededBundlesSunday"], "Needed Bundles");
+
+            // Draw graph
+            seasonalGraph.draw();
+
+            // show probability table.
+            let probabilityHtml = "<h3>Collection Probability</h3>";
+
+            for(let i = 0; i < 7; i++) {
+                let prob = data["probabilityCollected" + days[i]];
+                let percentage = prob*100;
+                probabilityHtml += `<p><b>${days[i]}:</b> ${percentage}%</p>`
+            }
+            $("#forecast-seasonal-probabilities").html(probabilityHtml);
+
+
+        }
+    });
+}
+
+getSeasonalForecast();
+$("#seasonal-update-btn").click(getSeasonalForecast);

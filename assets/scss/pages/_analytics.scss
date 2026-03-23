@@ -2,7 +2,7 @@
 @use 'sass:map';
 
 .analytics-wrapper {
-  width: 70vw;
+  width: 80vw;
   margin: 0 auto;
   padding-top: 7vh;
 }
@@ -35,10 +35,377 @@
 
 
 .analytics-subtitle {
-    text-align: center;
     margin-bottom: 7vh;
 }
 
-.analytics-salespiechart {
+
+
+.analytics-quick-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 4vh;
+}
+
+.analytics-quick-stats-bubble {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 2px solid black;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.analytics-quick-stats-bubble-type {
+
+    color: rgb(122, 122, 122);
+    font-size: 14px;
+    margin-bottom:1.5vh;
+}
+
+.analytics-quick-stats-bubble-value {
+
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom:1.5vh;
+}
+
+
+.analytics-graphs {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr;
+    gap: 16px;
+    margin-bottom: 4vh;
+}
+
+.analytics-graphs > div {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 2px solid black;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.analytics-graphs div span {
+
+    color: rgb(122, 122, 122);
+    font-size: 14px;
+    margin-bottom:5vh;
+}
+
+.analytics-graphs > div > div {
+    height: 100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.analytics-more-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 4vh;
+}
+
+.analytics-more-stats-bubble {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 2px solid black;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.analytics-more-stats-bubble-type {
+
+    color: rgb(122, 122, 122);
+    font-size: 14px;
+    margin-bottom:1.5vh;
+}
+
+.analytics-more-stats-bubble-value {
+
+    color: rgb(0, 0, 0);
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom:1.5vh;
+}
+
+
+.analytics-graphs-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 4vh;
+
+}
+
+.analytics-graphs-2-bubble {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border: 2px solid black;
+    padding: 24px;
+    border-radius: 12px;
+}
+
+.analytics-graphs-2-bubble-type {
+    color: rgb(122, 122, 122);
+    font-size: 14px;
+    margin-bottom:1.5vh;
+}
+
+.analytics-graphs-2-bubble-graph {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.analytics-seller-actions {
+    display: flex;
+    flex-direction: column;
+    border: 2px solid black;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 5vh;
+}
+
+.analytics-seller-actions-title {
+    color: rgb(122, 122, 122);
+    font-size: 14px;
+    margin-bottom:3vh;
+}
+
+
+
+
+
+
+
+
+
+.analytics-seller-actions-table {
+    width: 100%;
+}
+
+.analytics-seller-actions-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgb(122, 122, 122);;
+    border-bottom: 2px solid #e5e6ff;
+}
+
+.analytics-seller-actions-table td {
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    padding: 14px 16px;
+    color: rgb(85, 85, 85);
+}
+
+.analytics-seller-actions-table tbody tr:hover {
+    background: #f4f6ff;
+}
+
+
+.analytics-seller-actions-nav ul {
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.analytics-seller-actions-create-button {
+    border-radius: 7px;
+    padding: 5px 14px;
+    border: 1px solid lightgrey;
+    background-color: white;
+    color: #606060;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.analytics-seller-actions-create-button:hover {
+    background-color: #f7f7f7;
+    color: #444;
+    border-color: #a3a3a3;
+}
+
+
+
+
+.analytics-seller-actions-delete-button {
+    border-radius: 7px;
+    padding: 5px 14px;
+    border: 1px solid lightgrey;
+    background-color: #ff9696;
+    color: #3b3b3b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.analytics-seller-actions-delete-button:hover {
+    background-color: #ff8e8e;
+    color: #000;
+    border-color: #a3a3a3;
+}
+
+
+
+
+
+
+
+
+.analytics-create-action-wrapper {
+    position: fixed;
+    background-color: rgb(252, 252, 252);
+    width: 40vw;
+    height: auto;
+    min-height: 40vh;
+    max-height: 90vh;
+    z-index: 99999;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -80%);
+
+    display: flex;
+    flex-direction: column;
+
+
+    border-radius: 14px;
+  border: 2px solid #d0d0d0;
+}
+
+.analytics-create-action {
+    width: 90%;
+    height: 100%;
     margin: 0 auto;
+    margin-top: 14px;
+    margin-bottom: 14px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+
+.analytics-create-action-title {
+    padding: 14px 0;
+  font-size: 30px;
+  font-weight: 400;
+}
+
+.analytics-create-action-inputs ul {
+    list-style: none;
+    font-size: 16px;
+    font-weight: 350;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+}
+
+.analytics-create-action-inputs ul li {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+}
+
+.analytics-create-actions-inputs-reason {
+    height: 100px;
+    resize: none;
+}
+
+
+.analytics-create-action-buttons {
+    margin-top: auto;
+    list-style: none;
+}
+
+.analytics-create-action-buttons li {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+
+.analytics-create-action-buttons-create {
+    border-radius: 7px;
+    padding: 8px 14px;
+    border: 1px solid lightgrey;
+    background-color: #a6edaa;
+    color: #2c2b2b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.analytics-create-action-buttons-create:hover {
+    background-color: #93e88c;
+    color: #2e2e2e;
+    border-color: #949393;
+}
+
+.analytics-create-action-buttons-cancel {
+    border-radius: 7px;
+    padding: 8px 14px;
+    border: 1px solid lightgrey;
+    background-color: white;
+    color: #606060;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.analytics-create-action-buttons-cancel:hover {
+    background-color: #f7f7f7;
+    color: #444;
+    border-color: #a3a3a3;
+}
+
+.analytics-create-action-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99998;
+}
+
+.analytics-create-action-wrapper[hidden] {
+    display: none;
+}
+
+
+
+
+@media (max-width: 800px) {
+
+    .analytics-create-action-wrapper {
+        width: 90vw;
+        height: 60vh;
+    }
+
+
+    .analytics-wrapper {
+        width: 95vw;
+    }
+    .analytics-quick-stats {
+        grid-template-columns: 1fr;
+    }
+    .analytics-more-stats {
+        grid-template-columns: 1fr;
+    }
+    .analytics-graphs {
+        grid-template-columns: 1fr;
+    }
+    .analytics-graphs-2 {
+        grid-template-columns: 1fr;
+    }
 }

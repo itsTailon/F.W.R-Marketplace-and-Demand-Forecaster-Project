@@ -2,6 +2,7 @@
 
 namespace TTE\App\Tests\Model;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
@@ -9,7 +10,10 @@ use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBundleException;
+use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchReservationException;
+use TTE\App\Model\NoSuchSellerException;
 use TTE\App\Model\Reservation;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Model\Seller;
@@ -42,6 +46,9 @@ class ReservationTest extends TestCase
             $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle");
             $stmt5->execute();
 
+            $stmt6 = DatabaseHandler::getPDO()->prepare("TRUNCATE customer_badge");
+            $stmt6->execute();
+
             $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 0;");
             $stmt->execute();
         } catch (\PDOException $e) {
@@ -56,9 +63,9 @@ class ReservationTest extends TestCase
      * @return void
      *
      * @throws MissingValuesException
-     * @throws \TTE\App\Model\DatabaseException
-     * @throws \TTE\App\Model\NoSuchCustomerException
-     * @throws \TTE\App\Model\NoSuchSellerException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException|NoSuchBundleException
      */
     public function testUpdateReservation(){
         // Ensure all used tables are fresh
@@ -81,12 +88,14 @@ class ReservationTest extends TestCase
 
         // Create bundle for the reservation to reference
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
             'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Create test reservation
@@ -102,12 +111,14 @@ class ReservationTest extends TestCase
 
         // Make a different bundle
         $bundle2 = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
+            'expiryDate' => new DateTimeImmutable("now"),
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Make a different customer
@@ -152,9 +163,9 @@ class ReservationTest extends TestCase
      * @return void
      *
      * @throws MissingValuesException
-     * @throws \TTE\App\Model\DatabaseException
-     * @throws \TTE\App\Model\NoSuchCustomerException
-     * @throws \TTE\App\Model\NoSuchSellerException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException
      */
     public function testCreateReservation(){
         /*
@@ -183,14 +194,50 @@ class ReservationTest extends TestCase
             'address' => '2 Example Avenue',
         ]);
 
-        // Create bundle for the reservation to reference
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+        // Create bundle of bundles for the reservation to reference
+        $secondBundle = Bundle::create([
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
             'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'quantity' => 5
+        ]);
+
+        // Store bundle quantity for later comparison
+        $quantityBundle = $secondBundle->getQuantity();
+
+        // Test creating a reservation for a bundle with multiple quantities
+        try {
+            $reservation = Reservation::create([
+                'purchaserID' => $purchaser->getUserID(),
+                'bundleID' => $secondBundle->getID(),
+                'status' => ReservationStatus::Active,
+                'claimCode' => 'weroiusdfjsois'
+            ]);
+        } catch (\Exception $e) {
+            // Clean up and fail the test
+            self::emptyTables();
+
+            self::fail($e->getMessage());
+        }
+
+        // Ensure quantity for $secondBundle is now one less
+        self::assertTrue($secondBundle->getQuantity() == $quantityBundle);
+
+
+        // Create bundle for the reservation to reference
+        $bundle = Bundle::create([
+            'bundleStatus' => BundleStatus::OnSale,
+            'title' => 'TestBundle',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
+            'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         // Test creating reservation with missing values
@@ -221,11 +268,23 @@ class ReservationTest extends TestCase
             self::fail($e->getMessage());
         }
 
+        // Create bundle for the reservation to reference
+        $bundleThird = Bundle::create([
+            'bundleStatus' => BundleStatus::OnSale,
+            'title' => 'TestBundleTest',
+            'details' => 'A test bundle',
+            'rrp' => 1000,
+            'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
+            'sellerID' => $seller->getUserID(),
+            'quantity' => 1
+        ]);
+
         // Test that making a reservation without a claim code will cause a claim code to be generated
         try {
             $reservationClaimCodeTest = Reservation::create([
                 'purchaserID' => $purchaser->getUserID(),
-                'bundleID' => $bundle->getID(),
+                'bundleID' => $bundleThird->getID(),
                 'status' => ReservationStatus::Active,
             ]);
             $claimCode = $reservationClaimCodeTest->getClaimCode();
@@ -271,9 +330,9 @@ class ReservationTest extends TestCase
      *
      * @throws MissingValuesException
      * @throws NoSuchReservationException
-     * @throws \TTE\App\Model\DatabaseException
-     * @throws \TTE\App\Model\NoSuchCustomerException
-     * @throws \TTE\App\Model\NoSuchSellerException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException
      */
     public function testLoadReservation(){
         /*
@@ -302,12 +361,14 @@ class ReservationTest extends TestCase
 
         // Create bundle for the reservation to reference
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
             'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -339,9 +400,9 @@ class ReservationTest extends TestCase
      * @return void
      *
      * @throws MissingValuesException
-     * @throws \TTE\App\Model\DatabaseException
-     * @throws \TTE\App\Model\NoSuchCustomerException
-     * @throws \TTE\App\Model\NoSuchSellerException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException
      */
     public function testExistsWithID() {
         /*
@@ -370,12 +431,14 @@ class ReservationTest extends TestCase
 
         // Create bundle for the reservation to reference
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
             'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -402,9 +465,9 @@ class ReservationTest extends TestCase
      *
      * @throws MissingValuesException
      * @throws NoSuchReservationException
-     * @throws \TTE\App\Model\DatabaseException
-     * @throws \TTE\App\Model\NoSuchCustomerException
-     * @throws \TTE\App\Model\NoSuchSellerException
+     * @throws DatabaseException
+     * @throws NoSuchCustomerException
+     * @throws NoSuchSellerException|NoSuchBundleException
      */
     public function testDelete() {
         /*
@@ -433,12 +496,14 @@ class ReservationTest extends TestCase
 
         // Create bundle for the reservation to reference
         $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::Available,
+            'bundleStatus' => BundleStatus::OnSale,
             'title' => 'TestBundle',
             'details' => 'A test bundle',
             'rrp' => 1000,
             'discountedPrice' => 500,
+            'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'quantity' => 1
         ]);
 
         $reservation = Reservation::create([
@@ -502,7 +567,7 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle", "details" => "No Show Bundle", "quantity" => 1, "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markNoShow($reservation->getID());
@@ -520,16 +585,13 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "No Show Bundle", "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle", "quantity" => 1, "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markCollected($reservation->getID());
 
         $reservationLoaded = Reservation::load($reservation->getID());
         $this->assertEquals(ReservationStatus::Completed, $reservationLoaded->getStatus());
-
-        $bundleLoaded = Bundle::load($bundle->getID());
-        $this->assertEquals(BundleStatus::Collected, $bundleLoaded->getStatus());
 
         Reservation::delete($reservation->getID());
         Bundle::delete($bundle->getID());

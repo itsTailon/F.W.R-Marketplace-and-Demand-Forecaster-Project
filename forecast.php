@@ -77,6 +77,48 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 <canvas class="graph-2d" id="graph" width="900" height="500"></canvas>
 
+
+
+<h2 class="text-middle">Seasonal Forecast</h2>
+<br>
+<div class="forecast-variables">
+    <div class="forecast-variables__var">
+        <label>Category</label>
+        <select id="forecast-seasonal-category">
+            <option value="any">All</option>
+            <option value="cakes">Cakes</option>
+            <option value="meals">Meals</option>
+            <option value="brownies">Brownies</option>
+            <option value="savoury_pastries">Savoury Pastries</option>
+            <option value="sandwiches">Sandwiches</option>
+            <option value="groceries">Groceries</option>
+            <option value="sweet_pastries">Sweet Pastries</option>
+        </select>
+    </div>
+    <div class="forecast-variables__var">
+        <label>Weather</label>
+        <select id="seasonal-weather">
+            <option value="any">All</option>
+            <option value="sunny">Sunny</option>
+            <option value="cloudy">Cloudy</option>
+            <option value="rain">Rain</option>
+            <option value="snow">Snow</option>
+        </select>
+    </div>
+    <div class="forecast-variables__var">
+        <label>Time</label>
+        <span><input type="number" min="0" max="23" value="08" id="seasonal-start-hr">:<input type="number" min="0" max="59" value="00" id="seasonal-start-min"> to <input type="number" min="0" max="23" value="20" id="seasonal-end-hr">:<input type="number" min="0" max="59" value="00" id="seasonal-end-min"></span>
+    </div>
+    <div class="forecast-variables__var">
+        <label>Discount</label>
+        <span><input type="number" min="0" max="100" value="0" id="seasonal-min-discount">% to <input type="number" min="0" max="100" value="100" id="seasonal-max-discount">%</span>
+    </div>
+    <button type="button" class="button" id="seasonal-update-btn">Update</button>
+</div>
+<canvas class="graph-2d" id="seasonal-graph" width="900" height="500"></canvas>
+<div id="forecast-seasonal-probabilities"></div>
+
+
 <script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>
 <script src="/assets/js/forecast.js"></script>
 

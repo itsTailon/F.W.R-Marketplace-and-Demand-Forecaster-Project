@@ -1,0 +1,200 @@
+
+
+.view-seller-wrapper {
+    width: 52.5vw;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    height: 100vh;
+}
+
+.view-seller {
+    margin-top: 6vh;
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+    justify-content: left;
+    width: 85%;
+}
+
+
+.view-seller-nav ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0;
+    margin: 0;
+}
+
+.view-seller-nav ul li {
+
+    list-style: none;
+    text-decoration: none;
+}
+
+.view-seller-nav ul li a {
+    text-decoration: none;
+    color: red;
+    
+}
+
+.view-seller-form {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+
+}
+
+.view-seller-form-title {
+    font-weight: 500;
+}
+
+.view-seller-form-input-section ul {
+    display: flex;
+    flex-direction: column;
+    gap: 3vh;
+}
+
+.view-seller-form-input-section ul li {
+    list-style: none;
+
+}
+
+
+
+.view-seller-form-input-section-view {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+}
+
+.view-seller-form-type {
+    width: 110px;
+    flex-shrink: 0;
+}
+.view-seller-form-val {
+    flex: 1;
+}
+
+.view-seller-form-edit {
+    border-radius: 7px;
+    padding: 5px 14px;
+    border: 1px solid lightgrey;
+    background-color: white;
+    color: #606060;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+
+.view-seller-form-edit:hover {
+    background-color: #f7f7f7;
+    color: #444;
+    border-color: #a3a3a3;
+}
+
+
+
+.view-seller-form-input-section-edit {
+    display: flex;
+    flex-direction: row;
+    gap: 3vw;
+}
+
+.view-seller-form-input-section-edit button {
+    border: none;
+    border-radius: 20px;
+    padding: 12px 16px;  
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.view-seller-form-input-section-edit input {
+    height: 35px;
+    padding-left: 1vw;
+
+    width: 20vw;
+
+
+    border: 2px solid #e6e6e6;
+}
+
+
+
+.view-seller-form-input-section-edit button {
+    border: none;
+    border-radius: 18px;
+    padding: 7px 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 200;
+    background-color: #D0DCFF;
+    color: black;
+}
+.view-seller-form-input-section-edit button:hover {
+    background-color: #809FFF;
+}
+
+.view-seller-form-buttons-delete {
+    border: none;
+    border-radius: 18px;
+    padding: 7px 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 200;
+    background-color: rgb(154, 0, 0);
+    color: white;
+}
+
+.view-seller-form-buttons-delete:hover {
+    background-color: rgb(230, 0, 0);
+    color: black;
+}
+
+
+#status-message {
+    display: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+#status-message.success {
+    display: block;
+    background-color: #d4edda;
+    color: #2d6a4f;
+}
+#status-message.error {
+    display: block;
+    background-color: #fde8e8;
+    color: #c0392b;
+}
+
+
+@media (max-width: 800px) {
+    .view-seller-wrapper {
+        width: 100vw;
+        border: none;
+    }
+    .view-seller {
+        width: 90%;
+        margin-top: 4vh;
+        gap: 3vh;
+    }
+    .view-seller-form-input-section-edit {
+        gap: 10px;
+    }
+    .view-seller-form-input-section-edit input {
+        width: 100%;
+        flex: 1;
+    }
+    .view-seller-form-input-section-edit {
+        flex-wrap: wrap;
+    }
+}

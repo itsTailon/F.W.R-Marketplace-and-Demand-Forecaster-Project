@@ -1,0 +1,50 @@
+@use '../abstracts/config';
+
+.registration-requests {
+    &-wrapper {
+        width: 65vw;
+        display: flex;
+        flex-direction: column;
+        margin: 25px auto;
+    }
+
+    &-title {
+        margin-top: 20px;
+    }
+
+    &-nav {
+        display: flex;
+        gap: 16px;
+    }
+
+    &-text-none {
+        margin-top: 25px;
+    }
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+
+        border: 2px solid black;
+        padding: 28px;
+        gap: 36px;
+        width: 90%;
+        margin: 24px auto;
+    }
+
+    &-request {
+        display: flex;
+        gap: 32px;
+        justify-content: space-between;
+        align-items: center;
+
+        &-nav {
+            display: flex;
+            gap: 16px;
+
+            &-button-clickable {
+                cursor: pointer;
+            }
+        }
+    }
+}

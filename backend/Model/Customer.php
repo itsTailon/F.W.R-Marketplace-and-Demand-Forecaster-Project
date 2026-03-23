@@ -3,8 +3,10 @@
 namespace TTE\App\Model;
 
 use MongoDB\BSON\PackedArray;
+use PDOException;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
+use DateTimeImmutable;
 
 class Customer extends Account {
 
@@ -29,9 +31,17 @@ class Customer extends Account {
             'password' => $fields['password']
         ]);
 
-        // Create the customer in the database
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username) VALUES (:id, :username);");
-        $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username']]);
+        // Get creation date
+        $creationDate = new DateTimeImmutable("now");
+
+
+        try {
+            // Create the customer in the database
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer(customerID, username, creationDate) VALUES (:id, :username, :creationDate);");
+            $stmt->execute(["id" => $account->getUserID(), "username" => $fields['username'], "creationDate" => $creationDate->format('Y-m-d H:i:s')]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
 
         // Create and return a customer object
         $customer = new Customer();
@@ -52,6 +62,27 @@ class Customer extends Account {
 
         // Create a streak attached to customer, that has null for all current date values
         Streak::create($customerID);
+
+        // Get all existing badges that a customer can hold
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT badgeID FROM badge;");
+        try {
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Get all output badges from query
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Add all badges attached to customer to customer_badge entries
+        foreach ($rows as $row) {
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO customer_badge (badgeID, customerID) VALUES (:badgeID, :customerID);");
+                $stmt->execute([":badgeID" => $row["badgeID"], ":customerID" => $customer->getUserID()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        }
 
         // Return required output
         return $customer;
@@ -154,6 +185,14 @@ class Customer extends Account {
             throw new DatabaseException("No customer found with ID $id");
         }
 
+        // Remove all badges attaches to this customer in customer_badge
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM customer_badge WHERE customerID=:customerID;");
+            $stmt->execute(["customerID" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
         // Create SQL command to delete customer, corresponding account instance, and streak of given ID
         $stmt = DatabaseHandler::getPDO()->prepare("DELETE FROM streak WHERE customerID=:customerID;");
         try {
@@ -181,5 +220,325 @@ class Customer extends Account {
         }
 
         // Call superclass method
+    }
+
+    /**
+     * Returns a personal impact metric calculation.
+     *
+     * Possible metrics are described in the source code for the ImpactMetric enum.
+     *
+     * @param ImpactMetric $metric
+     * @return int|float
+     */
+    public function getImpactMetric(ImpactMetric $metric): int|float {
+        switch ($metric) {
+            case ImpactMetric::Bundles_Collected:
+                return $this->calculateBundlesCollected();
+                break;
+
+            case ImpactMetric::CO2_Saved:
+                return $this->calculateCO2KgSaved();
+                break;
+
+            default:
+                return -1;
+        }
+    }
+
+    /**
+     * Returns the customer's total number of bundles collected (i.e. completed reservations).
+     *
+     * @return int the customer's total number of bundles collected (i.e. completed reservations)
+     * @throws DatabaseException
+     */
+    private function calculateBundlesCollected(): int {
+        // Prepare SQL statement to count the number of completed customer reservations (i.e. collected bundles)
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT COUNT(*) FROM reservation WHERE purchaserID=:purchaserID AND reservationStatus='completed';");
+
+        // Attempt to execute statement
+        try {
+            $stmt->execute(["purchaserID" => $this->userID]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Return the output of COUNT(*) (i.e. the number of bundles collected)
+        return $stmt->fetchColumn();
+    }
+
+    /**
+     * Returns a customer's estimated C02(kg) savings.
+     *
+     * @return float the customer's estimated C02(kg) savings
+     * @throws DatabaseException
+     */
+    private function calculateCO2KgSaved(): float {
+        // Multiply total bundles collected by a constant, which is the baseline estimate of CO2(kg) savings per bundle collected.
+        return (float)$this->calculateBundlesCollected() * 2.0;
+    }
+
+    /**
+     * Method that retrieves all data relating to badges attached to current customer
+     * @param int $customerID ID of the customer whose badges are being loaded
+     * @throws DatabaseException|NoSuchCustomerException|NoSuchBadgeException
+     * @return array of badge information in relation to customer whose ID was passed as a parameter
+     */
+    public static function loadBadges(int $customerID): array{
+
+        // Get all past complete reservations for given customer and find ones for which all bundle information but ID (and quantity) are the same
+        try {
+            // Forming view connecting reservations and existent bundles (with their details)
+            $stmt = DatabaseHandler::getPDO()->prepare("
+                SELECT
+                    reservationTable.reservationID,
+                    reservationTable.claimCode,
+                    reservationTable.purchaserID,
+                    reservationTable.reservationStatus,
+                    bundleTable.bundleID,
+                    bundleTable.bundleStatus,
+                    bundleTable.details,
+                    bundleTable.discountedPrice,
+                    bundleTable.quantity,
+                    bundleTable.rrp,
+                    bundleTable.sellerID,
+                    bundleTable.title
+                    FROM reservation reservationTable INNER JOIN bundle bundleTable ON reservationTable.bundleID = bundleTable.bundleID
+                    WHERE reservationTable.purchaserID = :customerID AND reservationTable.reservationStatus = :status
+                    ");
+
+            // Execute SQL query
+            $stmt->execute([":customerID" => $customerID, ":status" => ReservationStatus::Completed->value]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Retrieve output of query
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Check if there is any output
+        if (count($rows) > 0) {
+
+            // Keep track of number of different sellers
+            $seller_count = null;
+            // Keep track of the bundle that has been purchased the most
+            $bundle_purchase_count = null;
+            // Hold sellers to verify whether one has been counted or not
+            $sellers = array();
+            // Hold bundles to check which have been considered or not
+            $bundles = array();
+            foreach ($rows as $row) {
+                // Check if field exists for this bundle
+                if (isset($bundles[$row["bundleID"]])) {
+                    // Check the contents of the bundle being inspected
+                    if (
+                        $row["title"] == $bundles[$row["bundleID"]]["title"] &&
+                        $row["details"] == $bundles[$row["bundleID"]]["details"] &&
+                        $row["sellerID"] == $bundles[$row["bundleID"]]["sellerID"]
+                    ) {
+                        // Update instance count and check if large enough to be highest
+                        $bundles[$row["bundleID"]]["count"]++;
+                        if ($bundles[$row["bundleID"]]["count"] > $bundle_purchase_count) {
+                            $bundle_purchase_count = $bundles[$row["bundleID"]]["count"];
+                        }
+                    }
+                } else {
+                    // Add bundle to bundles array
+                    $bundles[$row["bundleID"]] = array(
+                        "title" => $row["title"],
+                        "details" => $row["details"],
+                        "sellerID" => $row["sellerID"],
+                        "count" => 1
+                    );
+                }
+
+                // Check if seller already present in $sellers
+                if (!isset($sellers[$row["sellerID"]])) {
+                    // Add to list of sellers
+                    $sellers[$row["sellerID"]] = array(
+                        "sellerID" => $row["sellerID"]
+                    );
+                }
+                // Increase distinct seller count
+                $seller_count++;
+            }
+
+            // Compare to tier boundaries to set values for
+            $tier = null;
+            if (10 <= $seller_count && $seller_count < 20) {
+                $tier = BadgeTier::Bronze;
+            } else if (20 <= $seller_count && $seller_count < 50) {
+                $tier = BadgeTier::Silver;
+            } else if (50 <= $seller_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Get appropriate badge ID
+            $explorer_badge = Badge::loadByTitle("Explorer");
+
+            // Set values for tier and progress appropriately in DB
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $seller_count, ":customerID" => $customerID, ":badgeID" => $explorer_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+            // Allocating appropriate tier for Loyal Customer badge
+            $loyal_customer_badge = Badge::loadByTitle("Loyal Customer");
+
+            $tier = null;
+            if (3 <= $bundle_purchase_count && $bundle_purchase_count < 5) {
+                $tier = BadgeTier::Bronze;
+            } else if (5 <= $bundle_purchase_count && $bundle_purchase_count < 10) {
+                $tier = BadgeTier::Silver;
+            } else if (10 <= $bundle_purchase_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $bundle_purchase_count, ":customerID" => $customerID, ":badgeID" => $loyal_customer_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+
+            // Allocating appropriate tier for Loyal Customer badge
+            $experienced_saver_badge = Badge::loadByTitle("Experienced Saver");
+
+            $bundle_overall_count = count($rows);
+
+            $tier = null;
+            if (10 <= $bundle_overall_count && $bundle_overall_count < 30) {
+                $tier = BadgeTier::Bronze;
+            } else if (30 <= $bundle_overall_count && $bundle_overall_count < 75) {
+                $tier = BadgeTier::Silver;
+            } else if (75 <= $bundle_overall_count) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $bundle_overall_count, ":customerID" => $customerID, ":badgeID" => $experienced_saver_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+            // Get value for CO2 waste
+            $co2_waste =  (1.3 * $bundle_overall_count); // TODO: UPDATE MULTIPLIER TO AGREED AMOUNT AFTER MEETING
+
+            // Allocating appropriate tier for Eco Warrior badge
+            $eco_warrior_badge = Badge::loadByTitle("Eco Warrior");
+
+            $tier = null;
+            if (10 <= $co2_waste && $co2_waste < 50) {
+                $tier = BadgeTier::Bronze;
+            } else if (50 <= $co2_waste && $co2_waste < 100) {
+                $tier = BadgeTier::Silver;
+            } else if (100 <= $co2_waste) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Update DB record
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier =:tier, progress = :progress WHERE (customerID = :customerID AND badgeID = :badgeID);");
+                $stmt->execute([":tier" => $tier->value, ":progress" => $co2_waste, ":customerID" => $customerID, ":badgeID" => $eco_warrior_badge->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+
+        }
+
+        // Load in Rescue Vet badge
+        $rescue_vet_badge = Badge::loadByTitle("Rescue Vet");
+
+        // Get creation date of customer's account
+        $creationDate = Customer::getCreationDate($customerID);
+        // Get current date
+        $currentDate = new DateTimeImmutable('now');
+
+        // Compare dates and set progress value for Rescue Vet badge (even if no change to avoid excessive calls)
+        $dateDiff = $currentDate->diff($creationDate);
+        $monthDiff = ($dateDiff->y * 12) + $dateDiff->m;
+
+        // Calculate tier given difference
+        if ($monthDiff >= 3 && $monthDiff < 6) {
+            // Update tier and progress
+            $tier = BadgeTier::Bronze;
+        } else if ($monthDiff >= 6 && $monthDiff < 12) {
+            $tier = BadgeTier::Silver;
+        } else if ($monthDiff >= 12) {
+            $tier = BadgeTier::Gold;
+        }
+
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET progress=:progress, tier=:tier WHERE (customerID=:customerID AND badgeID=:badgeID);");
+            $stmt->execute([":progress" => $monthDiff, ":tier" => $tier->value, ":badgeID" => $rescue_vet_badge->getId(), ":customerID" => $customerID]);
+
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Load in and return badges
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM customer_badge WHERE customerID = :customerID;");
+            $stmt->execute([":customerID" => $customerID]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        if (!(count($rows) > 0)) {
+            throw new NoSuchBadgeException("Failed to load badges for customer with ID $customerID.");
+        }
+
+        // Identify badges by title
+        $badge_array = array();
+        foreach ($rows as $row) {
+            $badge = Badge::load($row['badgeID']);
+            $badge_array[$badge->getTitle()] = array(
+                "badgeID" => $row['badgeID'],
+                "customerID" => $row['customerID'],
+                "tier" => $row['tier'],
+                "progress" => $row['progress'],
+            );
+        }
+
+        return $badge_array;
+    }
+
+    /**
+     * @param int $id ID of the customer whose creation date is required
+     * @throws NoSuchCustomerException|DatabaseException|\Exception
+     * @return DateTimeImmutable of creation date of customer's account
+     */
+    public static function getCreationDate(int $id): DateTimeImmutable {
+        // Check customer ID does exist
+        if (!Customer::existsWithID($id)) {
+            // Throw error
+            throw new NoSuchCustomerException("No customer found with ID $id");
+        }
+
+        // Retrieve customer's creation date
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT creationDate FROM customer WHERE customerID=:id;");
+            $stmt->execute([":id" => $id]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Get output of SQL request
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        // Ensure output exists
+        if (!$row) {
+            throw new DatabaseException("Failed to retrieve creation date.");
+        }
+
+        // Return DateTimeImmutable of creation date
+        return new DateTimeImmutable($row["creationDate"]);
     }
 }

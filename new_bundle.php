@@ -65,10 +65,45 @@ $categoryList = Category::getCategoryList();
                     ?>
                 </select>
             </div>
+
+            <div class="bundle-creation-form__field">
+                <label for="pickup-window">Pickup Window</label>
+                <select class="dropdown" name="pickup-window" id="pickup-window">
+                    <option value="00:00-01:00">00:00-01:00</option>
+                    <option value="01:00-02:00">01:00-02:00</option>
+                    <option value="02:00-03:00">02:00-03:00</option>
+                    <option value="03:00-04:00">03:00-04:00</option>
+                    <option value="04:00-05:00">04:00-05:00</option>
+                    <option value="05:00-06:00">05:00-06:00</option>
+                    <option value="06:00-07:00">06:00-07:00</option>
+                    <option value="07:00-08:00">07:00-08:00</option>
+                    <option value="08:00-09:00">08:00-09:00</option>
+                    <option value="09:00-10:00">09:00-10:00</option>
+                    <option value="10:00-11:00">10:00-11:00</option>
+                    <option value="11:00-12:00">11:00-12:00</option>
+                    <option value="12:00-13:00">12:00-13:00</option>
+                    <option value="13:00-14:00">13:00-14:00</option>
+                    <option value="14:00-15:00">14:00-15:00</option>
+                    <option value="15:00-16:00">15:00-16:00</option>
+                    <option value="16:00-17:00">16:00-17:00</option>
+                    <option value="17:00-18:00">17:00-18:00</option>
+                    <option value="18:00-19:00">18:00-19:00</option>
+                    <option value="19:00-20:00">19:00-20:00</option>
+                    <option value="20:00-21:00">20:00-21:00</option>
+                    <option value="21:00-22:00">21:00-22:00</option>
+                    <option value="22:00-23:00">22:00-23:00</option>
+                    <option value="23:00-00:00">23:00-24:00</option>
+                </select>
+            </div>
+
             <br>
             <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
             <ul class="allergen-list">
             </ul>
+            <div class="bundle-creation-form__field">
+                <label for="quantity">Quantity</label>
+                <div class="textbox" data-type="text" data-id="quantity" data-label="Quantity" id="quantity-textbox"></div>
+            </div>
             <div class="bundle-creation-form__field">
                 <label for="price">Price</label>
                 <div class="textbox" data-type="text" data-id="rrp" data-label="Price in £" id="price-textbox"></div>

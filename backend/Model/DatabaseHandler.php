@@ -80,11 +80,12 @@ class DatabaseHandler {
                     email VARCHAR(128) NOT NULL UNIQUE,
                     passwordHash VARCHAR(256) NOT NULL,
                     accountType ENUM('seller', 'customer', 'maintainer') NOT NULL
-                    );
+                );
                 
                 CREATE TABLE IF NOT EXISTS customer (
                     customerID INT NOT NULL PRIMARY KEY,
                     username VARCHAR(128) NOT NULL, -- non-identifying name
+                    creationDate DATE DEFAULT (CURRENT_DATE), -- for time-related badge 
                     FOREIGN KEY (customerID) REFERENCES account(userID)
                 );
                 
@@ -92,21 +93,27 @@ class DatabaseHandler {
                     sellerID INT NOT NULL PRIMARY KEY,
                     sellerName VARCHAR(128) NOT NULL, -- formerly `name`
                     sellerAddress VARCHAR(256) NOT NULL,
+                    openingTime TIME NOT NULL,
+                    closingTime TIME NOT NULL,
                     FOREIGN KEY (sellerID) REFERENCES account(userID)
                 );
                 
                 CREATE TABLE IF NOT EXISTS bundle (
                     bundleID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    bundleStatus ENUM('available', 'reserved', 'collected', 'cancelled') NOT NULL,
-                    title VARCHAR(128) NOT NULL, -- formerly `name`
-                    details TEXT NOT NULL, -- formerly `description`
+                    bundleStatus ENUM('onsale', 'offsale') NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    details TEXT NOT NULL,
+                    quantity INT NOT NULL DEFAULT 1,
                     rrp DECIMAL(8, 2) NOT NULL, -- recommended retail price
                     discountedPrice DECIMAL(8, 2) NOT NULL,
-                    CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     sellerID INT NOT NULL,
                     purchaserID INT DEFAULT NULL,
+                    expiryDate DATE NOT NULL,
+                    pickupWindow VARCHAR(11) NOT NULL, -- pickup window as string in format 'hh[COLON]mm-hh[COLON]mm'
+                    CHECK (quantity >= 0), -- prevent negative quantities
+                    CHECK (rrp > discountedPrice), -- the discounted price should be less than the retail price
                     FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE,
-                    FOREIGN KEY (purchaserID) REFERENCES customer(customerID)
+                    FOREIGN KEY (purchaserID) REFERENCES customer(customerID) ON DELETE SET NULL
                 );
                 
                 CREATE TABLE IF NOT EXISTS allergen (
@@ -136,14 +143,15 @@ class DatabaseHandler {
                 CREATE TABLE IF NOT EXISTS issue (
                     issueID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
                     customerID INT NOT NULL,
-                    bundleID INT NOT NULL,
+                    reservationID INT NOT NULL,
                     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
                     resolvedAt DATETIME DEFAULT NULL,
+                    title TEXT NOT NULL,
                     issueDescription TEXT NOT NULL,
                     sellerResponse TEXT,
-                    issueStatus ENUM ('ongoing', 'resolved') NOT NULL,
-                    FOREIGN KEY (customerID) REFERENCES customer (customerID) ON DELETE CASCADE,
-                    FOREIGN KEY (bundleID) REFERENCES bundle (bundleID) ON DELETE CASCADE
+                    issueStatus ENUM('ongoing', 'resolved') NOT NULL,
+                    FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
+                    FOREIGN KEY (reservationID) REFERENCES reservation(reservationID) ON DELETE CASCADE
                 );
                 
                 CREATE TABLE IF NOT EXISTS streak (
@@ -175,9 +183,49 @@ class DatabaseHandler {
                     details TEXT NOT NULL,
                     status ENUM ('pending', 'closed') NOT NULL DEFAULT 'pending'
                 );
+
+                CREATE TABLE IF NOT EXISTS badge (
+                    badgeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    title VARCHAR(128) NOT NULL, -- 'Loyal Customer'
+                    subtitle VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {x} times'
+                    badgeDescription VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {y} more times to earn this badge!'
+                    xBronze INT NOT NULL, -- the total number of times a bundle must be reserved to achieve bronze
+                    xSilver INT NOT NULL, -- the total number of times a bundle must be reserved to achieve silver
+                    xGold INT NOT NULL, -- the total number of times a bundle must be reserved to achieve gold
+                    CHECK (xBronze > 0 AND xSilver > xBronze AND xGold > xSilver)
+                );
+    
+                CREATE TABLE IF NOT EXISTS customer_badge (
+                    customerID INT NOT NULL,
+                    badgeID INT NOT NULL,
+                    tier ENUM('bronze', 'silver', 'gold') DEFAULT NULL,
+                    progress INT DEFAULT 0,
+                    CHECK (progress >= 0),
+                    PRIMARY KEY (customerID, badgeID),
+                    FOREIGN KEY (customerID) REFERENCES customer(customerID) ON DELETE CASCADE,
+                    FOREIGN KEY (badgeID) REFERENCES badge(badgeID) ON DELETE CASCADE
+                );
+
+                CREATE TABLE IF NOT EXISTS notifications (
+                    notificationID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    userID INT NOT NULL,
+                    title TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    isRead BOOLEAN DEFAULT FALSE,
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (userID) REFERENCES account(userID) ON DELETE CASCADE
+                );
+                CREATE TABLE IF NOT EXISTS seller_actions (
+                    actionID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                    sellerID INT NOT NULL,
+                    action TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (sellerID) REFERENCES seller(sellerID) ON DELETE CASCADE
+
+                );
                 END
             );
-
 
             // Create supporting tables for RBAC:
 
@@ -204,6 +252,53 @@ class DatabaseHandler {
      */
     private static function initBaseData(): void {
 
+        // Initialise database with badge data
+        DatabaseHandler::getPDO()->exec(
+          <<<END
+            INSERT IGNORE badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Rescue Vet", "Hold your account for {x} months.", "Upgrade this badge by remaining a user for another {x} months.", 3, 6, 12);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Bargain Hunter", "Get a discount of {x} on a purchased bundle.", "Upgrade this badge by getting a discount of {x} on a purchased bundle.", 5, 10, 15);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Dedicated Saver", "Hold a streak for {x} weeks.", "Upgrade this badge by continuing your streak for another {x} weeks.", 3, 10, 20);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Loyal Customer", "Purchase the same bundle {x} times.", "Purchase the same bundle another {x} times.", 3, 5, 10);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Experienced Saver", "Reserved {x} bundles.", "Upgrade this badge by reserving {x} more bundles.", 10, 30, 75);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Explorer", "Bought from {x} distinct sellers.", "Upgrade this badge by buying from another {x} sellers.", 10, 20, 50);
+            
+            INSERT IGNORE INTO badge (title, subtitle, badgeDescription, xBronze, xSilver, xGold)
+                        VALUES ("Eco Warrior", "Save {x} kilograms of carbon dioxide.", "Upgrade this batch by saving another {x} kilograms of carbon dioxide", 10, 50, 100);
+            
+            
+            END
+
+        );
+
+        // Initialise database with category data
+        $categories = [
+            "Cakes",
+            "Meals",
+            "Brownies",
+            "Savoury Pastries",
+            "Sandwiches",
+            "Groceries",
+            "Sweet Pastries",
+            "Other",
+        ];
+
+        // Add each category if it does not already exist (IGNORE).
+        foreach ($categories as $category) {
+            $stmt = DatabaseHandler::getPDO()->prepare("INSERT IGNORE INTO category (categoryName) VALUES (:categoryName);");
+            $stmt->execute(["categoryName" => $category]);
+        }
+
         // Initialise database with allergen data
         $allergens = [
             "celery",
@@ -228,7 +323,6 @@ class DatabaseHandler {
             $stmt->execute(["allergenName" => $allergen]);
         }
 
-
         // Initialise DB with RBAC roles and permissions
         $rbac = [
             "seller" => [
@@ -244,6 +338,7 @@ class DatabaseHandler {
 
             "customer" => [
                 "bundle_load",
+                "badge_load",
                 "streak_load",
                 "streak_delete",
                 "reservation_create",

@@ -4,6 +4,8 @@ namespace TTE\App\Model;
 
 use DateTime;
 
+use DateTimeImmutable;
+
 class Reservation extends StoredObject
 {
     private int $id;
@@ -61,6 +63,12 @@ class Reservation extends StoredObject
     }
 
     public function setStatus(ReservationStatus $status): void{
+        // If the status is being set to 'no show' or 'cancelled', update the bundle quantity (+1).
+        if ($status == ReservationStatus::NoShow || $status == ReservationStatus::Cancelled) {
+            $bundle = Bundle::load($this->getBundleID());
+            $bundle->setQuantity($bundle->getQuantity() + 1);
+        }
+
         $this->status = $status;
     }
 
@@ -80,9 +88,7 @@ class Reservation extends StoredObject
      * Updates the database with the values stored in the current instance of the reservation object
      *
      * @return void
-     *
-     * @throws DatabaseException
-     * @throws NoSuchReservationException
+     * @throws DatabaseException|NoSuchReservationException|NoSuchCustomerException|NoSuchBadgeException|NoSuchStreakException|MissingValuesException|NoSuchBundleException
      */
     public function update(): void {
         // Throw error if reservation with given id does not exist
@@ -100,6 +106,146 @@ class Reservation extends StoredObject
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
+
+        // If reservation is cancelled/no-show, increase quantity of bundle
+        if ($this->status == ReservationStatus::Cancelled || $this->status == ReservationStatus::NoShow) {
+            // Update quantity for bundle
+            $bundle = Bundle::load($this->getBundleID());
+            $bundle->setQuantity($bundle->getQuantity() + 1);
+            $bundle->update();
+        }
+
+        // Check value of reservation status
+        if ($this->status == ReservationStatus::Completed) {
+            // Check if customer has an ongoing streak and create one if not
+            $streak = Customer::load($this->getPurchaserID())->getStreak();
+            if ($streak == null) {
+                // Create streak
+                $streak = Streak::create(["customerID" => $this->getPurchaserID()]);
+                // Get current day and time
+                $currentDate = new DateTimeImmutable("now");
+                // Set appropriate values for fields
+                $streak->setStartDate($currentDate);
+                $streak->setCurrentWeekStart($currentDate->modify("+1 week"));
+                $streak->setEndDate($currentDate->modify("+1 week"));
+                $streak->update();
+            } else {
+
+                // Start new streak if "current" streak has already ended
+                if ($streak->getEndDate() < new DateTimeImmutable("now")) {
+                    // Get current date
+                    $currentDate = new DateTimeImmutable("now");
+                    $streak->setStartDate($currentDate);
+                    $streak->setCurrentWeekStart($currentDate);
+                    $streak->setEndDate($currentDate->modify("+1 week"));
+                    // Update streak
+                    $streak->update();
+                } else {
+                    // Check if a bundle has already been collected to continue the streak
+                    if ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
+                        // Changing currentWeekStart and endDate to a weeks time signifying update of streak
+                        $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
+                        $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
+                        // Applying update
+                        $streak->update();
+                    }
+                }
+            }
+
+            // Get how many weeks have elapsed since start of week
+            $start = $streak->getStartDate();
+            $now = new DateTimeImmutable("now");
+
+            $diff = $start->diff($now);
+
+            $weeksElapsed = intdiv($diff->days, 7);
+
+            // Default tier value
+            $tier = null;
+
+            // Compare to required values for each tier
+            if ($weeksElapsed >= 3 && $weeksElapsed < 10 ) {
+                $tier = BadgeTier::Bronze;
+            } else if ($weeksElapsed >= 10 && $weeksElapsed < 20 ) {
+                $tier = BadgeTier::Silver;
+            } else if ($weeksElapsed >= 20) {
+                $tier = BadgeTier::Gold;
+            }
+
+            // Get Dedicated Save badge
+            $dedicatedSaver = Badge::loadByTitle("Dedicated Saver");
+
+            // Update information in database
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier = :tier, progress = :progress WHERE customerID = :customerID AND badgeID = :badgeID;");
+                $stmt->execute([":tier" => $tier, ":progress" => $weeksElapsed, ":customerID" => $this->getPurchaserID(), ":badgeID" => $dedicatedSaver->getId()]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+
+
+            // Retrieve bundle for given reservation
+            $bundle = Bundle::load($this->bundleID);
+
+            // Get difference in RRP and discountedPrice
+            $discount = $bundle->getRrpGBX() - $bundle->getDiscountedPriceGBX();
+
+            // Get badge details for Bargain Hunter relating to customer
+            $badges = Customer::loadBadges($this->purchaserID);
+            $bargainHunter = Badge::loadByTitle("Bargain Hunter");
+            $bargainHunterCustomer = $badges[$bargainHunter->getId()];
+
+            // Switch-case to assign right value depending on current tier
+            switch ($bargainHunterCustomer["tier"]) {
+                case null:
+                    // Check if discount was £5 to meet requirement
+                    if (500 >= $discount && $discount < 1000) {
+                            $tier = BadgeTier::Bronze;
+                            $progress = 500;
+                            break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = null;
+                    $progress = 0;
+                    break;
+                case BadgeTier::Bronze:
+                    // Check if discount was £10 to meet requirement
+                    if (1000 >= $discount && $discount < 1500) {
+                        $tier = BadgeTier::Silver;
+                        $progress = 1000;
+                        break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = BadgeTier::Bronze;
+                    $progress = 500;
+                    break;
+                case BadgeTier::Silver:
+                    // Check if discount was £15 to meet requirement
+                    if (1500 >= $discount) {
+                        $tier = BadgeTier::Gold;
+                        $progress = 1500;
+                        break;
+                    }
+
+                    // Otherwise, set to current values
+                    $tier = BadgeTier::Silver;
+                    $progress = 1000;
+                    break;
+                default:
+                    $tier = null;
+                    $progress = 0;
+            }
+
+            // Update progression and tier for badge
+            try {
+                $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier = :tier, progress = :progress WHERE badgeID = :badgeID AND customerID = :customerID;");
+                $stmt->execute([":tier" => $tier?->value, ":progress" => $progress, ":badgeID" => $bargainHunterCustomer["badgeID"], ":customerID" => $bargainHunterCustomer["customerID"]]);
+            } catch (\PDOException $e) {
+                throw new DatabaseException($e->getMessage());
+            }
+        }
     }
 
     /**
@@ -109,8 +255,7 @@ class Reservation extends StoredObject
      *
      * @return StoredObject
      *
-     * @throws DatabaseException
-     * @throws MissingValuesException
+     * @throws DatabaseException|MissingValuesException|NoSuchBundleException
      */
     public static function create(array $fields): StoredObject {
         // Check that required fields have values
@@ -119,16 +264,10 @@ class Reservation extends StoredObject
         }
 
         $bundle = Bundle::load($fields['bundleID']);
-
-        // Update bundle's method
-        try {
-            $bundle->setStatus(BundleStatus::Reserved);
-            $bundle->update();
-        } catch (\PDOException $e) {
-            throw new DatabaseException($e->getMessage());
-        } catch (DatabaseException $e) {
-        } catch (NoSuchBundleException $e) {
-        }
+        // Decrease quantity
+        $bundle->setQuantity($bundle->getQuantity() - 1);
+        // Update bundle
+        $bundle->update();
 
         // Generate claim code for the bundle if the bundle has no claim code
         if(!isset($fields['claimCode'])) {
@@ -172,6 +311,9 @@ class Reservation extends StoredObject
     /**
      * Creates and returns a random claim code, which is a 16 string of random characters in the alphabet
      *
+     * @param int $reservationID
+     * @param int $purchaserID
+     * @param string $title
      * @return string
      */
     public static function generateClaimCode(int $reservationID, int $purchaserID, string $title): string {
@@ -235,7 +377,6 @@ class Reservation extends StoredObject
             $reservation->purchaserID = $row["purchaserID"];
             $reservation->status = ReservationStatus::from($row["reservationStatus"]);
             $reservation->claimCode = $row["claimCode"];
-            $reservation->reservationDate = $row["reservationDate"];
 
             return $reservation;
 
@@ -377,14 +518,11 @@ class Reservation extends StoredObject
      * @throws NoSuchCustomerException
      * @throws NoSuchReservationException
      * @throws NoSuchStreakException
+     * @throws NoSuchBadgeException
      */
     public static function markCollected(int $id): void {
         $reservation = Reservation::load($id);
         $reservation->setStatus(ReservationStatus::Completed);
         $reservation->update();
-
-        $bundle = Bundle::load($reservation->getBundleID());
-        $bundle->setStatus(BundleStatus::Collected);
-        $bundle->update();
     }
 }

@@ -94,6 +94,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
 $categoryList = Category::getCategoryList();
 $myCategory = $bundle->getCategory();
+$quantity = $bundle->getQuantity();
 
 ?>
 
@@ -118,16 +119,52 @@ $myCategory = $bundle->getCategory();
     </div>
     <br>
     <div class="edit-form__field">
+        <?php
+        $slot = $bundle->getPickupWindow();
+        ?>
+        <label for="pickup-window">Pickup Window</label>
+        <select class="dropdown" name="pickup-window" id="pickup-window">
+            <option value="00:00-01:00" <?php echo $slot == '00:00-01:00' ? 'selected' : ''; ?>>00:00-01:00</option>
+            <option value="01:00-02:00" <?php echo $slot == '01:00-02:00' ? 'selected' : ''; ?>>01:00-02:00</option>
+            <option value="02:00-03:00" <?php echo $slot == '02:00-03:00' ? 'selected' : ''; ?>>02:00-03:00</option>
+            <option value="03:00-04:00" <?php echo $slot == '03:00-04:00' ? 'selected' : ''; ?>>03:00-04:00</option>
+            <option value="04:00-05:00" <?php echo $slot == '04:00-05:00' ? 'selected' : ''; ?>>04:00-05:00</option>
+            <option value="05:00-06:00" <?php echo $slot == '05:00-06:00' ? 'selected' : ''; ?>>05:00-06:00</option>
+            <option value="06:00-07:00" <?php echo $slot == '06:00-07:00' ? 'selected' : ''; ?>>06:00-07:00</option>
+            <option value="07:00-08:00" <?php echo $slot == '07:00-08:00' ? 'selected' : ''; ?>>07:00-08:00</option>
+            <option value="08:00-09:00" <?php echo $slot == '08:00-09:00' ? 'selected' : ''; ?>>08:00-09:00</option>
+            <option value="09:00-10:00" <?php echo $slot == '09:00-10:00' ? 'selected' : ''; ?>>09:00-10:00</option>
+            <option value="10:00-11:00" <?php echo $slot == '10:00-11:00' ? 'selected' : ''; ?>>10:00-11:00</option>
+            <option value="11:00-12:00" <?php echo $slot == '11:00-12:00' ? 'selected' : ''; ?>>11:00-12:00</option>
+            <option value="12:00-13:00" <?php echo $slot == '12:00-13:00' ? 'selected' : ''; ?>>12:00-13:00</option>
+            <option value="13:00-14:00" <?php echo $slot == '13:00-14:00' ? 'selected' : ''; ?>>13:00-14:00</option>
+            <option value="14:00-15:00" <?php echo $slot == '14:00-15:00' ? 'selected' : ''; ?>>14:00-15:00</option>
+            <option value="15:00-16:00" <?php echo $slot == '15:00-16:00' ? 'selected' : ''; ?>>15:00-16:00</option>
+            <option value="16:00-17:00" <?php echo $slot == '16:00-17:00' ? 'selected' : ''; ?>>16:00-17:00</option>
+            <option value="17:00-18:00" <?php echo $slot == '17:00-18:00' ? 'selected' : ''; ?>>17:00-18:00</option>
+            <option value="18:00-19:00" <?php echo $slot == '18:00-19:00' ? 'selected' : ''; ?>>18:00-19:00</option>
+            <option value="19:00-20:00" <?php echo $slot == '19:00-20:00' ? 'selected' : ''; ?>>19:00-20:00</option>
+            <option value="20:00-21:00" <?php echo $slot == '20:00-21:00' ? 'selected' : ''; ?>>20:00-21:00</option>
+            <option value="21:00-22:00" <?php echo $slot == '21:00-22:00' ? 'selected' : ''; ?>>21:00-22:00</option>
+            <option value="22:00-23:00" <?php echo $slot == '22:00-23:00' ? 'selected' : ''; ?>>22:00-23:00</option>
+            <option value="23:00-00:00" <?php echo $slot == '23:00-00:00' ? 'selected' : ''; ?>>23:00-24:00</option>
+        </select>
+    </div>
+
+    <br>
+
+    <div class="edit-form__field">
         <label for="category-selector">Category</label>
         <select class="category-selector <?php echo ($myCategory == null) ? "disabled": "" ?>" id="category-selector">
             <?php
-                echo "<option value=\"\" disabled " . (($myCategory == null) ? "selected" : "") . ">Choose a category</option>";
-                foreach ($categoryList as $key => $category) {
-                    echo "<option value=\"" . $category . "\"" . (($myCategory == $category) ? "selected" : "") . ">" . $category . "</option>";
-                }
+            echo "<option value=\"\" disabled " . (($myCategory == null) ? "selected" : "") . ">Choose a category</option>";
+            foreach ($categoryList as $key => $category) {
+                echo "<option value=\"" . $category . "\"" . (($myCategory == $category) ? "selected" : "") . ">" . $category . "</option>";
+            }
             ?>
         </select>
     </div>
+
     <br>
     <button type="button" class="button round red" id="add-allergen-btn">Add Allergen</button>
     <br>
@@ -161,6 +198,12 @@ $myCategory = $bundle->getCategory();
         ?>
     </ul>
     <br>
+    <div class="edit-form__field">
+        <label for="quantity">Quantity</label>
+        <div class="textbox" data-type="text" data-id="quantity" data-label="Quantity" id="quantity-textbox" data-value="<?php
+        print($quantity);
+        ?>"></div>
+    </div>
     <div class="edit-form__field">
         <label for="rrp">Recommended Retail Price</label>
         <div class="textbox" data-type="text" data-id="rrp" data-label="Price in £" id="rrp-textbox" data-value="<?php

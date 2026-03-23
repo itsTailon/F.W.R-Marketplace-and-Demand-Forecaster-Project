@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
                 echo json_encode(Forecast::compareWithGroundTruth($sellerID, "Seasonal"));
             }
         } elseif ($_GET["type"] == "ProductionRec") {
-            
+
         }
     } catch (InvalidArgumentException $e) {
         echo json_encode(http_response_code(400));

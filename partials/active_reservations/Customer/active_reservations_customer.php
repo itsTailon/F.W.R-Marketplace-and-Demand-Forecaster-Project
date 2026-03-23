@@ -29,9 +29,9 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'buyer
     </nav>
     <div class="active-reservations"></div>
     <?php if (!$reservations): ?>
-        <h1>No Active Reservations</h1>
+        <h1>No Reservations</h1>
     <?php else: ?>
-    <h1>Active Reservations</h1>   
+    <h1>Reservations</h1>
     <div class="active-reservations-list-wrapper">
         <ul class="active-reservations-list">
             <?php foreach ($reservations as $r): ?>
@@ -40,10 +40,6 @@ $reservations = Reservation::getAllReservationsForUser($acc->getUserID(), 'buyer
                     $bundleID = $r['bundleID'];
                     $bundle = Bundle::load($bundleID);
                     $reservationID = $r['reservationID'];
-
-                    if($r['reservationStatus'] != 'active'){
-                        continue;
-                    }
                 ?>
                 <li>
                     <h1 class="active-reservations-bundle-name"><?php echo $bundle->getTitle() ?></h1>

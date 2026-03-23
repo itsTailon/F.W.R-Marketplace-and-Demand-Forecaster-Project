@@ -5,6 +5,8 @@ namespace TTE\App\Model;
 use DateTimeImmutable;
 use http\Exception\InvalidArgumentException;
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Helpers\TimeTools;
+use ValueError;
 
 class Bundle extends StoredObject {
 
@@ -17,19 +19,23 @@ class Bundle extends StoredObject {
 
     private string $details;
 
+    private int $quantity;
+
     private int $rrpGBX;
 
     private int $discountedPriceGBX;
+
+    private DateTimeImmutable $expiryDate;
 
     private int $sellerID;
 
     private ?int $purchaserID;
 
+    private string $pickupWindow;
+
     /**
      * Take current values of all attributes of the Bundle object
      * @throws DatabaseException|NoSuchBundleException|MissingValuesException
-     * @throws NoSuchCustomerException
-     * @throws NoSuchStreakException
      */
     public function update(): void
     {
@@ -42,85 +48,58 @@ class Bundle extends StoredObject {
 
         // Check if current object values are all set
         if (!isset($this->id) || !isset($this->status) || !isset($this->title) || !isset($this->details) || !isset($this->rrpGBX) ||
-            !isset($this->discountedPriceGBX) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
+            !isset($this->discountedPriceGBX) || !isset($this->expiryDate) || !isset($this->pickupWindow) || empty(trim($this->getTitle())) || empty(trim($this->getDetails()))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
         }
 
+        // Update bundle status depending on quantity taken on
+        if ($this->getQuantity() == 0) {
+            $this->setStatus(BundleStatus::OffSale);
+        }
+
+        if  ($this->getQuantity() > 0) {
+            $this->setStatus(BundleStatus::OnSale);
+        }
+
 
         // SQL query to be executed
-        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, rrp = :rrp, discountedPrice = :discountedPrice, sellerID = :sellerID, purchaserID = :purchaserID WHERE bundleID = :id;";
+        $sql_query = "UPDATE bundle SET bundleStatus = :bundleStatus, title = :title, details = :details, quantity = :quantity, rrp = :rrp, discountedPrice = :discountedPrice, expiryDate = :expiryDate, sellerID = :sellerID, purchaserID = :purchaserID, pickupWindow = :pickupWindow WHERE bundleID = :id;";
         // Prepare and execute query
         $stmt = DatabaseHandler::getPDO()->prepare($sql_query);
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID() ,":id" => $this->id]);
+            $stmt->execute([":bundleStatus" => $this->getStatus()->value, ":expiryDate" => $this->getExpiryDate()->format("Y-m-d"), ":title" => $this->getTitle(), ":details" => $this->getDetails(), ":quantity" => $this->getQuantity() ,":rrp" => CurrencyTools::gbxToDecimalString($this->getRrpGBX()),
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($this->getDiscountedPriceGBX()), ":sellerID" => $this->getSellerID(), ":purchaserID" => $this->getPurchaserID(), "pickupWindow" => $this->pickupWindow , ":id" => $this->id]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
         }
-
-        // If bundle is collected by customer and there is a customer attached
-        if ($this->getStatus() == BundleStatus::Collected && $this->getPurchaserID() != null) {
-            // Check if customer has an ongoing streak and create one if not
-            $streak = Customer::load($this->getPurchaserID())->getStreak();
-            if ($streak == null) {
-                // Create streak
-                $streak = Streak::create(["customerID" => $this->getPurchaserID()]);
-                // Get current day and time
-                $currentDate = new DateTimeImmutable("now");
-                // Set appropriate values for fields
-                $streak->setStartDate($currentDate);
-                $streak->setCurrentWeekStart($currentDate->modify("+1 week"));
-                $streak->setEndDate($currentDate->modify("+1 week"));
-                $streak->update();
-            } else {
-
-                // Start new streak if "current" streak has already ended
-                if ($streak->getEndDate() < new DateTimeImmutable("now")) {
-                    // Get current date
-                    $currentDate = new DateTimeImmutable("now");
-                    $streak->setStartDate($currentDate);
-                    $streak->setCurrentWeekStart($currentDate);
-                    $streak->setEndDate($currentDate->modify("+1 week"));
-                    // Update streak
-                    $streak->update();
-                } else {
-                    // Check if a bundle has already been collected to continue the streak
-                    if ($streak->getCurrentWeekStart() < new DateTimeImmutable("now")) {
-                        // Changing currentWeekStart and endDate to a weeks time signifying update of streak
-                        $streak->setCurrentWeekStart($streak->getCurrentWeekStart()->modify("+1 week"));
-                        $streak->setEndDate($streak->getCurrentWeekStart()->modify("+1 week"));
-                        // Applying update
-                        $streak->update();
-                    }
-
-
-                }
-            }
-        }
-
     }
 
     /**
      * Create a Bundle object and add entry to database.
      *
      * @param array $fields associative array of fields required for Bundle.
-     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException
      * @return Bundle object with fields holding values passed in at call of the function.
+     * @throws MissingValuesException|NoSuchSellerException|NoSuchCustomerException|DatabaseException|ValueError
      */
     public static function create(array $fields): Bundle {
 
         // Presence check on all inputs - not on purchaserID as it is nullable
-        if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
-            !isset($fields['discountedPrice']) || empty(trim($fields['title'])) || empty(trim($fields['details']))) {
+        if (!isset($fields['sellerID']) || !isset($fields['bundleStatus']) || !isset($fields['expiryDate']) || !isset($fields['title']) || !isset($fields['details']) || !isset($fields['rrp']) ||
+            !isset($fields['discountedPrice']) || !isset($fields['pickupWindow']) || empty(trim($fields['title'])) || empty(trim($fields['details'])) || empty(trim($fields['quantity']))) {
 
             // Produce error message if field exists with no content
             throw new MissingValuesException("Missing information required to create a bundle");
+        }
+
+        // Verify time slot value validity
+        if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
+            throw new ValueError("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
         }
 
         // Creating new Bundle object
@@ -131,18 +110,21 @@ class Bundle extends StoredObject {
         $bundle->setDetails($fields['details']);
         $bundle->setRrpGBX($fields['rrp']);
         $bundle->setDiscountedPriceGBX($fields['discountedPrice']);
+        $bundle->setExpiryDate($fields['expiryDate']);
         $bundle->setSellerID($fields['sellerID']);
         $bundle->setPurchaserID(isset($fields['purchaserID']) ? $fields['purchaserID'] : null);
+        $bundle->setQuantity($fields['quantity']);
+        $bundle->setPickupWindow($fields['pickupWindow']);
 
         // Creating parameterised SQL command
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, rrp, discountedPrice, sellerID, purchaserID) 
-            VALUES (:bundleStatus, :title, :details, :rrp, :discountedPrice, :sellerID, :purchaserID);");
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO bundle (bundleStatus, title, details, quantity, rrp, discountedPrice, expiryDate, sellerID, purchaserID, pickupWindow) 
+            VALUES (:bundleStatus, :title, :details, :quantity, :rrp, :discountedPrice, :expiryDate, :sellerID, :purchaserID, :pickupWindow);");
 
         // Try-catch block for handling potential database exceptions
         try {
             // Execute SQL command, establishing values of parameterised fields
-            $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":details" => $bundle->getDetails(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
-                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID()]);
+            $stmt->execute([":bundleStatus" => $bundle->getStatus()->value, ":title" => $bundle->getTitle(), ":expiryDate" => $bundle->getExpiryDate()->format("Y-m-d"), ":details" => $bundle->getDetails(), ":quantity" => $bundle->getQuantity(), ":rrp" => CurrencyTools::gbxToDecimalString($bundle->getRrpGBX()),
+                ":discountedPrice" => CurrencyTools::gbxToDecimalString($bundle->getDiscountedPriceGBX()), ":sellerID" => $bundle->getSellerID(), ":purchaserID" => $bundle->getPurchaserID(), "pickupWindow" => $bundle->getPickupWindow()]);
         } catch (\PDOException $e) {
             // Throw exception message aligning with output of database error
             throw new DatabaseException($e->getMessage());
@@ -163,8 +145,8 @@ class Bundle extends StoredObject {
      *
      * @param int $id ID of the bundle to be loaded.
      *
+     * @return Bundle a Bundle object representing the loaded bundle
      * @throws DatabaseException if no bundle exists with the given ID.
-     * @return StoredObject a Bundle object representing the loaded bundle
      */
     public static function load(int $id): Bundle {
         // Attempt to retrieve bundle record with the given ID
@@ -183,6 +165,7 @@ class Bundle extends StoredObject {
         $bundle = new Bundle();
         $bundle->id = $row['bundleID'];
         $bundle->status = BundleStatus::from($row['bundleStatus']); // Convert to enum representation
+        $bundle->setExpiryDate(DateTimeImmutable::createFromFormat("Y-m-d", $row['expiryDate'])); // Time is set to midnight by default
         $bundle->title = $row['title'];
         $bundle->details = $row['details'];
         // MySQL DECIMAL values are returned by PDO as strings, so convert to ints representing pence (ints to avoid FP errors)
@@ -190,6 +173,8 @@ class Bundle extends StoredObject {
         $bundle->discountedPriceGBX = CurrencyTools::decimalStringToGBX($row['discountedPrice']);
         $bundle->sellerID = $row['sellerID'];
         $bundle->purchaserID = $row['purchaserID'];
+        $bundle->setQuantity($row['quantity']);
+        $bundle->pickupWindow = $row['pickupWindow'];
 
         return $bundle;
     }
@@ -213,6 +198,53 @@ class Bundle extends StoredObject {
 
         // Return true if a bundle exists with the given ID
         return !($row === false);
+    }
+
+    /**
+     * Method that retrieves all bundles that are currently still before their expiration date
+     * @throws DatabaseException
+     * @return array of bundle objects that are still active
+     */
+    public static function loadAllActiveBundles(): array {
+        // SQL parameterised query that retrieves all bundles that have not expired
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate > :timestamp;");
+            $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Use bundleIDs to load all bundle objects with matching IDs and return them
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $bundles = array();
+        foreach ($rows as $row) {
+            $bundles[] = Bundle::load($row["bundleID"]);
+        }
+
+        return $bundles;
+    }
+
+    /**
+     * @return array of bundles that are past their expiration date
+     * @throws DatabaseException
+     */
+    public static function loadAllExpiredBundles(): array {
+        // SQL parameterised query that retrieves all bundles that have not expired
+        try {
+            $stmt = DatabaseHandler::getPDO()->prepare("SELECT bundleID FROM bundle WHERE expiryDate <= :timestamp;");
+            $stmt->execute([":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
+        } catch (\PDOException $e) {
+            throw new DatabaseException($e->getMessage());
+        }
+
+        // Use bundleIDs to load all bundle objects with matching IDs and return them
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $bundles = array();
+        foreach ($rows as $row) {
+            $bundles[] = Bundle::load($row["bundleID"]);
+        }
+
+        return $bundles;
     }
 
     /**
@@ -251,18 +283,13 @@ class Bundle extends StoredObject {
 
     /**
      * @param string $categoryName name of category to be added to bundle
-     * @throws DatabaseException|NoSuchCategoryException|CategoryAlreadyExistsException
+     * @throws DatabaseException|NoSuchCategoryException
      * @return void
      */
     public function addCategory(string $categoryName): void {
         // Check category exists
         if (!Category::categoryExists($categoryName)) {
             throw new NoSuchCategoryException("No category exists with name '" . $categoryName . "'.");
-        }
-
-        // Check bundle doesn't already have an attached category
-        if ($this->getCategory() != null) {
-            throw new CategoryAlreadyExistsException("Category '" . $categoryName . "' already attached to bundle.");
         }
 
         // If category exists, add to bundle
@@ -310,9 +337,9 @@ class Bundle extends StoredObject {
     }
 
     /**
-     * @param string $categoryName name of category to remove
-     * @throws DatabaseException|NoSuchCategoryException
+     * Remove category attached to bundle
      * @return void
+     * @throws DatabaseException|NoSuchCategoryException
      */
     public function removeCategory(): void {
         $categoryName = $this->getCategory();
@@ -388,7 +415,7 @@ class Bundle extends StoredObject {
     public function setTitle(string $title): void {
         // Ensure length of new title complies with DB schema (128)
         if (strlen($title) > self::MAX_LEN_TITLE) {
-            throw new \ValueError("Cannot set bundle title longer than " . self::MAX_LEN_TITLE . " characters");
+            throw new ValueError("Cannot set bundle title longer than " . self::MAX_LEN_TITLE . " characters");
         }
 
         $this->title = $title;
@@ -409,10 +436,18 @@ class Bundle extends StoredObject {
     public function setRrpGBX(int $gbx): void {
         // Ensure value is non-negative
         if ($gbx < 0) {
-            throw new \ValueError("Cannot set RRP to negative value");
+            throw new ValueError("Cannot set RRP to negative value");
         }
 
         $this->rrpGBX = $gbx;
+    }
+
+    public function getExpiryDate(): DateTimeImmutable {
+        return $this->expiryDate;
+    }
+
+    public function setExpiryDate(DateTimeImmutable $expiryDate): void {
+        $this->expiryDate = $expiryDate;
     }
 
     public function getDiscountedPriceGBX(): int {
@@ -422,7 +457,7 @@ class Bundle extends StoredObject {
     public function setDiscountedPriceGBX(int $gbx): void {
         // Ensure value is non-negative
         if ($gbx < 0) {
-            throw new \ValueError("Cannot set discounted price to negative value");
+            throw new ValueError("Cannot set discounted price to negative value");
         }
 
         $this->discountedPriceGBX = $gbx;
@@ -437,6 +472,7 @@ class Bundle extends StoredObject {
      *
      * @param int $sellerID
      * @return void
+     * @throws NoSuchSellerException
      */
     private function setSellerID(int $sellerID): void {
         // Ensure that the given seller ID corresponds to an actual seller
@@ -445,6 +481,14 @@ class Bundle extends StoredObject {
         }
 
         $this->sellerID = $sellerID;
+    }
+
+    /**
+     * Returns the quantity of currently available bundles within bundle listing
+     * @return int quantity
+     */
+    public function getQuantity(): int {
+        return $this->quantity;
     }
 
     public function getPurchaserID(): ?int {
@@ -458,6 +502,40 @@ class Bundle extends StoredObject {
         }
 
         $this->purchaserID = $customerID;
+    }
+
+    /**
+     * Update bundle listing quantity
+     * @param int $quantity value to be updated to
+     * @return void
+     */
+    public function setQuantity(int $quantity): void {
+        // Ensure quantity is valid
+        if ($quantity < 0) {
+            throw new ValueError("Cannot set bundle quantity to negative value");
+        }
+
+        // Update quantity
+        $this->quantity = $quantity;
+    }
+
+    /**
+     * Sets the pickup window from a string in the format 'hh:mm-hh:mm', validated using TimeTools::verifyTimeSlotStringFormat.
+     *
+     * @param string $pickupWindow
+     * @throws ValueError if an invalid pickup window value is passed
+     * @return void
+     */
+    public function setPickupWindow(string $pickupWindow): void {
+        if (!TimeTools::verifyTimeSlotStringFormat($pickupWindow)) {
+            throw new ValueError("Invalid pickup window value '$pickupWindow'.");
+        }
+
+        $this->pickupWindow = $pickupWindow;
+    }
+
+    public function getPickupWindow(): string {
+        return $this->pickupWindow;
     }
 
     /**
@@ -494,7 +572,7 @@ class Bundle extends StoredObject {
         $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
 
         $stmt = DatabaseHandler::getPDO()->prepare($query);
-        $stmt->execute([":pattern" => $pattern, ":status" => "available"]);
+        $stmt->execute([":pattern" => $pattern, ":status" => "onsale"]);
 
         $rowsRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $rows = array();
