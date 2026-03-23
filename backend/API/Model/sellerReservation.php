@@ -109,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $reservation = Reservation::load($id);
             $reservation->claimReservation($claimCode);
             // notify customer.
+            $bundle = Bundle::load($reservation->getBundleID());
             Notification::create([
                 "userID" => $reservation->getPurchaserID(),
                 "title" => "Reservation Completed", 
