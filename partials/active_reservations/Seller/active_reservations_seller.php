@@ -9,6 +9,10 @@ $acc = Authenticator::getCurrentUser();
 
 $statuses = ["active", "completed", "no-show", "cancelled"];
 
+if(!isset($_GET['status'])){
+    $_GET['status']='active';
+}
+
 $status = $_GET['status'];
 if (!in_array($status, $statuses)) {
     $status = "active";

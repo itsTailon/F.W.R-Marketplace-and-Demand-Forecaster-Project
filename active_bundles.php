@@ -35,7 +35,15 @@ require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
 
 $bundles = Seller::getAllBundlesForUser($acc->getUserID());
+$filtered = [];
 
+$index = 0;
+foreach ($bundles as $b) {
+    if (new DateTime($b['expiryDate']) > new DateTime()) {
+        $filtered[$index++] = $b;
+    }
+}
+$bundles = $filtered;
 
 ?>
 
@@ -62,7 +70,6 @@ $bundles = Seller::getAllBundlesForUser($acc->getUserID());
         <ul class="active-bundles-list">
             <?php foreach ($bundles as $b): ?>
                 <?php
-
                 $bundle = Bundle::load($b['bundleID']);
                 ?>
             <li>
