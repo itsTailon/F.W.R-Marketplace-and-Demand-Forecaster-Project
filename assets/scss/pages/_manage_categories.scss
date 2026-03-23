@@ -1,0 +1,27 @@
+@use '../abstracts/config';
+
+.manage-categories-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.manage-categories {
+  width: 100%;
+  max-width: 960px;
+  padding: 96px 32px;
+
+  &__desc {
+    display: block;
+    margin-top: 16px;
+  }
+
+  &__submit {
+    margin-top: 24px;
+  }
+}
+
+.categories-input {
+  margin-top: 64px;
+}
+

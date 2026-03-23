@@ -21,6 +21,8 @@
                     echo $user->getName();
                 } else if ($user instanceof \TTE\App\Model\Customer) {
                     echo $user->getUsername();
+                } else if ($user->getAccountType() == "maintainer") {
+                    echo "<i>System Admin</i>";
                 }
             ?>
         </span>

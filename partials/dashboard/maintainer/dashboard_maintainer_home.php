@@ -17,6 +17,13 @@
                 <a style="max-width: 256px;" href="">List Sellers</a>
             </li>
         </ul>
+
+        <h1>Other Options</h1>
+        <ul class="dashboard-options">
+            <li>
+                <a style="max-width: 256px;" href="/manage_categories.php">Manage Categories</a>
+            </li>
+        </ul>
     </nav>
 </div>
 
