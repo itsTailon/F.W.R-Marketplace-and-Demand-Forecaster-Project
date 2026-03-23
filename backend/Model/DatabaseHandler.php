@@ -186,7 +186,7 @@ class DatabaseHandler {
 
                 CREATE TABLE IF NOT EXISTS badge (
                     badgeID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                    title VARCHAR(128) NOT NULL, -- 'Loyal Customer'
+                    title VARCHAR(128) NOT NULL UNIQUE, -- 'Loyal Customer'
                     subtitle VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {x} times'
                     badgeDescription VARCHAR(255) NOT NULL, -- 'Reserve the same bundle {y} more times to earn this badge!'
                     xBronze INT NOT NULL, -- the total number of times a bundle must be reserved to achieve bronze
