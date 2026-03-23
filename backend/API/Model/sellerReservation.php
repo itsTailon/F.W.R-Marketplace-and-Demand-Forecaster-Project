@@ -64,12 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             switch ($status) {
                 case "Completed":
                     $rStatus = ReservationStatus::Completed;
-                    // notify customer.
-                    Notification::create([
-                        "userID" => $reservation->getPurchaserID(),
-                        "title" => "Reservation Completed", 
-                        "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked completed."
-                    ]);
                     break;
                 case "NoShow":
                     $rStatus = ReservationStatus::NoShow;
@@ -114,6 +108,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // Claim reservation
             $reservation = Reservation::load($id);
             $reservation->claimReservation($claimCode);
+            // notify customer.
+            Notification::create([
+                "userID" => $reservation->getPurchaserID(),
+                "title" => "Reservation Completed", 
+                "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked completed."
+            ]);
 
             exit();
         }
