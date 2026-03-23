@@ -569,10 +569,10 @@ class Bundle extends StoredObject {
      */
     public static function searchBundles(string $withWhatQuery) : array {
         $pattern = "%" . $withWhatQuery . "%";
-        $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status";
+        $query = "SELECT bundleID FROM bundle WHERE (title LIKE :pattern OR details LIKE :pattern) AND bundleStatus = :status AND expiryDate >= :timestamp";
 
         $stmt = DatabaseHandler::getPDO()->prepare($query);
-        $stmt->execute([":pattern" => $pattern, ":status" => "onsale"]);
+        $stmt->execute([":pattern" => $pattern, ":status" => "onsale", ":timestamp" => (new DateTimeImmutable())->format("Y-m-d")]);
 
         $rowsRaw = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $rows = array();
