@@ -310,15 +310,15 @@ class SellerRegistrationRequest extends StoredObject {
      */
     public function grant(): Seller {
         if ($this->getStatus() == SellerRegistrationRequestStatus::Pending) {
+            $this->setStatus(SellerRegistrationRequestStatus::Closed);
+            $this->update();
             return Seller::create([
                 "email" => $this->getSellerEmail(),
-                "password" => $this->passwordHash,
+                "passwordHash" => $this->passwordHash,
                 "name" => $this->getSellerName(),
                 "address" => $this->getSellerAddress(),
             ]);
 
-            $this->setStatus(SellerRegistrationRequestStatus::Closed);
-            $this->update();
         } else {
             throw new InvalidArgumentException("Request already handled");
         }

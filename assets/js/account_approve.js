@@ -4,7 +4,7 @@ $("#approve-btn").click(function() {
 
     $.ajax({
         url: "/backend/API/Model/sellerRegistrationRequest.php",
-        type: 'POST',
+        type: 'PUT',
         data: {
             action: 'grant',
             sellerRequestID: requestID,
@@ -41,7 +41,7 @@ $("#deny-btn").click(function() {
 
     $.ajax({
         url: "/backend/API/Model/sellerRegistrationRequest.php",
-        type: 'POST',
+        type: 'PUT',
         data: {
             action: 'deny',
             sellerRequestID: requestID,

@@ -66,7 +66,6 @@ try {
                     <p class="registration-requests-request-description">Seller Name: <?php echo $name; ?></p>
                     <nav class="registration-requests-request-nav">
                         <button id="approve-btn" class="button button--rounded button--green registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Approve</button>
-                        <script src="assets/js/account_approve.js"></script>
                         <button id="deny-btn" class="button button--rounded red registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Deny</button>
                         <a class="button button--rounded registration-requests-request-nav-view" href="/view_request.php?id=<?php echo $requestID; ?>">View</a>
                     </nav>
@@ -75,6 +74,7 @@ try {
         </div>
     <?php endif; ?>
 </div>
+<script src="assets/js/account_approve.js"></script>
 
 <?php
 // Include page footer and closing tags
