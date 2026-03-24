@@ -62,15 +62,15 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             if ($current_badge->getTitle() == "Bargain Hunter") {
                 // Set message depending on current tier
                 switch ($badge["tier"]) {
-                    case BadgeTier::Bronze:
+                    case "bronze":
                         $subtitle = str_replace("{x}", $current_badge->getXBronze(), $current_badge->getSubtitle());
                         $description = str_replace("{x}", strval($current_badge->getXSilver()), $current_badge->getBadgeDescription());
                         break;
-                    case BadgeTier::Silver:
+                    case "silver":
                         $subtitle = str_replace("{x}", $current_badge->getXSilver(), $current_badge->getSubtitle());
                         $description = str_replace("{x}", strval($current_badge->getXGold()), $current_badge->getBadgeDescription());
                         break;
-                    case BadgeTier::Gold:
+                    case "gold":
                         $subtitle = str_replace("{x}", $current_badge->getXGold(), $current_badge->getSubtitle());
                         $description = "You have achieved the utmost grade for this badge!";
                         break;
@@ -82,15 +82,15 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
             } else {
                 // Set message depending on current tier
                 switch ($badge["tier"]) {
-                    case BadgeTier::Bronze:
+                    case "bronze":
                         $subtitle = str_replace("{x}", $current_badge->getXBronze(), $current_badge->getSubtitle());
                         $description = str_replace("{x}", strval($current_badge->getXSilver() - $badge["progress"]), $current_badge->getBadgeDescription());
                         break;
-                    case BadgeTier::Silver:
+                    case "silver":
                         $subtitle = str_replace("{x}", $current_badge->getXSilver(), $current_badge->getSubtitle());
                         $description = str_replace("{x}", strval($current_badge->getXGold() - $badge["progress"]), $current_badge->getBadgeDescription());
                         break;
-                    case BadgeTier::Gold:
+                    case "gold":
                         $subtitle = str_replace("{x}", $current_badge->getXGold(), $current_badge->getSubtitle());
                         $description = "You have achieved the utmost grade for this badge!";
                         break;
