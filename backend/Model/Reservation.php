@@ -286,6 +286,7 @@ class Reservation extends StoredObject
         if($fields['reservationDate'] == null) {
             $today = new \DateTime();
             $today = getdate($today->getTimestamp())['yday'];
+            $today = date_format($today, 'Y/m/d H:i:s');
         } else {
             $today = getdate(strtotime($fields['reservationDate']))['yday'];
         }
