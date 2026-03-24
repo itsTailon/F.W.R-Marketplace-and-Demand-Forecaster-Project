@@ -135,7 +135,18 @@ if(count($categoryData) > 0) {
 }
 
 
+function cmp($a, $b) {
+    $valA = intval(explode(':', $a)[0]);
+    $valB = intval(explode(':', $b)[0]);
 
+    if($valA == $valB) {
+        return 0;
+    }
+    
+    return ($valA < $valB) ? -1 : 1;
+} 
+
+uksort($pickupTimeData, 'cmp');
 
 // --------------
 

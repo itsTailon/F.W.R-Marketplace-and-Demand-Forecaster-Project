@@ -5,7 +5,9 @@ use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\Customer;
 use TTE\App\Model\Account;
+use TTE\App\Model\Seller;
 use TTE\App\Model\Reservation;
+
 
 
 
@@ -27,6 +29,9 @@ $reservation = Reservation::load($reservationID);
 $bundleID = $reservation->getBundleID();
 $bundle = Bundle::load($bundleID);
 
+$seller = Seller::load($bundle->getSellerID());
+
+
 
 if($reservation->getPurchaserID() != $userID) {
     die("Reservation not found.");
@@ -43,8 +48,10 @@ if($reservation->getPurchaserID() != $userID) {
     <div class="view-reservation-info">
         <div id="status-message" style="color: red;"></div>
         <div class="view-reservation-info-box">
-<!--            <h3 class="view-reservation-info-box-info">Collecting at XX:XX on XX/XX/XXXX</h3>-->
-            <h3 class="view-reservation-info-box-info">Code: <?php echo $reservation->getClaimCode() ?></h3>
+            <h3 class="view-reservation-info-box-info"><b>Pickup Window:</b> <?php echo $bundle->getPickupWindow() ?></h3>
+            <h3 class="view-reservation-info-box-info"><b>Seller Name:</b> <?php echo $seller->getName() ?></h3>
+            <h3 class="view-reservation-info-box-info"><b>Seller Address:</b> <?php echo $seller->getAddress() ?></h3>
+            <h3 class="view-reservation-info-box-info"><b>Code:</b> <?php echo $reservation->getClaimCode() ?></h3>
             <h3 class="view-reservation-info-box-price">£<?php echo number_format($bundle->getDiscountedPriceGBX() / 100, 2); ?></h3>
         </div>
         <ul class="view-reservation-buttons">

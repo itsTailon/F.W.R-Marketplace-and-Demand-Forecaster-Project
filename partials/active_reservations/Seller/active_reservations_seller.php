@@ -3,6 +3,7 @@
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Reservation;
 use TTE\App\Model\Bundle;
+use TTE\App\Model\Customer;
 
 
 $acc = Authenticator::getCurrentUser();
@@ -34,11 +35,17 @@ function generateReservationList($res): void {
             <ul class=\"active-reservations-list\">";
                 foreach ($res as $r) {
                     $bundleID = $r['bundleID'];
+
                     $bundle = Bundle::load($bundleID);
                     $reservationID =$r['reservationID'];
+
+                    $purchaser = Customer::load($r['purchaserID']);
+                    $purchaserName = $purchaser->getUsername();
+
                     echo "<li>
                             <h1 class=\"active-reservations-bundle-name\">" . $bundle->getTitle() . "</h1>
-                            <p class=\"active-reservations-bundle-description\">Bundle description: <i>" . $bundle->getDetails() . "</i></p>
+                            <p class=\"active-reservations-bundle-description\"><b>Buyer Username:</b> $purchaserName</p>
+                            <p class=\"active-reservations-bundle-description\"><b>Bundle description:</b> <i>" . $bundle->getDetails() . "</i></p>
                             <!--                    <p class=\"active-reservations-bundle-date\"><i>Bundle Date posted</i></p>-->
 
                             <nav class=\"active-reservations-bundle-nav\">
