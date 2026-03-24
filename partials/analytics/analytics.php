@@ -525,8 +525,12 @@ uksort($pickupTimeData, 'cmp');
                     title: {
                         display: true,
                         text: 'Number of Sales',
+                    },
+                    ticks: {
+                        stepSize: 1
                     }
                 }
+                
             }
         },
         data: {
@@ -606,6 +610,9 @@ uksort($pickupTimeData, 'cmp');
                         title: {
                             display: true,
                             text: 'Number of Collections',
+                        },
+                        ticks: {
+                            stepSize: 1
                         }
                     }
                 }
@@ -655,6 +662,9 @@ uksort($pickupTimeData, 'cmp');
                         title: {
                             display: true,
                             text: 'Number Of Sales',
+                        },
+                        ticks: {
+                            stepSize: 1
                         }
                     }
                 }
