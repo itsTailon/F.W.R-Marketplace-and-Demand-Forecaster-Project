@@ -144,7 +144,7 @@ class SellerRegistrationRequest extends StoredObject {
      */
     public static function load(int $id): StoredObject {
         // Prepare parameterised statement
-        $stmt = DatabaseHandler::getPDO()->prepare("SELECT sellerName, sellerEmail, sellerAddress, status, details FROM seller_registration_request WHERE id=:id;");
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM seller_registration_request WHERE id=:id;");
 
         // Execute statement with given ID
         $stmt->execute(["id" => $id]);

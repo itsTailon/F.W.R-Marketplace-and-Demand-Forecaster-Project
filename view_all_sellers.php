@@ -66,13 +66,12 @@ $allSellers = Seller::getAll();
                         <p>Email: " . $seller->getEmail() . "</p>
                         <p>Address: " . $seller->getAddress() . "</p>
                         <div class=\"all-sellers__list__item__buttons\">
-                            <button type=\"button\" class=\"button round\">View</button>
-                            <button type=\"button\" class=\"button round\">Edit</button>
+                            <a href=\"/view_seller.php?id=" . $seller->getUserID() . "\" class=\"button round\">Edit</a>
                         </div>
                     </li>
                 ";
             }
         ?>
+    </ul>
 </section>
 
-</ul>
