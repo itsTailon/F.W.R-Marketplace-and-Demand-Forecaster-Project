@@ -68,13 +68,12 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
         
         <nav class="registration-requests-request-nav">
             <button id="approve-btn" class="button button--rounded button--green registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Approve</button>
-            <script src="assets/js/account_approve.js"></script>
             <button id="deny-btn" class="button button--rounded red registration-requests-request-nav-button-clickable" data-request-id="<?php echo $requestID; ?>">Deny</button>
-            <script src="assets/js/account_approve.js"></script>
         </nav>
     </div>
 </div>
 
+<script src="assets/js/account_approve.js"></script>
 
 <?php
 // Include page footer and closing tags

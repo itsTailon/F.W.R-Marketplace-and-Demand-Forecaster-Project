@@ -18,6 +18,11 @@ if (!Authenticator::isLoggedIn()) {
     die('ERROR: Not logged in!');
 }
 
+if(!isset($_GET['location'])){
+    $_GET['location']='';
+}
+
+
 // Include dashboard header (i.e. 'title bar')
 require_once 'partials/dashboard/dashboard_header.php';
 require_once 'partials/dashboard/dashboard_sidebar.php';
