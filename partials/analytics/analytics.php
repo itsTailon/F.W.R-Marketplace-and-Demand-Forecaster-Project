@@ -188,7 +188,7 @@ uksort($pickupTimeData, 'cmp');
     <div class="analytics-quick-stats">
       <div class="analytics-quick-stats-bubble">
           <span class="analytics-quick-stats-bubble-type">REVENUE</span>
-          <span class="analytics-quick-stats-bubble-value">£<?php echo htmlspecialchars($revenue); ?></span>
+          <span class="analytics-quick-stats-bubble-value">£<?php echo htmlspecialchars(number_format((float)$revenue, 2)); ?></span>
       </div>
       <div class="analytics-quick-stats-bubble">
           <span class="analytics-quick-stats-bubble-type">COLLECTION RATE</span>
