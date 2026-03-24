@@ -117,6 +117,7 @@ class Reservation extends StoredObject
 
         // Check value of reservation status
         if ($this->status == ReservationStatus::Completed) {
+            
             // Check if customer has an ongoing streak and create one if not
             $streak = Customer::load($this->getPurchaserID())->getStreak();
             if ($streak == null) {
@@ -178,7 +179,7 @@ class Reservation extends StoredObject
             // Update information in database
             try {
                 $stmt = DatabaseHandler::getPDO()->prepare("UPDATE customer_badge SET tier = :tier, progress = :progress WHERE customerID = :customerID AND badgeID = :badgeID;");
-                $stmt->execute([":tier" => $tier, ":progress" => $weeksElapsed, ":customerID" => $this->getPurchaserID(), ":badgeID" => $dedicatedSaver->getId()]);
+                $stmt->execute([":tier" => $tier?->value, ":progress" => $weeksElapsed, ":customerID" => $this->getPurchaserID(), ":badgeID" => $dedicatedSaver->getId()]);
             } catch (\PDOException $e) {
                 throw new DatabaseException($e->getMessage());
             }
@@ -193,13 +194,13 @@ class Reservation extends StoredObject
             // Get badge details for Bargain Hunter relating to customer
             $badges = Customer::loadBadges($this->purchaserID);
             $bargainHunter = Badge::loadByTitle("Bargain Hunter");
-            $bargainHunterCustomer = $badges[$bargainHunter->getId()];
+            $bargainHunterCustomer = $badges[$bargainHunter->getTitle()];
 
             // Switch-case to assign right value depending on current tier
             switch ($bargainHunterCustomer["tier"]) {
                 case null:
                     // Check if discount was £5 to meet requirement
-                    if (500 >= $discount && $discount < 1000) {
+                    if ($discount >= 500 && $discount < 1000) {
                             $tier = BadgeTier::Bronze;
                             $progress = 500;
                             break;
@@ -209,9 +210,9 @@ class Reservation extends StoredObject
                     $tier = null;
                     $progress = 0;
                     break;
-                case BadgeTier::Bronze:
+                case BadgeTier::Bronze->value:
                     // Check if discount was £10 to meet requirement
-                    if (1000 >= $discount && $discount < 1500) {
+                    if ($discount >= 1000 && $discount < 1500) {
                         $tier = BadgeTier::Silver;
                         $progress = 1000;
                         break;
@@ -221,9 +222,9 @@ class Reservation extends StoredObject
                     $tier = BadgeTier::Bronze;
                     $progress = 500;
                     break;
-                case BadgeTier::Silver:
+                case BadgeTier::Silver->value:
                     // Check if discount was £15 to meet requirement
-                    if (1500 >= $discount) {
+                    if ($discount >= 1500) {
                         $tier = BadgeTier::Gold;
                         $progress = 1500;
                         break;

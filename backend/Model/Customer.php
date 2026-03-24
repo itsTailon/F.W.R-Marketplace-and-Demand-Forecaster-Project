@@ -358,9 +358,10 @@ class Customer extends Account {
                         "sellerID" => $row["sellerID"]
                     );
                 }
-                // Increase distinct seller count
-                $seller_count++;
             }
+
+            // seller count
+            $seller_count = count($sellers);
 
             // Compare to tier boundaries to set values for
             $tier = null;
