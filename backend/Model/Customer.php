@@ -504,6 +504,7 @@ class Customer extends Account {
         $monthDiff = ($dateDiff->y * 12) + $dateDiff->m;
 
         // Calculate tier given difference
+        $tier = null;
         if ($monthDiff >= 3 && $monthDiff < 6) {
             // Update tier and progress
             $tier = BadgeTier::Bronze;
