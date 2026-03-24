@@ -41,6 +41,7 @@ class Graph {
         this.keySpace = 0; // Extra space to be added to bottom to accommodate keys
 
         this.plot = new Map();
+        this.lines = {};
     }
 
     /* generateAxisLabels
@@ -98,6 +99,30 @@ class Graph {
         this.yAxisLabels = labels;
     }
 
+    setCols(cols) {
+        this.cols = cols;
+        this.colWidth = (this.width - 2*this.padding) / cols;
+    }
+
+    setRows(rows) {
+        this.rows = rows;
+        this.rowHeight = (this.height - 2*this.padding) / rows;
+    }
+
+    /* addLine
+    */
+   addLine(values, key) {
+        let previousPoint = null;
+        let x = 0;
+        values.forEach(y => {
+            let point = [x++, y];
+            if (previousPoint != null) {
+                this.lines[key].push([previousPoint, point]);
+            }
+            previousPoint = point;
+        });
+   }
+
     /* draw
     Draw the graph
     */
@@ -142,24 +167,23 @@ class Graph {
 
         let yAxisLength = this.height - 2*this.padding - this.keySpace;
         let yAxisScale = yAxisLength / this.yAxisLabels[this.yAxisLabels.length-1];
-
-        // Draw colour key (if bar chart)
-        if (this.type === "bar") {
-            y = this.height - this.keySpace;
+        
+        y = this.height - this.keySpace;
             
-            // Display the keys below the graph
-            Object.keys(this.keys).forEach(key => {
-                let colour = this.keys[key];
-                this.ctx.fillStyle = colour;
-                let x = this.padding;
-                this.ctx.fillRect(x - 7.5, y - 7.5, 15, 15);
-                x += 15;
-                this.ctx.fillStyle = "rgb(0 0 0)";
-                this.ctx.textAlign = "left";
-                this.ctx.fillText(key, x, y);
-                y += 20;
-            });
+        // Display the keys below the graph
+        Object.keys(this.keys).forEach(key => {
+            let colour = this.keys[key];
+            this.ctx.fillStyle = colour;
+            let x = this.padding;
+            this.ctx.fillRect(x - 7.5, y - 7.5, 15, 15);
+            x += 15;
+            this.ctx.fillStyle = "rgb(0 0 0)";
+            this.ctx.textAlign = "left";
+            this.ctx.fillText(key, x, y);
+            y += 20;
+        });
 
+        if (this.type === "bar") {
             this.ctx.textAlign = "center";
             this.ctx.textBaseline = "top";
             let x = this.padding + 0.5*this.colWidth;
@@ -192,19 +216,44 @@ class Graph {
                 x += this.colWidth; // Move to the next column
                 
             })
+        } else if (this.type === "line") {
+            Object.keys(this.lines).forEach(key => {
+                this.ctx.strokeStyle = this.keys[key];
+                this.ctx.lineWidth = 2;
+                console.log(this.ctx.strokeStyle);
+                const keyLines = this.lines[key];
+                keyLines.forEach(line => {
+                    let start = line[0];
+                    let end = line[1];
+
+                    let realStartX = this.padding + start[0]*this.colWidth;
+                    let realStartY = this.height - this.padding - this.keySpace - start[1]*this.rowHeight;
+                    
+                    let realEndX = this.padding + end[0]*this.colWidth;
+                    let realEndY = this.height - this.padding - this.keySpace - end[1]*this.rowHeight;
+                    
+                    console.log(`${realStartX}, ${realStartY}`);
+                    console.log(`${realEndX}, ${realEndY}`);
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(realStartX, realStartY);
+                    this.ctx.lineTo(realEndX, realEndY);
+                    this.ctx.stroke();
+                });
+            });
         }
     }
 
-    // Add colour key with text to a bar chart
+    // Add colour key with text to a graph
     addKey(colour, text) {
-        if (this.type === "bar") { // Check if type is bar
-            this.keys[text] = colour; // If so, set the colour to correspond to text
-            // Grow the graph from the bottom to make room for keys
-            this.height += 20;
-            // Increase space at bottom of canvas to accommodate key
-            this.keySpace += 20;
-            this.canvas.height = this.height;
-            this.ctx = this.canvas.getContext("2d");
+        this.keys[text] = colour; // If so, set the colour to correspond to text
+        // Grow the graph from the bottom to make room for keys
+        this.height += 20;
+        // Increase space at bottom of canvas to accommodate key
+        this.keySpace += 20;
+        this.canvas.height = this.height;
+        this.ctx = this.canvas.getContext("2d");
+        if (this.type === "line") {
+            this.lines[text] = [];
         }
     }
 
@@ -230,14 +279,7 @@ const getMaxValue = (arr) => {
     return max;
 }
 
-const graph = new Graph("bar", 1000, 500, 8, 7, 50); // Create graph
-// X axis (bottom) will be days of the week
-graph.setXAxisLabels(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
-graph.generateYAxisLabels(0, 200);
-
-// Add keys for show and no show
-graph.addKey("#3393dc", "Show");
-graph.addKey("#f69d0d", "No Show");
+var graph;
 
 // When start hour number field is changed, make sure it is two digits
 $("#start-hr").on("input", () => {
@@ -269,15 +311,19 @@ $("#end-min").on("input", () => {
     }
 });
 
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
 // Get the forecast with the set variables and update graph with results
 function getForecast() {
     // Send a GET request to the forecast API
     $.ajax({
-        url: '/backend/API/Model/forcast.php',
+        url: '/backend/API/Model/forecast.php',
         type: 'GET',
         data: {
-            // weather: $("#weather").val(),
-            // category: $("category").val(),
+            type: "MovingAverage",
+            dataNeeded: "Forecast",
+            filterWeatherCondition: $("#weather").val(),
+            filterCategory: $("#category").val(),
             // Format time as XX:XX
             startTime: `${$("#start-hr").val()}:${$("#start-min").val()}`,
             endTime: `${$("#end-hr").val()}:${$("#end-min").val()}`,
@@ -285,6 +331,13 @@ function getForecast() {
             maxDiscount: $("#max-discount").val()
         },
         success: data => {
+            graph = new Graph("bar", 1000, 500, 8, 7, 50);
+            graph.setXAxisLabels(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
+            graph.generateYAxisLabels(0, 200);
+            
+            graph.addKey("#3393dc", "Show");
+            graph.addKey("#f69d0d", "No Show");
+
             // Get the highest bar on the bar chart
             let maxValue = getMaxValue([
                 data["AvgMondayCollected"] + data["AvgMondayNoShow"],
@@ -329,8 +382,6 @@ getForecast();
 
 $("#update-btn").click(getForecast); // If update button clicked, re-run get forecast
 
-
-
 // When start hour number field is changed, make sure it is two digits
 $("#seasonal-start-hr").on("input", () => {
     let val = $("#seasonal-start-hr").val();
@@ -359,12 +410,11 @@ seasonalGraph.setXAxisLabels(["Monday", "Tuesday", "Wednesday", "Thursday", "Fri
 seasonalGraph.generateYAxisLabels(0, 200);
 seasonalGraph.addKey("#3393dc", "Needed Bundles");
 
-const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 // Get the seasonal forecast with the set variables and update graph with results
 function getSeasonalForecast() {
     $.ajax({
-        url: '/backend/API/Model/forcast.php',
+        url: '/backend/API/Model/forecast.php',
         type: 'GET',
         data: {
             type: "Seasonal",
@@ -425,3 +475,59 @@ function getSeasonalForecast() {
 
 getSeasonalForecast();
 $("#seasonal-update-btn").click(getSeasonalForecast);
+
+function getGroundTruthComparison() {
+    graph = new Graph("line", 1000, 500, 10, 7, 50);
+    // Send a GET request to the forecast API
+    $.ajax({
+        url: '/backend/API/Model/forecast.php',
+        type: 'GET',
+        data: {
+            type: "MovingAverage",
+            dataNeeded: "Compare",
+        },
+        success: data => {
+            let values = data[0].concat(data[1]);
+            let maxYValue = 0;
+            if (values.length > 0) {
+                maxYValue = getMaxValue(values);
+            }
+
+            let maxYAxisValue = 10; // Y axis will default go up to 10
+            if (maxYValue > 10) { // If the highest bar is more than 10
+                // Y axis is maxValue rounded to the nearest 10
+                maxYAxisValue = Math.ceil(maxValue / 10) * 10;
+            }
+
+            let maxXAxisValue = 5;
+            if (data[0].length > 5) {
+                maxXAxisValue = data[0].length;
+            }
+
+            graph.setCols(maxXAxisValue);
+
+            graph.generateXAxisLabels(1, maxXAxisValue);
+            graph.generateYAxisLabels(0, maxYAxisValue);
+            
+            graph.addKey("#1106a7", "Actual");
+            graph.addKey("#e91b1b", "Projection");
+
+            graph.addLine(data[0], "Actual");
+            graph.addLine(data[1], "Projection");
+
+            console.log(data);
+            graph.draw();
+        }
+    });
+
+}
+
+$("#normal-btn").click(() => {
+    getForecast();
+    $(".forecast-variables").show();
+});
+
+$("#comparison-btn").click(() => {
+    getGroundTruthComparison();
+    $(".forecast-variables").hide();
+});

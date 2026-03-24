@@ -29,22 +29,17 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 <h1 class="text-middle">Forecasting</h1>
 <br>
 
+<div class="forecast-btn-container">
+    <button type="button" class="button" id="normal-btn">Forecast</button>
+    <button type="button" class="button" id="comparison-btn">Comparison</button>
+</div>
+ 
 <div class="forecast-variables">
-    <!-- <div class="forecast-variables__var">
-        <label for="day">Day</label>
-        <select id="day" disabled>
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
-        </select>
-    </div>
+
     <div class="forecast-variables__var">
         <label for="category">Category</label>
         <select id="category">
+            <option value="any">All</option>
             <option value="groceries">Groceries</option>
             <option value="cakes">Cakes</option>
             <option value="meals">Meals</option>
@@ -57,13 +52,13 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     <div class="forecast-variables__var">
         <label for="weather">Weather</label>
         <select id="weather">
-            <option value="">All</option>
+            <option value="any">All</option>
             <option value="sunny">Sunny</option>
             <option value="cloudy">Cloudy</option>
             <option value="rain">Rain</option>
             <option value="snow">Snow</option>
         </select>
-    </div> -->
+    </div>
     <div class="forecast-variables__var">
         <label>Time</label>
         <span><input type="number" min="0" max="23" value="08" id="start-hr">:<input type="number" min="0" max="59" value="00" id="start-min"> to <input type="number" min="0" max="23" value="20" id="end-hr">:<input type="number" min="0" max="59" value="00" id="end-min"></span>
