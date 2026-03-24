@@ -2,10 +2,14 @@
 
 namespace TTE\App\Model;
 
+use DateInterval;
+use DateTime;
+
 include '../Dataset/forecast.csv';
 
 class Forecast
 {
+    /*
     public static function getData() : array {
         // Open file and prepare array
         return array_map('str_getcsv', file(__DIR__ . '/../Dataset/testData.csv'));
@@ -15,64 +19,36 @@ class Forecast
         // Open file and prepare array
         return array_map('str_getcsv', file(__DIR__ . '/../Dataset/bundles.csv'));
     }
+    */
 
-    public static function sellerWeeklyForecast(int $sellerID, string $startTime, string $endTime, int $minDiscount, int $maxDiscount) : array {
-        // Load the link data
-        $linkData = Forecast::getData();
-        array_shift($linkData);
-        $numWeeks = (int) array_shift($linkData);
+    /**
+     * calculates the moving average for a set of reservations, only accounting for reservations meeting the specified parameters
+     *
+     * @param string $startTime
+     * @param string $endTime
+     * @param int $minDiscount
+     * @param int $maxDiscount
+     * @param $reservations
+     * @return int[]
+     */
+    public static function movingAverage(string $filterCategory, string $startTime, string $endTime, int $minDiscount, int $maxDiscount,$filterWeatherConditions, $reservations) : array {
+        // get all needed data
+        $data = Forecast::formatData($reservations);
 
-        // Load the bundle data
-        $bundleData = Forecast::getBundleData();
-
-        // create array of seller data to forecast
-        $data = array();
-        foreach ($linkData as $dataPoint) {
-            // Get the bundle related to the data
-            $bundle = $bundleData[$dataPoint[0]];
-
-            // Check if the bundle belongs to the logged in seller
-            if(($bundle[2] == $sellerID || $sellerID == -1) && (($bundle[1] == "expired") || ($bundle[1] == "collected") || ($bundle[1] == "available"))) {
-                // get values from dataset
-                $dpDate = $dataPoint[2];
-
-                // Convert the time in form "XX:XX" into integer form
-                $dpst = explode(":", $bundle[9]);
-                $dpStartTime = $dpst[0] . $dpst[1];
-
-                $dpet = explode(":", $bundle[10]);
-                $dpEndTime = $dpet[0] . $dpet[1];
-
-                // Calculate discount on bundle to the nearest 10%
-                $dpDiscount = (int)round((((int)$bundle[7] - (int)$dpStartTime[8]) / (int)$bundle[7] * 100), -1);
-
-                // Discount cant be 100 or 0
-                if ($dpDiscount == 0) $dpDiscount = 10;
-                if ($dpDiscount == 100) $dpDiscount = 90;
-
-                if($bundle[1] == "collected" || $bundle[1] == "available")
-                    $status = "collected";
-                else
-                    $status = "no-show";
-
-                // Create record
-                $dpData = array($dpDate,"Weather", "catagory", $dpStartTime, $dpEndTime, $dpDiscount, $status);
-
-
-                // Add it to the array of data
-                $data[] = $dpData;
-            }
-        }
+        // get the number of weeks
+        $numWeeks = array_pop($data);
 
         // Filter out values
         $filteredData = array();
         foreach($data as $row) {
             if(
                 // Check if datum needs to be filtered out
-                (int)$row[3] >= $startTime
-                && (int)$row[4] <= $endTime
-                && (int)$row[5] >= $minDiscount
-                && (int)$row[5] <= $maxDiscount
+                (int)$row[2] >= $minDiscount
+                && (int)$row[2] <= $maxDiscount
+                && ($filterCategory == 'any' || $row[4] == $filterCategory)
+                && ($filterWeatherConditions == 'any' || $row[5] == $filterWeatherConditions)
+                && $startTime <= (int)$row[6]
+                && $endTime >= (int)$row[6]
             ) {
                 $filteredData[] = $row;
             }
@@ -105,6 +81,55 @@ class Forecast
         );
     }
 
+    /**
+     * @throws DatabaseException
+     */
+    public static function formatData(array $allReservations): array {
+        // get all related reservations
+
+        $data = array();
+        $numberOfWeeks = 1;
+        $lastDay = null;
+
+        foreach($allReservations as $reservation) {
+            $day = getdate(strtotime($reservation["reservationDate"]))["weekday"];
+            $date = getdate(strtotime($reservation["reservationDate"]));
+            $time = getdate(strtotime($reservation["reservationTime"]))["hours"];
+
+            if($lastDay != null) {
+                $lastDay_Day = $lastDay['wday'];
+                if($lastDay_Day == 0) $lastDay_Day = 7;
+                $currentDay_Day = $date['wday'];
+                if($currentDay_Day == 0) $currentDay_Day = 7;
+
+                if($lastDay_Day > $currentDay_Day || (($lastDay_Day == $currentDay_Day) && ($lastDay['mday'] != $date['mday'])) || (($lastDay_Day < $currentDay_Day) && (($lastDay['mday'] < $date['mday']) || ($lastDay['mon'] < $date['mon'])))) {
+                    $numberOfWeeks++;
+                }
+            }
+
+            $lastDay = $date;
+
+            $relatedBundle = Bundle::load($reservation["bundleID"]);
+            $discountedPrice = $relatedBundle->getDiscountedPriceGBX();
+            $rrp = $relatedBundle->getRrpGBX();
+            $category = $relatedBundle->getCategory();
+            $weather = $reservation["weatherCondition"];
+            $pickUp = explode(":", $relatedBundle->getPickupWindow())[0];
+
+            $discountPercentage = ($discountedPrice/$rrp)*100;
+
+            $status = $reservation["reservationStatus"];
+
+            if($status == "completed" || $status == "no-show") {
+                $dataPoint =  array($day, $time, $discountPercentage, $status, $category, $weather, $pickUp);
+                $data[] = $dataPoint;
+            }
+        }
+
+        $data[] = $numberOfWeeks;
+
+        return $data;
+    }
     public static function countSpread($data) : array {
         // prepare collected array
         $collected = array(
@@ -133,51 +158,51 @@ class Forecast
             // Check what day it is and add the stats to that day & increment days
             switch ($row[0]) {
                 case "Monday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Monday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Monday"] += 1;
                     }
                     break;
                 case "Tuesday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Tuesday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Tuesday"] += 1;
                     }
                     break;
                 case "Wednesday":
-                    if($row[6] == "collected") {
+                    if($row[3] == "completed") {
                         $collected["Wednesday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Wednesday"] += 1;
                     }
                     break;
                 case "Thursday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Thursday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Thursday"] += 1;
                     }
                     break;
                 case "Friday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Friday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Friday"] += 1;
                     }
                     break;
                 case "Saturday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Saturday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Saturday"] += 1;
                     }
                     break;
                 case "Sunday":
-                    if ($row[6] == "collected") {
+                    if ($row[3] == "completed") {
                         $collected["Sunday"] += 1;
-                    } else {
+                    } elseif ($row[3] == "no-show") {
                         $totalNoShow["Sunday"] += 1;
                     }
                     break;
@@ -186,6 +211,408 @@ class Forecast
         }
 
         return array($collected, $totalNoShow);
+    }
+
+    public static function forecastNextWeekSeasonal($filterCategory, $startTime, $endTime, $minDiscount, $maxDiscount, $filterWeatherCondition, $reservationData) : array {
+        $filteredData = array();
+
+        foreach($reservationData as $row) {
+            $relatedBundle = Bundle::load($row["bundleID"]);
+            $discountedPrice = $relatedBundle->getDiscountedPriceGBX();
+            $rrp = $relatedBundle->getRrpGBX();
+            $discountPercentage = ($discountedPrice/$rrp)*100;
+            $pickUp = explode(":", $relatedBundle->getPickupWindow())[0];
+            if(
+                $discountPercentage >= $minDiscount
+                && $discountPercentage <= $maxDiscount
+                && $pickUp >= $startTime
+                && $pickUp <= $endTime
+            ) {
+                $filteredData[] = $row;
+            }
+        }
+
+        $data = array();
+
+        $daysCollected = array(
+            "Monday" => 0,
+            "Tuesday" => 0,
+            "Wednesday" => 0,
+            "Thursday" => 0,
+            "Friday" => 0,
+            "Saturday" => 0,
+            "Sunday" => 0
+        );
+
+        $daysNoShow = array(
+            "Monday" => 0,
+            "Tuesday" => 0,
+            "Wednesday" => 0,
+            "Thursday" => 0,
+            "Friday" => 0,
+            "Saturday" => 0,
+            "Sunday" => 0
+        );
+
+        foreach($filteredData as $reservation) {
+            // load relevant data
+            $date = getdate(strtotime($reservation["reservationDate"]))["weekday"];
+
+            $status = $reservation["reservationStatus"];
+
+            // update arrays if data aligns
+            if ($status == "completed" || $status == "no-show") {
+
+                if($status == "completed") {
+                    $daysCollected[$date] += 1;
+                }
+
+                if($status == "no-show") {
+                    $daysNoShow[$date] += 1;
+                }
+            }
+        }
+
+        $probabilities = Forecast::calculateProbabilitySpread(-1);
+
+
+        $finalProb = 1;
+
+        if($filterCategory != "any") {
+            $finalProb = $finalProb * ($probabilities['category'][$filterCategory]);
+        }
+
+        if($filterWeatherCondition != "any") {
+            $finalProb = $finalProb * ($probabilities['weatherCondition'][$filterWeatherCondition]);
+        }
+
+        // calculate : predicted bundle requirements (for the specified bundle) for each week and probability the bundle is collected each day (for the specified bundle)
+        $forecastedData = array(
+            'neededBundlesMonday' => $daysCollected['Monday'] * $finalProb,
+            'neededBundlesTuesday' => $daysCollected['Tuesday'] * $finalProb,
+            'neededBundleWednesday' => $daysCollected['Wednesday'] * $finalProb,
+            'neededBundleThursday' => $daysCollected['Thursday'] * $finalProb,
+            'neededBundleFriday' => $daysCollected['Friday'] * $finalProb,
+            'neededBundleSaturday' => $daysCollected['Saturday'] * $finalProb,
+            'neededBundleSunday' => $daysCollected['Sunday'] * $finalProb,
+
+            'probabilityCollectedMonday' => $probabilities['date']['Monday'],
+            'probabilityCollectedTuesday' => $probabilities['date']['Tuesday'],
+            'probabilityCollectedWednesday' => $probabilities['date']['Thursday'],
+            'probabilityCollectedFriday' => $probabilities['date']['Friday'],
+            'probabilityCollectedSaturday' => $probabilities['date']['Saturday'],
+            'probabilityCollectedSunday' => $probabilities['date']['Sunday'],
+        );
+
+        return $forecastedData;
+    }
+
+    /**
+     * @throws \DateInvalidOperationException
+     * @throws DatabaseException
+     */
+    public static function getLastWeeksReservations($id): array
+    {
+        // prepare needed dates
+        $today = new \DateTime();
+
+        if (getdate($today->getTimestamp())['wday'] == 0) {
+            $lastWeekStart = $today->sub(DateInterval::createFromDateString('+13 days'));
+            $lastWeekStartClone = clone $lastWeekStart;
+            $lastWeekEnd = $lastWeekStartClone->sub(DateInterval::createFromDateString('-6 days'));
+        } else {
+            $lastWeekStart = $today->sub(DateInterval::createFromDateString('+' . (getdate($today->getTimestamp())['wday'] + 6) . ' days'));
+            $lastWeekStartClone = clone $lastWeekStart;
+            $lastWeekEnd = $lastWeekStartClone->sub(DateInterval::createFromDateString('-6 days'));
+        }
+
+        $lastWeekStart = date_format($lastWeekStart, 'Y/m/d H:i:s');
+        $lastWeekEnd = date_format($lastWeekEnd, 'Y/m/d H:i:s');
+
+        $reservations = Reservation::getAllReservationsForUser($id, 'seller');
+        $lastWeekReservations = array();
+
+        // if the reservation falls withing the given week, add it the array
+        foreach($reservations as $reservation) {
+            if(
+                (getdate(strtotime($reservation['reservationDate']))['year'] == getdate(strtotime($lastWeekStart))['year'] || getdate(strtotime($reservation['reservationDate']))['year'] == getdate(strtotime($lastWeekEnd))['year'])
+                && (getdate(strtotime($reservation['reservationDate']))['mon'] == getdate(strtotime($lastWeekStart))['mon'] || getdate(strtotime($reservation['reservationDate']))['mon'] == getdate(strtotime($lastWeekEnd))['mon'])
+                && (getdate(strtotime($reservation['reservationDate']))['yday'] >= getdate(strtotime($lastWeekStart))['yday'] && getdate(strtotime($reservation['reservationDate']))['yday'] <= getdate(strtotime($lastWeekEnd))['yday'])
+            ) {
+                $lastWeekReservations[] = $reservation;
+            }
+        }
+
+        return $lastWeekReservations;
+    }
+
+    /**
+     * @throws DatabaseException
+     */
+    public static function calculateProbabilitySpread(int $id = -1): array {
+        //get data
+        if($id == -1) {
+            $allReservations = self::getAllReservations();
+        } else {
+            $allReservations = Reservation::getAllReservationsForUser($id, 'seller');
+        }
+
+        $data = array();
+
+        // all possible categories
+        $probabilities = array(
+            'date' => array(),
+            'category' => array(),
+            'time' => array(),
+            'discountPercentage' => array(),
+            'weatherCondition' => array()
+        );
+
+        $dateNoShow = array();
+        $categoryNoShow = array();
+        $discountNoShow = array();
+        $weatherConditionNoShow = array();
+        $pickUpWindowNoShow = array();
+
+        $dateCollected = array();
+        $categoryCollected = array();
+        $discountCollected = array();
+        $weatherConditionCollected = array();
+        $pickUpWindowCollected = array();
+
+
+        $dates = array(
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        );
+        $categories = array();
+        $pickUpWindows = array();
+        $discounts = array();
+        $weatherConditions = array();
+
+        foreach($allReservations as $reservation) {
+            // get the date and time
+            $date = getdate(strtotime($reservation["reservationDate"]))["weekday"];
+
+
+            // get the related bundle
+            $relatedBundle = Bundle::load($reservation["bundleID"]);
+
+            // get needed information
+            $discountedPrice = $relatedBundle->getDiscountedPriceGBX();
+            $rrp = $relatedBundle->getRrpGBX();
+            $discountPercentage = ($discountedPrice/$rrp)*100;
+
+            $category = $relatedBundle->getCategory();
+
+            $weatherCondition = $reservation["weatherCondition"];
+
+            $status = $reservation["reservationStatus"];
+
+            $pickUp = explode(":", $relatedBundle->getPickupWindow())[0];
+
+            // only account for completed bundles
+            if($status == "collected" || $status == "no-show") {
+                $dataPoint =  array($date, $pickUp, $discountPercentage,$category,$weatherCondition, $status);
+                $data[] = $dataPoint;
+
+                // if the category specification has not been seen before
+                if(!in_array($category, $categories)) {
+                    $categories[] = $category;
+                }
+
+                if(!in_array($discountPercentage, $discounts)) {
+                    $discounts[] = $discountPercentage;
+                }
+
+                if(!in_array($weatherCondition, $weatherConditions)) {
+                    $weatherConditions[] = $weatherCondition;
+                }
+
+                if(!in_array($pickUp, $pickUpWindows)) {
+                    $pickUpWindows[] = $pickUp;
+                }
+            }
+
+            // add 1 to relevant specifications
+            if($status == "no-show") {
+                $dateNoShow[$date] += 1;
+                $categoryNoShow[$category] += 1;
+                $discountNoShow[$discountPercentage] += 1;
+                $weatherConditionNoShow[$weatherCondition] += 1;
+                $pickUpWindowNoShow[$pickUp] += 1;
+            } elseif ($status == "completed") {
+                $dateCollected[$date] += 1;
+                $categoryCollected[$category] += 1;
+                $discountCollected[$discountPercentage] += 1;
+                $weatherConditionCollected[$weatherCondition] += 1;
+                $pickUpWindowCollected[$pickUp] += 1;
+            }
+        }
+
+        // calculate probability for each of the specifications
+        $probabilities['date'] = Forecast::calculateProbability($dateCollected,$dateNoShow,$dates);
+        $probabilities['category'] = Forecast::calculateProbability($categoryCollected,$categoryNoShow,$categories);
+        $probabilities['time'] = Forecast::calculateProbability($pickUpWindowCollected,$pickUpWindowNoShow,$pickUpWindows);
+        $probabilities['discountPercentage'] = Forecast::calculateProbability($discountCollected,$discountNoShow,$discounts);
+        $probabilities['weatherCondition'] = Forecast::calculateProbability($weatherConditionCollected,$weatherConditionNoShow,$weatherConditions);
+
+        return $probabilities;
+    }
+
+    public static function calculateProbability(array $collected, array $noShow, array $keys) : array {
+        $probabilityArray = array();
+
+        // calculates a probability of collection based off a list of collected information and no-show information for a given specification
+        foreach ($keys as $key) {
+            if ($collected[$key] == null){ // no listings
+                $probabilityArray[$key] = 0;
+            } else if ($noShow[$key] == null){ // all listings have been collected
+                $probabilityArray[$key] = 1;
+            } else { // calculate probability
+                $probabilityArray[$key] = $collected[$key] / ($noShow[$key] + $collected[$key]);
+            }
+        }
+
+        return $probabilityArray;
+    }
+
+    /*
+    public function filterByCategory(string $category, string $specification, array $data): array {
+        $filteredData = array();
+
+        foreach ($data as $row) {
+            if ($row[$category] == $specification) {
+                $filteredData[] = $row;
+            }
+        }
+
+        return $filteredData;
+    }
+    */
+
+    /**
+     * @throws DatabaseException
+     */
+    public static function getAllReservations(): array {
+        // prepare query
+        $stmt = DatabaseHandler::getPDO()->prepare("SELECT * FROM reservation");
+
+        // Attempt to execute the statement
+        try{
+            $stmt->execute();
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e){
+            throw new DatabaseException($e->getMessage());
+        }
+    }
+
+    public static function compareWithGroundTruth($id, $method){
+        // initialise values
+        $allReservations = Reservation::getAllReservationsForUser($id, 'seller');
+
+        $trueProduction = array();
+        $predictedProduction = array();
+
+        $firstDay = true;
+        $currentWeekTotal = 0;
+        $currentReservations = array();
+
+        // iterate through all given reservations
+        foreach($allReservations as $reservation) {
+            // calculate production for each day until sunday, forecast next week, then move onto the next week
+            $weekDay = getdate(strtotime($reservation["reservationDate"]));
+
+            $currentReservations[] = $reservation;
+
+            if (
+                !$firstDay
+                && (
+                    ($weekDay['wday'] != 0 && $weekDay['wday'] < $lastDay['wday'])
+                    || ($lastDay['wday'] == 0 && $lastDay['wday'] != $weekDay['wday'])
+                    || ($lastDay['wday'] == 0 && $weekDay['wday'] == 0 && $weekDay['yday'] != $lastDay['yday'])
+                    || ($lastDay['wday'] == $weekDay['wday'] && $weekDay['yday'] != $lastDay['yday'])
+                    || ($lastDay['wday'] < $weekDay['wday'] && $weekDay['yday'] > ($lastDay['yday'] + (8 - $lastDay['wday'])))
+                )
+            ) {
+                $trueProduction[] = $currentWeekTotal;
+                $totalPrediction = 0;
+                if ($method == "MovingAverage") {
+                    $forecastedForNextWeek = Forecast::movingAverage("any", 0, 24, 0, 100, "any", $currentReservations);
+                    foreach ($forecastedForNextWeek as $predictedValue){
+                        $totalPrediction += $predictedValue;
+                    }
+                } elseif ($method == "Seasonal") {
+                    $forecastedForNextWeek = Forecast::forecastNextWeekSeasonal("any", 0, 24, 0, 100, "any", $currentReservations);
+                    $currentReservations = array();
+                    $count = 0;
+                    while ($count < 7) {
+                        $totalPrediction += $forecastedForNextWeek[$count];
+                        $count++;
+                    }
+                }
+
+                $predictedProduction[] = $totalPrediction;
+                $currentWeekTotal = 0;
+            } else {
+                $firstDay = false;
+            }
+            $currentWeekTotal += 1;
+            $lastDay = $weekDay;
+        }
+
+        // true production over time / predicted production over time
+        return array($trueProduction, $predictedProduction);
+    }
+
+    /**
+     * @throws DatabaseException
+     */
+    public static function getProductionRecommendation(Bundle $bundle): array {
+        // get the value list for average listings for this bundle
+        $category = $bundle->getCategory();
+        $reservations = Reservation::getAllReservationsForUser($bundle->getSellerId(), "seller");
+        $movingAvg = self::movingAverage($category, 0, 24, 0, 100, 'any', $reservations);
+
+        // get probability list
+        $probabilities = Self::calculateProbabilitySpread();
+
+        // get the average listings for bundles
+        $count = 0;
+        $collected = 0;
+        $noShow = 0;
+        foreach ($movingAvg as $movingAvgValue) {
+            if($count <= 7){
+                $collected += $movingAvgValue;
+            } else {
+                $noShow += $movingAvgValue;
+            }
+
+            $count++;
+        }
+
+        $quantity = $collected - $bundle->getQuantity();
+
+        // find the best listing time
+        $highestProb = 0;
+        $count = 0;
+        while ($count <= 24) {
+            if($probabilities['time'][strval($count)] > $highestProb){
+                $highestProb = $probabilities['time'][strval($count)];
+                $bestTime = $count;
+            }
+             $count++;
+        }
+
+        $timeFormat = strval($bestTime) . ":00-" . strval($bestTime+1) . ":00";
+
+        // return array of data
+        return array($collected, $noShow, $quantity, $timeFormat);
     }
 }
 

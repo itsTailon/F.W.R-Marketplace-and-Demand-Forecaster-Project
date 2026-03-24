@@ -4,6 +4,7 @@ Stylesheet for text inputs (as reusable components)
 
 @use '../abstracts/config';
 @use 'sass:map';
+@use 'sass:math';
 
 .textbox {
   $v-padding: 8px;
@@ -16,7 +17,7 @@ Stylesheet for text inputs (as reusable components)
   position: relative;
 
   // Used to adjust height of overall element, such that when the label is 'pushed' into the border, it does not collide with element above.
-  padding-top: map.get(config.$font-sizes, "label") / 2 + 2px;
+  padding-top: math.div(map.get(config.$font-sizes, "label"), 2) + 2px;
 
   &--size-fill {
     width: 100%;

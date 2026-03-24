@@ -6,6 +6,7 @@
 
 // Import bundle from Model directory
 use TTE\App\Helpers\CurrencyTools;
+use TTE\App\Helpers\TimeTools;
 use TTE\App\Model\Allergen;
 use TTE\App\Model\Bundle;
 use TTE\App\Auth\Authenticator;
@@ -15,12 +16,14 @@ use TTE\App\Model\BundleStatus;
 use TTE\App\Model\Category;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
+use TTE\App\Model\NoSuchBadgeException;
 use TTE\App\Model\NoSuchBundleException;
 use TTE\App\Model\FailedOwnershipAuthException;
 use TTE\App\Model\NoSuchCategoryException;
 use TTE\App\Model\NoSuchCustomerException;
 use TTE\App\Model\NoSuchSellerException;
 use TTE\App\Model\CategoryAlreadyExistsException;
+use TTE\App\Model\NoSuchStreakException;
 
 include '../../../vendor/autoload.php';
 
@@ -50,8 +53,8 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         }
 
         // Presence check for fields
-        if (!isset($_PUT["title"]) || !isset($_PUT["details"])
-            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName'])) {
+        if (!isset($_PUT["title"]) || !isset($_PUT["details"]) || !isset($_PUT["expiryDate"])
+            || !isset($_PUT["rrp"]) || !isset($_PUT["discountedPrice"]) || !isset($_PUT['allergens']) || !isset($_PUT['categoryName']) || !isset($_PUT['quantity']) || !isset($_PUT['pickupWindow']) || !isset($_PUT['expiryDate'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -101,15 +104,22 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             }
         }
 
+        // Validate pickup window value
+        if (!TimeTools::verifyTimeSlotStringFormat($_PUT['pickupWindow'])) {
+            throw new InvalidArgumentException();
+        }
+
         // Apply changes to bundle
         $bundle->setStatus(BundleStatus::from($_PUT["bundleStatus"]));
         $bundle->setTitle($_PUT["title"]);
         $bundle->setDetails($_PUT['details']);
+        $bundle->setExpiryDate(DateTimeImmutable::createFromFormat("Y-m-d", $_PUT['expiryDate']));
+        $bundle->setQuantity($_PUT['quantity']);
         $bundle->setRrpGBX(CurrencyTools::decimalStringToGBX($_PUT['rrp']));
         $bundle->setDiscountedPriceGBX(CurrencyTools::decimalStringToGBX($_PUT['discountedPrice']));
+        $bundle->setPickupWindow($_PUT['pickupWindow']);
 
         // Set allergens
-        // TODO: Make more efficient (add 'setAllergens' method to Bundle, perhaps)
         foreach ($bundle->getAllergens() as $existingAllergen) {
             $bundle->removeAllergen($existingAllergen);
         }
@@ -148,7 +158,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         die("MVE");
     } catch (InvalidArgumentException $e) {
         http_response_code(400);
-        die("IAE");
+        die("IAE" . $e->getMessage());
     } catch (DatabaseException $db_e) {
         // Handling exception produced due to database error and producing JSON-encoded response
         echo json_encode(http_response_code(500));
@@ -173,9 +183,12 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
     } catch (NoSuchCategoryException $e) {
         echo json_encode(http_response_code(400));
         die("NSE");
-    } catch (CategoryAlreadyExistsException $e) {
+    } catch (NoSuchBadgeException $e) {
         echo json_encode(http_response_code(400));
-        die("CAE");
+        die("NSBE");
+    } catch (NoSuchStreakException $e) {
+        echo json_encode(http_response_code(400));
+        die("NSSE");
     }
 
 } elseif ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -184,7 +197,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Ensuring all required values are set
         if (!isset($_POST["title"]) || !isset($_POST["details"])
-            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName'])) {
+            || !isset($_POST["rrp"]) || !isset($_POST["discountedPrice"]) || !isset($_POST['allergens']) || !isset($_POST['categoryName']) || !isset($_POST['quantity']) || !isset($_POST['pickupWindow']) || !isset($_POST['expiryDate'])) {
 
             // Throwing exception if field isn't present in retrieve data
             throw new MissingValuesException("Missing fields");
@@ -195,10 +208,14 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         $fields = array(
             "title" => $_POST["title"],
             "details" => $_POST["details"],
+            "quantity" => $_POST["quantity"],
             "rrp" => $_POST["rrp"],
             "discountedPrice" => $_POST["discountedPrice"],
+            "expiryDate" => DateTimeImmutable::createFromFormat("Y-m-d", $_POST['expiryDate']),
+
             "sellerID" => Authenticator::getCurrentUser()->getUserID(),
-            "bundleStatus" => BundleStatus::Available,
+            "bundleStatus" => BundleStatus::OnSale,
+            "pickupWindow" => $_POST["pickupWindow"],
         );
 
         // Get allergens
@@ -224,6 +241,11 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             }
         }
 
+        // Verify time slot value validity
+        if (!TimeTools::verifyTimeSlotStringFormat($fields['pickupWindow'])) {
+            throw new InvalidArgumentException("Invalid pickup window value '" . $fields['pickupWindow'] . "'.");
+        }
+
         // Checking that current user has permissions to create a Bundle
         if (!RBACManager::isCurrentuserPermitted("bundle_create")) {
             throw new NoSuchPermissionException("Seller " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to create bundle");
@@ -235,6 +257,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             // No case for title and details as either are strings or are caught within create() anyway
             switch ($field) {
                 case "rrp":
+                case "quantity":
                 case "discountedPrice":
                 case "sellerID":
                     // Check string contains only [0,9] digits and no '.'
@@ -270,6 +293,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         echo json_encode(http_response_code(403));
         die("NSP");
     } catch (DatabaseException $e) {
+        echo $e->getMessage();
         // Internal server error caused by failed database query and produce JSON-encoded message
         echo json_encode(http_response_code(500));
         die("DBE");
@@ -285,7 +309,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
         // Seller not found and produce JSON-encoded message
         echo json_encode(http_response_code(404));
         die("NSE");
-    } catch (InvalidArgumentException $ia_e) {
+    } catch (InvalidArgumentException|ValueError $ia_e) {
         // Argument passed to method not of right form and return JSON-encoded message
         echo json_encode(http_response_code(400));
         die("IAE");
@@ -327,8 +351,10 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "id" => $bundle->getID(),
             "title" => $bundle->getTitle(),
             "details" => $bundle->getDetails(),
+            "quantity" => $bundle->getQuantity(),
             "status" => $bundle->getStatus(),
             "rrpGBX" => $bundle->getRrpGBX(),
+            "expiryDate" => $bundle->getExpiryDate(),
             "discountedPriceGBX" => $bundle->getDiscountedPriceGBX(),
             "sellerID" => $bundle->getSellerID(),
             "purchaserID" => $bundle->getPurchaserID(),

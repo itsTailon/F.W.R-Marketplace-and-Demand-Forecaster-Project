@@ -1,0 +1,106 @@
+@use '../abstracts/config';
+@use 'sass:map';
+
+
+
+.notifications-wrapper {
+
+    width: 65vw;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+
+    padding-top: 7vh;
+
+}
+
+.notifications-nav {
+    display: flex;
+    margin-bottom: 3vh;
+
+}
+
+.notifications-nav li {
+    list-style: none;
+    
+}
+
+.notifications-title {
+    margin-bottom: 3vh;
+}
+
+.notifications-list-wrapper {
+    width: 100%;
+    border: 2px solid black;
+}
+
+.notifications-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.notifications-notification {
+    padding: 3vh 1vw;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.notifications-notification:hover {
+    background-color: rgb(244, 246, 255);
+}
+
+
+
+.notifications-notification-time {
+    color: rgb(173, 173, 173);
+    font-weight: 300;
+    font-size: 14px;
+
+}
+
+.notifications-notification-nav ul {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+
+}
+.notifications-notification-nav ul li {
+    list-style: none;
+}
+
+.notifications-notification-nav ul li button {
+    font-size: 13px;
+    color: black;
+
+}
+
+
+
+.notifications-notification-unread-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #809FFF;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+
+
+
+@media(max-width: 800px) {
+
+    .notifications-wrapper {
+        width: 95%;
+    }
+    .notifications-list-wrapper {
+        width: 100%;
+        border: none;
+    }
+    
+}
+
+

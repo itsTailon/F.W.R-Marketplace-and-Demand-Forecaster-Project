@@ -73,6 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
 
         // Explicitly give "OK" HTTP response code
         http_response_code(200);
+        echo json_encode([]);
         die();
 
     } catch (NoSuchPermissionException $perm_e) {
@@ -111,12 +112,13 @@ if ($_SERVER["REQUEST_METHOD"] == "PUT") {
             "name" => $_POST["name"],
             "address" => $_POST["address"],
         );
+        
 
         // Checking that current user has permissions to create a Seller
         if (!RBACManager::isCurrentuserPermitted("seller_create")) {
             throw new NoSuchPermissionException("Account with ID " . Authenticator::getCurrentUser()->getUserID() . " is not allowed to create seller account");
         }
-
+        $fields["passwordHash"] = password_hash($fields['password'], PASSWORD_ARGON2ID);
         // Calling create() method, storing Seller object produced as $seller
         $seller = Seller::create($fields);
 
