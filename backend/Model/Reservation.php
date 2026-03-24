@@ -283,6 +283,7 @@ class Reservation extends StoredObject
         $thisReservation->purchaserID = $fields['purchaserID'];
         $thisReservation->status = $fields['status'];
         $thisReservation->claimCode = $claimCode;
+        $today = "";
         if($fields['reservationDate'] == null) {
             $today = new \DateTime();
             $today = getdate($today->getTimestamp())['yday'];

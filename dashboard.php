@@ -1,3 +1,4 @@
+
 <?php
 use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Seller;
@@ -40,6 +41,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                 // Maintainer dashboard (home)
                 require 'partials/dashboard/maintainer/dashboard_maintainer_home.php';
             }
+
         ?>
     </div>
 </div>
