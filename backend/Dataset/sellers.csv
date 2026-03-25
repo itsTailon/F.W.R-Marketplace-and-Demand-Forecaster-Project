@@ -1,31 +1,31 @@
-sellerID,sellerName,sellerAddress
-1,Barisca at Reed Hall,"Reed Hall, Streatham Drive, Exeter EX4 4QR"
-2,Comida,"Devonshire House, Stocker Road, Exeter EX4 4PZ"
-3,Barisca at the Engine Room,"Harrison, North Park Road, Exeter EX4 4QF"
-4,Innovation Centre CafÃ©,"Innovation Centre Phase 2, Rennes Drive, Exeter EX4 4RN"
-5,La Touche CafÃ©,"Building:One, Rennes Drive, Exeter EX4 4PU"
-6,Super Savour Kitchen,"Devonshire House, Stocker Road, Exeter EX4 4PZ"
-7,Forum Kitchen,"Forum, Stocker Road, Exeter EX4 4PY"
-8,Camper Coffee Co. (Queen's),"Queen's Building, The Queen's Drive, Exeter EX4 4QH"
-9,Camper Coffee Co. (Amory),"Amory Building, Rennes Drive, Exeter EX4 4RJ"
-10,Pret a Manger Exeter University,"Forum, Stocker Road, Exeter EX4 4PY"
-11,Barisca at Peter Chalk,"Peter Chalk Centre, Stocker Road, Exeter EX4 4QD"
-12,iSCA Eats,"Cornwall House, St German's Rd, Exeter EX4 6TG"
-13,The Ram Bar,"Devonshire House, Stocker Road, Exeter EX4 4PZ"
-14,Cross Keys,"St Luke's Campus, Heavitree Road, Exeter EX1 2LU"
-15,The Theatre CafÃ©,"Northcott Theatre, Stocker Road, Exeter EX4 4QB"
-16,Market Place Birks Grange,"Birks Grange Village, New North Road, Exeter EX4 4GE"
-17,Market Place Forum,"Forum, Stocker Road, Exeter EX4 4PY"
-18,Market Place Cornwall House,"Cornwall House, St German's Rd, Exeter EX4 6TG"
-19,Market Place DH1,"Devonshire House, Stocker Road, Exeter EX4 4PZ"
-20,St David's Shop,"The Shop, 6 Isambard Parade, Exeter EX4 4BX"
-21,Starbucks Exeter University,"Forum, Stocker Road, Exeter EX4 4PY"
-22,Sushi Boba Poke,"Devonshire House, Stocker Road, Exeter EX4 4PZ"
-23,INTO CafÃ©,"INTO International Study Centre, Stocker Road, Exeter EX4 4PY"
-24,Open Air Kiosk (OAK),"Forum, Stocker Road, Exeter EX4 4PY"
-25,Starbucks Exeter St Davids,"Exeter St David's Station, Bonhay Road, Exeter EX4 4NT"
-26,Starbucks Exeter High Street,"5 High Street, Exeter EX4 3LF"
-27,Sainsbury's Exeter,"Guildhall Shopping Centre, Exeter EX4 3HH"
-28,Marks and Spencer Exeter,"211-219 High St, Exeter EX4 3QA"
-29,Co-op Exeter Queen Street,"37-39 Queen St, Exeter EX4 3SR"
-30,Co-op Exeter Pennsylvania Road,"15 Pennsylvania Rd, Exeter EX4 6BP"
+sellerID,sellerName,sellerAddress,openingTime,closingTime
+1,Barisca at Reed Hall,"Reed Hall, Streatham Drive, Exeter EX4 4QR",08:30,15:00
+2,Comida,"Devonshire House, Stocker Road, Exeter EX4 4PZ",10:00,15:00
+3,Barisca at the Engine Room,"Harrison, North Park Road, Exeter EX4 4QF",08:30,15:00
+4,Innovation Centre Café,"Innovation Centre Phase 2, Rennes Drive, Exeter EX4 4RN",08:30,15:00
+5,La Touche Café,"Building:One, Rennes Drive, Exeter EX4 4PU",08:00,16:00
+6,Super Savour Kitchen,"Devonshire House, Stocker Road, Exeter EX4 4PZ",11:00,14:00
+7,Forum Kitchen,"Forum, Stocker Road, Exeter EX4 4PY",08:00,16:00
+8,Camper Coffee Co. (Queen's),"Queen's Building, The Queen's Drive, Exeter EX4 4QH",08:00,15:30
+9,Camper Coffee Co. (Amory),"Amory Building, Rennes Drive, Exeter EX4 4RJ",08:00,15:30
+10,Pret a Manger Exeter University,"Forum, Stocker Road, Exeter EX4 4PY",07:30,19:30
+11,Barisca at Peter Chalk,"Peter Chalk Centre, Stocker Road, Exeter EX4 4QD",08:30,15:00
+12,iSCA Eats,"Cornwall House, St German's Rd, Exeter EX4 6TG",11:00,21:00
+13,The Ram Bar,"Devonshire House, Stocker Road, Exeter EX4 4PZ",12:00,23:00
+14,Cross Keys,"St Luke's Campus, Heavitree Road, Exeter EX1 2LU",08:00,17:00
+15,The Theatre Café,"Northcott Theatre, Stocker Road, Exeter EX4 4QB",09:00,16:00
+16,Market Place Birks Grange,"Birks Grange Village, New North Road, Exeter EX4 4GE",08:00,20:00
+17,Market Place Forum,"Forum, Stocker Road, Exeter EX4 4PY",08:00,20:00
+18,Market Place Cornwall House,"Cornwall House, St German's Rd, Exeter EX4 6TG",08:00,20:00
+19,Market Place DH1,"Devonshire House, Stocker Road, Exeter EX4 4PZ",10:00,17:00
+20,St David's Shop,"The Shop, 6 Isambard Parade, Exeter EX4 4BX",08:00,20:00
+21,Starbucks Exeter University,"Forum, Stocker Road, Exeter EX4 4PY",08:00,17:00
+22,Sushi Boba Poke,"Devonshire House, Stocker Road, Exeter EX4 4PZ",11:00,18:00
+23,INTO Café,"INTO International Study Centre, Stocker Road, Exeter EX4 4PY",08:00,17:00
+24,Open Air Kiosk (OAK),"Forum, Stocker Road, Exeter EX4 4PY",08:00,15:00
+25,Starbucks Exeter St Davids,"Exeter St David's Station, Bonhay Road, Exeter EX4 4NT",07:00,17:00
+26,Starbucks Exeter High Street,"5 High Street, Exeter EX4 3LF",07:00,18:00
+27,Sainsbury's Exeter,"Guildhall Shopping Centre, Exeter EX4 3HH",07:00,19:00
+28,Marks and Spencer Exeter,"211-219 High St, Exeter EX4 3QA",08:00,19:00
+29,Co-op Exeter Queen Street,"37-39 Queen St, Exeter EX4 3SR",07:00,23:00
+30,Co-op Exeter Pennsylvania Road,"15 Pennsylvania Rd, Exeter EX4 6BP",07:00,00:00
