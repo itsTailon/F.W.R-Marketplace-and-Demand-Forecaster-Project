@@ -26,14 +26,16 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 ?>
 
 <br>
-<h1 class="text-middle">Forecasting</h1>
+<h1 class="text-middle forecast-pad">Forecasting</h1>
 <br>
 
 <div class="forecast-btn-container">
     <button type="button" class="button" id="normal-btn">Forecast</button>
     <button type="button" class="button" id="comparison-btn">Comparison</button>
 </div>
- 
+<div class="forecast-disclaimer">
+    <p>Note: Forecasting is an estimation, not a guarantee.<br>Use in conjunction with your own research.</p>
+</div>
 <div class="forecast-variables">
 
     <div class="forecast-variables__var">
