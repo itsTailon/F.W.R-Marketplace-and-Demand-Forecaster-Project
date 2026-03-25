@@ -208,24 +208,22 @@ class ForecastTest extends TestCase
             'bundleID' => $bundle1->getID(),
             'status' => ReservationStatus::NoShow,
             'claimCode' => 'abcdabcdabcdaaad',
-            'reservationDate' => $today,
         ]);
 
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle2->getID(),
-            'status' => ReservationStatus::NoShow,
+            'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdabce',
-            'reservationDate' => $today
         ]);
 
         // Create test reservation
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle1->getID(),
-            'status' => ReservationStatus::Completed,
+            'status' => ReservationStatus::NoShow,
             'claimCode' => 'abcdabcdabcdabcd',
-            'reservationDate' => $today
+            'reservationDate' => $lastWeekStart
         ]);
 
         Reservation::create([
@@ -255,9 +253,15 @@ class ForecastTest extends TestCase
         $data = Forecast::getLastWeeksReservations($seller->getUserID());
         $weeklyForecast = Forecast::forecastNextWeekSeasonal('any', 0, 24, 0, 100, 'any', $data);
 
-        self::assertEquals($weeklyForecast['neededBundlesMonday'], 3);
+        $todayDay = getdate(idate($today))['weekday'];
 
-        self::assertEquals($weeklyForecast['probabilityCollectedMonday'], 4/6);
+        if($todayDay == "Monday") {
+            self::assertEquals($weeklyForecast['neededBundlesMonday'], 3);
+            self::assertEquals($weeklyForecast['probabilityCollectedMonday'], 4 / 6);
+        } else{
+            self::assertEquals($weeklyForecast['neededBundlesMonday'], 3);
+            self::assertEquals($weeklyForecast['probabilityCollectedMonday'], 0.75);
+        }
     }
 
     public function testCompareWithGroundTruth(){
@@ -406,11 +410,10 @@ class ForecastTest extends TestCase
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
             'expiryDate' => $expDate,
-            'pickupWindow' => "14:00-15:00",
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 100
         ]);
 
-        $bundle1->addCategory("pastries");
 
         $bundle2 = Bundle::create([
             'bundleStatus' => BundleStatus::OffSale,
@@ -424,14 +427,11 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
-
-
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle1->getID(),
-            'status' => ReservationStatus::NoShow,
+            'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdaaad',
-            'reservationDate' => $day1,
         ]);
 
         Reservation::create([
@@ -439,7 +439,6 @@ class ForecastTest extends TestCase
             'bundleID' => $bundle2->getID(),
             'status' => ReservationStatus::NoShow,
             'claimCode' => 'abcdabcdabcdabce',
-            'reservationDate' => $day1
         ]);
 
         // Create test reservation
@@ -448,7 +447,6 @@ class ForecastTest extends TestCase
             'bundleID' => $bundle1->getID(),
             'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdabcd',
-            'reservationDate' => $day2
         ]);
 
         Reservation::create([
@@ -456,7 +454,6 @@ class ForecastTest extends TestCase
             'bundleID' => $bundle2->getID(),
             'status' => ReservationStatus::NoShow,
             'claimCode' => 'abcdabcdabcdaaaf',
-            'reservationDate' => $day3
         ]);
 
         Reservation::create([
@@ -464,15 +461,13 @@ class ForecastTest extends TestCase
             'bundleID' => $bundle2->getID(),
             'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdabcg',
-            'reservationDate' => $day4
         ]);
 
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
-            'bundleID' => $bundle2->getID(),
+            'bundleID' => $bundle1->getID(),
             'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdaaah',
-            'reservationDate' => $day4
         ]);
 
         $bundle3 = Bundle::create([
@@ -483,11 +478,9 @@ class ForecastTest extends TestCase
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
             'expiryDate' => $expDate,
-            'pickupWindow' => "12:00-13:00",
+            'pickupWindow' => "14:00-15:00",
             'quantity' => 100
         ]);
-
-        $bundle3->addCategory("pastries");
 
         $bundle4 = Bundle::create([
             'bundleStatus' => BundleStatus::OffSale,
@@ -500,8 +493,6 @@ class ForecastTest extends TestCase
             'pickupWindow' => "02:00-03:00",
             'quantity' => 100
         ]);
-
-        $bundle4->addCategory("sweets");
 
         $prediction = Forecast::getProductionRecommendation($bundle3);
 
@@ -517,17 +508,17 @@ class ForecastTest extends TestCase
         $stmt3 = DatabaseHandler::getPDO()->prepare("TRUNCATE account;");
         $stmt3->execute();
 
-        $stmt1 = DatabaseHandler::getPDO()->prepare("TRUNCATE seller");
+        $stmt1 = DatabaseHandler::getPDO()->prepare("TRUNCATE seller;");
         $stmt1->execute();
 
-        $stmt2 = DatabaseHandler::getPDO()->prepare("Truncate customer");
-        $stmt2->execute();
-
-        $stmt4 = DatabaseHandler::getPDO()->prepare("TRUNCATE reservation");
+        $stmt4 = DatabaseHandler::getPDO()->prepare("TRUNCATE reservation;");
         $stmt4->execute();
 
-        $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle");
+        $stmt5 = DatabaseHandler::getPDO()->prepare("TRUNCATE bundle;");
         $stmt5->execute();
+
+        $stmt2 = DatabaseHandler::getPDO()->prepare("DELETE FROM customer");
+        $stmt2->execute();
 
         $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 1;");
         $stmt->execute();

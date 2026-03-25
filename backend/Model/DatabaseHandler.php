@@ -194,7 +194,7 @@ class DatabaseHandler {
                     xGold INT NOT NULL, -- the total number of times a bundle must be reserved to achieve gold
                     CHECK (xBronze > 0 AND xSilver > xBronze AND xGold > xSilver)
                 );
-    
+
                 CREATE TABLE IF NOT EXISTS customer_badge (
                     customerID INT NOT NULL,
                     badgeID INT NOT NULL,
