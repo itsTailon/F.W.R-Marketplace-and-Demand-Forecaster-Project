@@ -8,13 +8,10 @@ namespace TTE\App\Tests\Model;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Badge;
-use TTE\App\Model\Bundle;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\MissingValuesException;
 use TTE\App\Model\NoSuchBadgeException;
-use TTE\App\Model\NoSuchCustomerException;
-use TTE\App\Model\NoSuchSellerException;
 
 class BadgeTest extends TestCase{
 
@@ -71,7 +68,7 @@ class BadgeTest extends TestCase{
             $badge = Badge::create($badgeFields);
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             if (isset($badge)) {
                 Badge::delete($badge->getId());
@@ -103,7 +100,7 @@ class BadgeTest extends TestCase{
             $badge = Badge::create($badgeFields);
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             if (isset($badge)) {
                 Badge::delete($badge->getId());
@@ -135,7 +132,7 @@ class BadgeTest extends TestCase{
             $badge = Badge::create($badgeFields);
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             if (isset($badge)) {
                 Badge::delete($badge->getId());
@@ -228,7 +225,7 @@ class BadgeTest extends TestCase{
             $badge->update();
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             Badge::delete($badge->getId());
             Customer::delete($customer->getUserID());
@@ -259,7 +256,7 @@ class BadgeTest extends TestCase{
             $badge->update();
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             Badge::delete($badge->getId());
             Customer::delete($customer->getUserID());
@@ -289,7 +286,7 @@ class BadgeTest extends TestCase{
             $badge->update();
         } catch (MissingValuesException $e) {
             $thrown = true;
-        } catch (DatabaseException|NoSuchCustomerException|NoSuchSellerException $e) {
+        } catch (DatabaseException $e) {
             // Clean-up and give exception
             Badge::delete($badge->getId());
             Customer::delete($customer->getUserID());
@@ -332,7 +329,7 @@ class BadgeTest extends TestCase{
         try {
             $badge->update();
         } catch (Exception $e) {
-            $this->fail("Badge failed to create when should have.");
+            $this->fail($e);
         }
 
         // Compare all fields of created badge in DB to those of the object

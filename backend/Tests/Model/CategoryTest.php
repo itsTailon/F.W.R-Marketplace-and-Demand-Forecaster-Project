@@ -72,9 +72,11 @@ class CategoryTest extends TestCase {
 
         $categories = array($category1, $category2, $category3, $category4);
 
+        $loadedCategories = Category::getCategoryList();
+
         // Iterate through results of getCategoryList and verify they're correct
-        foreach (Category::getCategoryList() as $category) {
-            $this->assertTrue(in_array($category, $categories));
+        foreach ($categories as $category) {
+            $this->assertTrue(in_array($category, $loadedCategories));
         }
 
         // Clean-up

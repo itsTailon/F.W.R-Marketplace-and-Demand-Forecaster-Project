@@ -12,12 +12,10 @@ use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\DatabaseHandler;
 use TTE\App\Model\ImpactMetric;
-use TTE\App\Model\MissingValuesException;
-use TTE\App\Model\NoSuchBadgeException;
-use TTE\App\Model\NoSuchCustomerException;
-use TTE\App\Model\Reservation;
 use TTE\App\Model\ReservationStatus;
 use TTE\App\Model\Seller;
+use \DateTimeImmutable;
+use \TTE\App\Model\Reservation;
 
 // Global for session to run test
 $_SESSION = array();
@@ -107,15 +105,18 @@ class CustomerTest extends TestCase {
         ));
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            "bundleStatus" => BundleStatus::Available,
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
             "title" => "Test Bundle Title",
             "details" => "Test Bundle Details",
+            "quantity" => 5,
             "rrp" => 599,
             "discountedPrice" => 299,
             "sellerID" => $seller->getUserID(),
-            "quantity" => 1,
-        ]);
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Create reservation for testing
         $reservation = Reservation::create([

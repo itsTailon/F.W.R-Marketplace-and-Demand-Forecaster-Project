@@ -55,12 +55,13 @@ class BundleTest extends TestCase
                 "bundleStatus" => BundleStatus::OnSale,
                 "title" => "Test Bundle Title",
                 "details" => "Test Bundle Details",
+                "quantity" => 5,
                 "rrp" => 599,
                 "discountedPrice" => 299,
                 "sellerID" => $seller->getUserID(),
-                "purchaserID" => $customer->getUserID(),
-                "expiryDate" => new DateTimeImmutable("now"),
-                "quantity" => 1
+                "purchaserID" => null,
+                "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+                "pickupWindow" => "00:00-01:00"
             );
 
         // Creating bundle that is to then be updated
@@ -205,12 +206,13 @@ class BundleTest extends TestCase
                 "bundleStatus" => BundleStatus::OnSale,
                 "title" => "Test Bundle Title",
                 "details" => "Test Bundle Details",
+                "quantity" => 5,
                 "rrp" => 599,
                 "discountedPrice" => 299,
                 "sellerID" => $seller->getUserID(),
-                "expiryDate" => new DateTimeImmutable("now"),
-                "purchaserID" => $customer->getUserID(),
-                "quantity" => 2,
+                "purchaserID" => null,
+                "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+                "pickupWindow" => "00:00-01:00"
             );
 
         // Iterate through $fields array and update different values to null to test functionality (ignore purchaserID as nullable)
@@ -366,16 +368,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Load bundle and compare to existing bundle object (both should be equal)
         $db_bundle = Bundle::load($bundle->getID());
@@ -421,16 +425,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Bundle should exist as it has just been created
         self::assertTrue(Bundle::existsWithID($bundle->getID()));
@@ -463,16 +469,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Check that when deleting a bundle that does not exist, NoSuchBundleException is thrown
         $thrown = false;
@@ -513,16 +521,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Test adding non-existent allergen to bundle
         $thrown = false;
@@ -564,16 +574,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Add allergen to bundle
         $bundle->addAllergen("gluten");
@@ -609,16 +621,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            "expiryDate" => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Add allergens to bundle
         $bundle->addAllergen("gluten");
@@ -639,9 +653,18 @@ class BundleTest extends TestCase
     public function testSearchBundle() {
         $testSeller = Seller::create(["email" => "testsearchbundle@example.com", "password" => "password",
             "name" => "ex name", "address" => "ex address"]);
-        $testBundle = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "expiryDate" => new DateTimeImmutable("now"),
-            "title" => "testSearchBundle() title", "details" => "testSearchBundle() details", "rrp" => 10.00,
-            "discountedPrice" => 8.00, "quantity" => 1]);
+        $testBundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $testSeller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         $shouldFindFromTitle = Bundle::searchBundles($testBundle->getTitle());
         $shouldFindFromDetails = Bundle::searchBundles($testBundle->getDetails());
@@ -668,16 +691,18 @@ class BundleTest extends TestCase
         ]);
 
         // Create bundle for testing
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            'expiryDate' => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Test adding a non-existent category to bundle
         $thrown = false;
@@ -712,16 +737,18 @@ class BundleTest extends TestCase
             'address' => '2 Example Avenue',
         ]);
 
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'expiryDate' => new DateTimeImmutable("now"),
-            'discountedPrice' => 500,
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         // Create category and add to bundle
         Category::create("validCategory");
@@ -770,16 +797,18 @@ class BundleTest extends TestCase
             'address' => '2 Example Avenue',
         ]);
 
-        $bundle = Bundle::create([
-            'bundleStatus' => BundleStatus::OnSale,
-            'title' => 'TestBundle',
-            'details' => 'A test bundle',
-            'rrp' => 1000,
-            'discountedPrice' => 500,
-            'expiryDate' => new DateTimeImmutable("now"),
-            'sellerID' => $seller->getUserID(),
-            'quantity' => 2,
-        ]);
+        $bundle = Bundle::create(array(
+            "bundleStatus" => BundleStatus::OnSale,
+            "title" => "Test Bundle Title",
+            "details" => "Test Bundle Details",
+            "quantity" => 5,
+            "rrp" => 599,
+            "discountedPrice" => 299,
+            "sellerID" => $seller->getUserID(),
+            "purchaserID" => null,
+            "expiryDate" => (new DateTimeImmutable("now"))->modify("+5 days"),
+            "pickupWindow" => "00:00-01:00"
+        ));
 
         Category::create("validCategory");
 

@@ -41,12 +41,12 @@ class Badge extends StoredObject
         // SQL parameterised query
         $stmt = DatabaseHandler::getPDO()->prepare("UPDATE badge SET title= :title, 
         subtitle = :subtitle, badgeDescription = :badgeDescription, xBronze = :xBronze, 
-        xSilver = :xSilver, xGold = :xGold;");
+        xSilver = :xSilver, xGold = :xGold WHERE badgeID = :badgeID");
 
         try {
             $stmt->execute([":title" => $this->getTitle(), ":subtitle" => $this->getSubtitle(),
                 ":badgeDescription" => $this->getBadgeDescription(), ":xBronze" => $this->getXBronze(),
-                ":xSilver" => $this->getXSilver(), ":xGold" => $this->getXGold()]);
+                ":xSilver" => $this->getXSilver(), ":xGold" => $this->getXGold(), ":badgeID" => $this->id]);
         } catch (\PDOException $e) {
             throw new DatabaseException($e->getMessage());
         }
