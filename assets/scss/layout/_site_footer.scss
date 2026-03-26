@@ -3,7 +3,7 @@
 
 .site-footer {
   width: 100vw;
-  height: 64px;
+  height: 80px;
   background-color: map.get(config.$colours, "site-footer-bg");
   margin-top: auto;
   font-size: map.get(config.$font-sizes, "footer");
@@ -14,6 +14,17 @@
 
   &__copyright {
     margin-right: auto; // Flexbox alignment trick (align left)
+
+    a {
+      color: map.get(config.$colours, "site-footer-fg");
+      text-decoration: underline;
+      display: block;
+      margin-top: 8px;
+
+      &:hover, &:active {
+        color: map.get(config.$colours, "site-footer-fg-hover");
+      }
+    }
   }
 
   &__report-email {
