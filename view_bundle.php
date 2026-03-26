@@ -157,7 +157,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     <p><?php echo $collectedNumber?> of these bundles are collected each week, and <?php echo $noShow?> are missed.</p>
                     <?php
 
-                    if($adjustment = 0) {
+                    if($adjustment == 0) {
                         ?>
                         <p> A sufficient number of this bundle type has been posted </p>
                         <?php
