@@ -274,7 +274,7 @@ class Customer extends Account {
      */
     private function calculateCO2KgSaved(): float {
         // Multiply total bundles collected by a constant, which is the baseline estimate of CO2(kg) savings per bundle collected.
-        return (float)$this->calculateBundlesCollected() * 2.0;
+        return (float)$this->calculateBundlesCollected() * 1.3;
     }
 
     /**

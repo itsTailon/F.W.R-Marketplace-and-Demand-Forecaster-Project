@@ -1,6 +1,8 @@
 <?php
 namespace TTE\App\Tests\Model;
 
+use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
@@ -106,16 +108,20 @@ class SellerTest extends TestCase
         $testSeller = Seller::create(["email" => "sellthroughrate@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
+        // Create DateTimeImmutables for a week before and a week after
+        $weekBefore = DateTimeImmutable::createFromMutable(date_sub(new DateTime(), date_interval_create_from_date_string("7 days")));
+        $weekAfter = DateTimeImmutable::createFromMutable(date_add(new DateTime(), date_interval_create_from_date_string("7 days")));
+
         // Create a cancelled bundle
-        $testBundleCancelled = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleCancelled = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekBefore, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
 
         // Create a collected bundle
-        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekBefore, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
         $testBundleCollectedReservation = Reservation::create(["bundleID" => $testBundleCollected->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
         Reservation::markCollected($testBundleCollectedReservation->getID());
 
         // Create an active bundle
-        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekAfter, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
         $testBundleActiveReservation = Reservation::create(["bundleID" => $testBundleActive->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Active]);
 
         // Do our assertion
@@ -131,20 +137,24 @@ class SellerTest extends TestCase
         $testSeller = Seller::create(["email" => "sellthroughrate@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "Ex Seller Address"]);
         $testPurchaser = Customer::create(["email" => "sellthroughratebuyer@example.com", "username" => "Joe Generic", "password" => "password"]);
 
+        // Create DateTimeImmutables for a week before and a week after
+        $weekBefore = DateTimeImmutable::createFromMutable(date_sub(new DateTime(), date_interval_create_from_date_string("7 days")));
+        $weekAfter = DateTimeImmutable::createFromMutable(date_add(new DateTime(), date_interval_create_from_date_string("7 days")));
+
         // Create an expired bundle
-        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleExpired = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "Ex Bundle Title (Expired)", "details" => "Ex Bundle Details (Expired)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekBefore, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
 
         // Create a collected bundle
-        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleCollected = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "Ex Bundle Title (Collected)", "details" => "Ex Bundle Details (Collected)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekBefore, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
         $testBundleCollectedReservation = Reservation::create(["bundleID" => $testBundleCollected->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
         Reservation::markCollected($testBundleCollectedReservation->getID());
 
         // Create an active bundle
-        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Reserved, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00]);
+        $testBundleActive = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "Ex Bundle Title (Active)", "details" => "Ex Bundle Details (Active)", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => $weekAfter, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
         $testBundleActiveReservation = Reservation::create(["bundleID" => $testBundleActive->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Active]);
 
         // Create a bundle that should be ignored
-        $testBundleShouldBeIgnored = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "Ex Bundle Title (Should Be Ignored)", "details" => "Ex Bundle Details (Should Be Ignored)", "rrp" => 10, "discountedPrice" => 4]);
+        $testBundleShouldBeIgnored = Bundle::create(["sellerID" => $testSeller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "Ex Bundle Title (Should Be Ignored)", "details" => "Ex Bundle Details (Should Be Ignored)", "rrp" => 10, "discountedPrice" => 4, "expiryDate" => $weekAfter, "pickupWindow" => "00:00-01:00", "quantity" => 1]);
         $testBundleShouldBeIgnoredReservation = Reservation::create(["bundleID" => $testBundleShouldBeIgnored->getID(), "purchaserID" => $testPurchaser->getUserID(), "status" => ReservationStatus::Completed]);
 
         // Do our assertion
@@ -157,9 +167,9 @@ class SellerTest extends TestCase
 
     public function testFilterBundlesByDiscountLevel() {
         $seller = Seller::create(["email" => "testfilterbundles@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "123 Testing Street"]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00, "expiryDate" => new \DateTimeImmutable(), "pickupWindow" => "00:00-01:00", "quantity" => 1]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => new \DateTimeImmutable(), "pickupWindow" => "00:00-01:00", "quantity" => 1]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00, "expiryDate" => new \DateTimeImmutable(), "pickupWindow" => "00:00-01:00", "quantity" => 1]);
 
         $bundles = Seller::getAllBundlesForUser($seller->getUserID());
 
@@ -173,21 +183,16 @@ class SellerTest extends TestCase
 
     public function testGetBundlesByStatus() {
         $seller = Seller::create(["email" => "testbundlesbystatus@example.com", "name" => "Ex Seller Name", "password" => "password", "address" => "123 Testing Street"]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Available, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Cancelled, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00]);
-        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::Collected, "title" => "30% Discounted Bundle", "details" => "Bundle that is discounted by 30%", "rrp" => 10.00, "discountedPrice" => 7.00]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OnSale, "title" => "10% Discounted Bundle", "details" => "Bundle that is discounted by 10%", "rrp" => 10.00, "discountedPrice" => 9.00, "expiryDate" => new \DateTimeImmutable(), "pickupWindow" => "00:00-01:00", "quantity" => 1]);
+        Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, "title" => "20% Discounted Bundle", "details" => "Bundle that is discounted by 20%", "rrp" => 10.00, "discountedPrice" => 8.00, "expiryDate" => new \DateTimeImmutable(), "pickupWindow" => "00:00-01:00", "quantity" => 1]);
 
-        $available = $seller->getBundlesByStatus(BundleStatus::Available);
+        $available = $seller->getBundlesByStatus(BundleStatus::OnSale);
         $this->assertCount(1, $available);
         $this->assertEquals(CurrencyTools::decimalStringToGBX($available[0]["discountedPrice"]), 0.9 * CurrencyTools::decimalStringToGBX($available[0]["rrp"]));
 
-        $expired = $seller->getBundlesByStatus(BundleStatus::Cancelled);
+        $expired = $seller->getBundlesByStatus(BundleStatus::OffSale);
         $this->assertCount(1, $expired);
         $this->assertEquals(CurrencyTools::decimalStringToGBX($expired[0]["discountedPrice"]), 0.8 * CurrencyTools::decimalStringToGBX($expired[0]["rrp"]));
-
-        $collected = $seller->getBundlesByStatus(BundleStatus::Collected);
-        $this->assertCount(1, $collected);
-        $this->assertEquals(CurrencyTools::decimalStringToGBX($collected[0]["discountedPrice"]), 0.7 * CurrencyTools::decimalStringToGBX($collected[0]["rrp"]));
 
         Seller::delete($seller->getUserID());
     }

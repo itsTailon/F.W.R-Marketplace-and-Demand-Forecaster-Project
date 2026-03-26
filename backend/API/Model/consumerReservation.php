@@ -19,6 +19,10 @@ use TTE\App\Auth\Authenticator;
 use TTE\App\Model\Reservation;
 use TTE\App\Model\Notification;
 
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+
 include '../../../vendor/autoload.php';
 
 session_start();
@@ -102,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         $fields = array(
             "bundleID" => 0,
             "purchaserID" => 0,
-            "status" => ReservationStatus::Active
+            "status" => ReservationStatus::Active,
         );
 
         $bundleID = $_POST["bundleID"];
@@ -129,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         }
 
         // Create the reservation
-        $reservation = Reservation::Create($fields);
+        $reservation = Reservation::create($fields);
 
         $bundle = Bundle::load($bundleID);
 
@@ -159,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
         die();
     } catch (DatabaseException $e) {
         echo json_encode(http_response_code(500));
-        die();
+        die($e->getMessage());
     } catch (NoSuchPermissionException) {
         echo json_encode(http_response_code(403));
         die();

@@ -119,6 +119,7 @@ p.streak__display {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding-bottom: 96px;
 }
 
 .view-streak, .view-badges {
@@ -133,7 +134,7 @@ p.streak__display {
  }
 
 .view-streak {
-    max-width: 480px;
+    max-width: 800px;
 }
 
 .view-badges {

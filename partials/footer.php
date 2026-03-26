@@ -1,7 +1,7 @@
 
 <footer class="site-footer">
-    <span class="site-footer__copyright">Copyright &copy; 2026</span>
-    <span class="site-footer__report-email">To report a potential legal/regulatory issue, please <a href="mailto:fwr.legal@example.com">e-mail us</a>.</span>
+    <span class="site-footer__copyright">Copyright &copy; 2026<br><a target="_blank" href="/assets/docs/privacy_policy.pdf">Privacy Policy</a></span>
+    <span class="site-footer__report-email">Sellers are responsible for accurate reporting of allergens — consume food at your own risk. To report a potential legal/regulatory issue, please <a href="mailto:fwr.legal@example.com">e-mail us</a>.</span>
 </footer>
 
 </body>

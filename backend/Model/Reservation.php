@@ -283,40 +283,20 @@ class Reservation extends StoredObject
         $thisReservation->purchaserID = $fields['purchaserID'];
         $thisReservation->status = $fields['status'];
         $thisReservation->claimCode = $claimCode;
-        if(!isset($fields['reservationDate'])){
-            $today = getdate(time())['yday'];
-            $weatherCon = self::getCurrentWeather($today);
-            $thisReservation->weatherCondition = $weatherCon;
-            $thisReservation->reservationDate = new DateTime();
+        $today = getdate(time())['yday'];
+        $weatherCon = self::getCurrentWeather($today);
+        $thisReservation->weatherCondition = $weatherCon;
 
-            // Create SQL statement to create reservation record
-            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode, weatherCondition) 
+        // Create SQL statement to create reservation record
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode, weatherCondition) 
             VALUES (:bundleID, :purchaserID, :reservationStatus, :claimCode, :weatherCondition);");
 
-            // Attempt to execute the statement
-            try{
-                $stmt->execute([":bundleID" => $fields['bundleID'], ":purchaserID" => $fields['purchaserID']
-                    ,":reservationStatus" => $fields['status']->value, ":weatherCondition" => $weatherCon, ":claimCode" => $claimCode]);
-            } catch (\PDOException $e){
-                throw new DatabaseException($e->getMessage());
-            }
-        } else {
-            $reservationDate = $fields['reservationDate'];
-            $today = getdate(idate($reservationDate))['yday'];
-            $weatherCon = self::getCurrentWeather($today);
-            $thisReservation->weatherCondition = $weatherCon;
-
-            // Create SQL statement to create reservation record
-            $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode, weatherCondition, reservationDate) 
-            VALUES (:bundleID, :purchaserID, :reservationStatus, :claimCode, :weatherCondition, :reservationDate);");
-
-            // Attempt to execute the statement
-            try{
-                $stmt->execute([":bundleID" => $fields['bundleID'], ":purchaserID" => $fields['purchaserID']
-                    ,":reservationStatus" => $fields['status']->value, ":weatherCondition" => $weatherCon, ":claimCode" => $claimCode, ":reservationDate" => $reservationDate]);
-            } catch (\PDOException $e){
-                throw new DatabaseException($e->getMessage());
-            }
+        // Attempt to execute the statement
+        try{
+            $stmt->execute([":bundleID" => $fields['bundleID'], ":purchaserID" => $fields['purchaserID']
+                ,":reservationStatus" => $fields['status']->value, ":weatherCondition" => $weatherCon, ":claimCode" => $claimCode]);
+        } catch (\PDOException $e){
+            throw new DatabaseException($e->getMessage());
         }
 
         // Get the id of the created reservation and add to the bundle object
