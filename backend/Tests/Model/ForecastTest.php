@@ -45,7 +45,19 @@ class ForecastTest extends TestCase
                 'username' => 'egUsername'
             ]);
         } catch (DatabaseException $e) {
-            $purchaser = Customer::load(2);
+            $count = 0;
+            $found = false;
+            while (!$found) {
+                if (Customer::existsWithID($count)) {
+                    $purchaser = Customer::load($count);
+                    $found = true;
+                } else {
+                    $count++;
+                    if($count == 100){
+                        $found = true;
+                    }
+                }
+            }
         };
 
 
@@ -176,7 +188,19 @@ class ForecastTest extends TestCase
                 'username' => 'egUsername'
             ]);
         } catch (DatabaseException $e) {
-            $purchaser = Customer::load(2);
+            $count = 0;
+            $found = false;
+            while (!$found) {
+                if (Customer::existsWithID($count)) {
+                    $purchaser = Customer::load($count);
+                    $found = true;
+                } else {
+                    $count++;
+                    if($count == 100){
+                        $found = true;
+                    }
+                }
+            }
         };
 
         // Create seller to get a seller ID to create a bundle
@@ -294,7 +318,19 @@ class ForecastTest extends TestCase
                 'username' => 'egUsername'
             ]);
         } catch (DatabaseException $e) {
-            $purchaser = Customer::load(2);
+            $count = 0;
+            $found = false;
+            while (!$found) {
+                if (Customer::existsWithID($count)) {
+                    $purchaser = Customer::load($count);
+                    $found = true;
+                } else {
+                    $count++;
+                    if($count == 100){
+                        $found = true;
+                    }
+                }
+            }
         };
 
         // Create seller to get a seller ID to create a bundle
@@ -424,7 +460,19 @@ class ForecastTest extends TestCase
                 'username' => 'egUsername'
             ]);
         } catch (DatabaseException $e) {
-            $purchaser = Customer::load(2);
+            $count = 0;
+            $found = false;
+            while (!$found) {
+                if (Customer::existsWithID($count)) {
+                    $purchaser = Customer::load($count);
+                    $found = true;
+                } else {
+                    $count++;
+                    if($count == 100){
+                        $found = true;
+                    }
+                }
+            }
         };
 
         // Create bundle for the reservation to reference
