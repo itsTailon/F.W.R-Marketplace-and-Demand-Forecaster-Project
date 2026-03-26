@@ -146,7 +146,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                 $quantity = $prediction[2];
                 $time = $prediction[3];
 
-                $adjustment = (int)($collectedNumber/7) - $bundle->getQuantity();
+                $adjustment = (int)($collectedNumber/7) - (int)$bundle->getQuantity();
 
                 if($collectedNumber == 0 && $noShow == 0) {
                     ?>
@@ -157,7 +157,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     <p><?php echo $collectedNumber?> of these bundles are collected each week, and <?php echo $noShow?> are missed.</p>
                     <?php
 
-                    if($adjustment = 0) {
+                    if($adjustment == 0) {
                         ?>
                         <p> A sufficient number of this bundle type has been posted </p>
                         <?php
