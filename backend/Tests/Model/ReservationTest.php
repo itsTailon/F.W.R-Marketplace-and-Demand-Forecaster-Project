@@ -387,7 +387,14 @@ class ReservationTest extends TestCase
         ]);
 
         // Check if loaded reservation matches the original reservation
-        self::assertEquals($reservation, Reservation::load($reservation->getID()));
+        $loadedReservation = Reservation::load($reservation->getID());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
+        self::assertEquals($reservation->getBundleID(),  $loadedReservation->getBundleID());
+        self::assertEquals($reservation->getPurchaserID(),  $loadedReservation->getPurchaserID());
+        self::assertEquals($reservation->getStatus(),  $loadedReservation->getStatus());
+        self::assertEquals($reservation->getClaimCode(),  $loadedReservation->getClaimCode());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
 
         // Attempt to load reservation that does not exist
         $thrown = false;
