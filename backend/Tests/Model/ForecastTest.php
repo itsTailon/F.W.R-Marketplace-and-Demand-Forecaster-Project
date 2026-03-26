@@ -4,9 +4,11 @@ namespace TTE\App\Tests\Model;
 
 use DateInterval;
 use DateTimeImmutable;
+use mysql_xdevapi\Exception;
 use PHPUnit\Framework\TestCase;
 use TTE\App\Model\Bundle;
 use TTE\App\Model\BundleStatus;
+use TTE\App\Model\Category;
 use TTE\App\Model\Customer;
 use TTE\App\Model\DatabaseException;
 use TTE\App\Model\DatabaseHandler;
@@ -36,11 +38,16 @@ class ForecastTest extends TestCase
         $expDate = new DateTimeImmutable();
 
         // Create customer to get customer ID to create reservation
-        $purchaser = Customer::create([
-            'email' => 'tEmail@email.com',
-            'password' =>  'password123',
-            'username' => 'egUsername'
-        ]);
+        try {
+            $purchaser = Customer::create([
+                'email' => 'tEmail@email.com',
+                'password' => 'password123',
+                'username' => 'egUsername'
+            ]);
+        } catch (DatabaseException $e) {
+            $purchaser = Customer::load(2);
+        };
+
 
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
@@ -162,11 +169,15 @@ class ForecastTest extends TestCase
         $expDate = new DateTimeImmutable();
 
         // Create customer to get customer ID to create reservation
-        $purchaser = Customer::create([
-            'email' => 'tEmail@email.com',
-            'password' =>  'password123',
-            'username' => 'egUsername'
-        ]);
+        try {
+            $purchaser = Customer::create([
+                'email' => 'tEmail@email.com',
+                'password' => 'password123',
+                'username' => 'egUsername'
+            ]);
+        } catch (DatabaseException $e) {
+            $purchaser = Customer::load(2);
+        };
 
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
@@ -275,11 +286,16 @@ class ForecastTest extends TestCase
         $expDate = new DateTimeImmutable();
 
         // Create customer to get customer ID to create reservation
-        $purchaser = Customer::create([
-            'email' => 'tEmail@email.com',
-            'password' =>  'password123',
-            'username' => 'egUsername'
-        ]);
+
+        try {
+            $purchaser = Customer::create([
+                'email' => 'tEmail@email.com',
+                'password' => 'password123',
+                'username' => 'egUsername'
+            ]);
+        } catch (DatabaseException $e) {
+            $purchaser = Customer::load(2);
+        };
 
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
@@ -313,8 +329,6 @@ class ForecastTest extends TestCase
             'pickupWindow' => "12:00-13:00",
             'quantity' => 100
         ]);
-
-
 
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
@@ -376,8 +390,16 @@ class ForecastTest extends TestCase
         self::assertEquals(count($graphs[0]), count($graphs[1]));
     }
 
-    public static function testPrediction(){
+    public function testPrediction(){
         self::cleanTables();
+
+        if(!Category::categoryExists("meals")){
+            Category::create("meals");
+        }
+
+        if(!Category::categoryExists("sweets")){
+            Category::create("sweets");
+        }
 
         $day1 = "2026-03-12 14:56:39.599705";
         $day2 = "2026-03-20 15:56:39.599705";
@@ -386,13 +408,6 @@ class ForecastTest extends TestCase
 
         $expDate = new DateTimeImmutable();
 
-        // Create customer to get customer ID to create reservation
-        $purchaser = Customer::create([
-            'email' => 'tEmail@email.com',
-            'password' =>  'password123',
-            'username' => 'egUsername'
-        ]);
-
         // Create seller to get a seller ID to create a bundle
         $seller = Seller::create([
             'email' => 'test@test.com',
@@ -400,6 +415,17 @@ class ForecastTest extends TestCase
             'name' => 'sampleShop',
             'address' => '2 Example Avenue',
         ]);
+
+        // Create customer to get customer ID to create reservation
+        try {
+            $purchaser = Customer::create([
+                'email' => 'tEmail@email.com',
+                'password' => 'password123',
+                'username' => 'egUsername'
+            ]);
+        } catch (DatabaseException $e) {
+            $purchaser = Customer::load(2);
+        };
 
         // Create bundle for the reservation to reference
         $bundle1 = Bundle::create([
@@ -414,6 +440,11 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
+        if(!$bundle1->getCategory() == null){
+            $bundle1->removeCategory();
+        }
+
+        $bundle1->addCategory("meals");
 
         $bundle2 = Bundle::create([
             'bundleStatus' => BundleStatus::OffSale,
@@ -427,6 +458,11 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
+        if(!$bundle2->getCategory() == null){
+            $bundle2->removeCategory();
+        }
+        $bundle2->addCategory("meals");
+
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle1->getID(),
@@ -437,7 +473,7 @@ class ForecastTest extends TestCase
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle2->getID(),
-            'status' => ReservationStatus::NoShow,
+            'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdabce',
         ]);
 
@@ -452,7 +488,7 @@ class ForecastTest extends TestCase
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle2->getID(),
-            'status' => ReservationStatus::NoShow,
+            'status' => ReservationStatus::Completed,
             'claimCode' => 'abcdabcdabcdaaaf',
         ]);
 
@@ -482,6 +518,11 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
+        if(!$bundle3->getCategory() == null){
+            $bundle3->removeCategory();
+        }
+        $bundle3->addCategory("meals");
+
         $bundle4 = Bundle::create([
             'bundleStatus' => BundleStatus::OffSale,
             'title' => 'TestBundle',
@@ -494,11 +535,24 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
+        if(!$bundle4->getCategory() == null){
+            $bundle4->removeCategory();
+        }
+        $bundle4->addCategory("sweets");
+
         $prediction = Forecast::getProductionRecommendation($bundle3);
+
+        self::assertEquals($prediction, array(6,0,-94, "12:00-13:00"));
 
         $prediction = Forecast::getProductionRecommendation($bundle4);
 
+        $e = 2;
+        self::assertEquals($prediction, array(0,0,-100, "12:00-13:00"));
 
+        $bundle1->removeCategory();
+        $bundle2->removeCategory();
+        $bundle3->removeCategory();
+        $bundle4->removeCategory();
     }
 
     public static function cleanTables(): void {
@@ -522,14 +576,5 @@ class ForecastTest extends TestCase
 
         $stmt = DatabaseHandler::getPDO()->prepare("SET FOREIGN_KEY_CHECKS = 1;");
         $stmt->execute();
-    }
-
-    public static function testmakeSelelr(): void {
-        $seller = Seller::create([
-            'email' => 'seller@gmail.com',
-            'password' => 'Password123!',
-            'name' => 'sampleShop',
-            'address' => '2 Example Avenue',
-        ]);
     }
 }

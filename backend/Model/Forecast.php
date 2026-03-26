@@ -510,14 +510,10 @@ class Forecast
 
         // calculates a probability of collection based off a list of collected information and no-show information for a given specification
         foreach ($keys as $key) {
-            if (!isset($collected[$key]) || !isset($noShow[$key])) {
-                continue;
-            }
-
-            if ($collected[$key] == null) { // no listings
-                $probabilityArray[$key] = 0;
-            } else if ($noShow[$key] == null){ // all listings have been collected
-                $probabilityArray[$key] = 1;
+            if (!isset($collected[$key])) { // no listings
+                $probabilityArray[strval($key)] = 0;
+            } else if (!isset($noShow[$key])){ // all listings have been collected
+                $probabilityArray[strval($key)] = 1;
             } else { // calculate probability
                 $probabilityArray[$key] = $collected[$key] / ($noShow[$key] + $collected[$key]);
             }
