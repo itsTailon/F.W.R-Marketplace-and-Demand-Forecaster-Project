@@ -1,6 +1,7 @@
 <?php
 namespace TTE\App\Model;
 
+use DateTime;
 use TTE\App\Auth\NoSuchRoleException;
 use TTE\App\Auth\RBACManager;
 use TTE\App\Helpers\CurrencyTools;
@@ -56,8 +57,8 @@ class Seller extends Account {
         ]);
 
         // Create the seller in the database
-        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO Seller(sellerID, sellerName, sellerAddress) VALUES (:id, :name, :address);");
-        $stmt->execute(["id" => $account->getUserID(), "name" => $fields['name'], "address" => $fields['address']]);
+        $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO seller(sellerID, sellerName, sellerAddress, openingTime, closingTime) VALUES (:id, :name, :address, :openingTime, :closingTime);");
+        $stmt->execute(["id" => $account->getUserID(), "name" => $fields['name'], "address" => $fields['address'], "openingTime" => "0:00", "closingTime" => "0:00"]);
 
         // Create and return a seller object
         $seller = new Seller();
@@ -251,7 +252,7 @@ class Seller extends Account {
      * @return array
      */
     public function getBundlesByStatus(BundleStatus $status) : array {
-        $queryText = "SELECT rrp, discountedPrice FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
+        $queryText = "SELECT * FROM bundle WHERE sellerID = :sellerID AND bundleStatus = :status;";
         $stmt = DatabaseHandler::getPDO()->prepare($queryText);
         $stmt->execute([":sellerID" => $this->getUserID(), ":status" => $status->value]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -264,10 +265,28 @@ class Seller extends Account {
      * @return float The sell-through rate
      */
     public function getSellThroughRate() : float {
-        $collected = count($this->getBundlesByStatus(BundleStatus::Collected));
-        $cancelled = count($this->getBundlesByStatus(BundleStatus::Cancelled));
+        $offsale = $this->getBundlesByStatus(BundleStatus::OffSale);
+        $completedCount = 0;
+        $expiredCount = 0;
 
-        return 100 * ($collected / ($collected + $cancelled));
+        for ($i = 0; $i < count($offsale); $i++) {
+            $queryText = "SELECT reservationStatus FROM reservation WHERE bundleID = :bundleID;";
+            $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+            $stmt->execute([":bundleID" => $offsale[$i]["bundleID"]]);
+
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                var_dump($row["reservationStatus"]);
+                if ($row["reservationStatus"] == ReservationStatus::Completed->value) {
+                    $completedCount++;
+                    continue;
+                }
+            }
+
+            if (DateTime::createFromFormat("Y-m-d", $offsale[$i]["expiryDate"]) < new DateTime()) $expiredCount++;
+        }
+
+        return 100 * ($completedCount / ($completedCount + $expiredCount));
     }
 
     /**
@@ -280,9 +299,27 @@ class Seller extends Account {
      * @return float The sell-through rate for that discount range
      */
     public function getSellThroughRateByDiscountRate(int $minDiscount, int $maxDiscount) : float {
-        $collected = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Collected), $minDiscount, $maxDiscount));
-        $cancelled = count($this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::Cancelled), $minDiscount, $maxDiscount));
+        $offsale = $this->filterBundlesByDiscountLevel($this->getBundlesByStatus(BundleStatus::OffSale), $minDiscount, $maxDiscount);
+        $completedCount = 0;
+        $expiredCount = 0;
 
-        return 100 * ($collected / ($collected + $cancelled));
+        for ($i = 0; $i < count($offsale); $i++) {
+            $queryText = "SELECT reservationStatus FROM reservation WHERE bundleID = :bundleID;";
+            $stmt = DatabaseHandler::getPDO()->prepare($queryText);
+            $stmt->execute([":bundleID" => $offsale[$i]["bundleID"]]);
+
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+                var_dump($row["reservationStatus"]);
+                if ($row["reservationStatus"] == ReservationStatus::Completed->value) {
+                    $completedCount++;
+                    continue;
+                }
+            }
+
+            if (DateTime::createFromFormat("Y-m-d", $offsale[$i]["expiryDate"]) < new DateTime()) $expiredCount++;
+        }
+
+        return 100 * ($completedCount / ($completedCount + $expiredCount));
     }
 }
