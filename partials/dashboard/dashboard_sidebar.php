@@ -17,6 +17,9 @@ if($accType == 'seller') {
 else if ($accType == 'customer') {
     require_once 'partials/dashboard/customer/dashboard_sidebar.php';
 }
+else if($accType == 'maintainer') {
+    require_once 'partials/dashboard/maintainer/dashboard_sidebar.php';
+}
 
 
 ?>

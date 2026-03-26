@@ -380,7 +380,9 @@ class Reservation extends StoredObject
             $reservation->purchaserID = $row["purchaserID"];
             $reservation->status = ReservationStatus::from($row["reservationStatus"]);
             $reservation->claimCode = $row["claimCode"];
-            $reservation->reservationDate = new DateTime($row["reservationDate"]);
+
+            
+            $reservation->reservationDate = $row["reservationDate"] != null ? new DateTime($row["reservationDate"]) : new DateTime();
             $reservation->weatherCondition = $row["weatherCondition"];
 
             return $reservation;

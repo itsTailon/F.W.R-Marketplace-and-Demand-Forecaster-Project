@@ -145,6 +145,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             'message' => 'A customer has made a reservation on your bundle: ' . $bundle->getTitle() . '.'
         ]);
 
+        // send reminder to customer
+        Notification::create([
+            'userID' => $fields["purchaserID"],
+            'title' => 'Bundle Reserved',
+            'message' => 'You made a reservatioon on the bundle: ' . $bundle->getTitle() . '. The pickup time for this bundle is: ' . $bundle->getPickupWindow() . '.'
+        ]);
+
         // Return created reservation
         echo json_encode($reservation);
         exit();

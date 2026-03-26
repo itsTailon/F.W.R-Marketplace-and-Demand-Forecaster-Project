@@ -143,3 +143,11 @@ div.active-reservations__tabbar {
     height: 50px;
     margin-bottom: 20px;
 }
+
+
+@media (max-width: 800px) {
+    .active-reservations-wrapper {
+        width: 100vw;
+    }
+
+}

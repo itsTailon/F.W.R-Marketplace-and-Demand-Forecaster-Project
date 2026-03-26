@@ -88,10 +88,10 @@ function loadNotifications() {
                                     <nav class="notifications-notification-nav">
                                         <ul>
                                             <li>
-                                                <button class="button button--rounded">Mark as read</button>
+                                                <button class="button button--rounded" data-type="read" data-id="${ntfc.notificationID}">Mark as read</button>
                                             </li>
                                             <li>
-                                                <button class="button button--rounded">Delete</button>
+                                                <button class="button button--rounded" data-type="delete" data-id="${ntfc.notificationID}">Delete</button>
                                             </li>
                                         </ul>
                                     </nav>
@@ -101,9 +101,47 @@ function loadNotifications() {
             });
         }
     });
+
+
+    
+
 }
 
 loadNotifications();
+
+document.addEventListener('click', function(b) {
+    const btn = b.target.closest('.notifications-notification-nav button')
+    if(btn) {
+        let id = btn.dataset.id;
+        let type = btn.dataset.type;
+
+        if(type === 'read') {
+            $.ajax({
+                type: 'PUT',
+                url: '/backend/API/Model/notification.php',
+                data: {
+                    action: 'read',
+                    notificationID: id
+                },
+                success: function(s) {
+                    loadNotifications();
+                }
+            });
+        }
+        else if(type === 'delete') {
+            $.ajax({
+                type: 'DELETE',
+                url: '/backend/API/Model/notification.php',
+                data: {
+                    notificationID: id
+                },
+                success: function(s) {
+                    loadNotifications();
+                }
+            });
+        }
+    }
+});
 
 </script>
 
