@@ -12,19 +12,19 @@
         </ul>
         <br>
         <h1>View your Stats!</h1>
-        <ul class = "dashboard-options">
+        <ul class="dashboard-options">
             <li>
                 <a href="/view_streak.php">My Streak</a>
             </li>
             <li>
-                <a href="/coming_soon.php">Personal Impact</a>
+                <a href="/view_streak.php">Personal Impact</a>
             </li>
         </ul>
         <br>
         <h1>Manage Reservations</h1>
-        <ul class = "dashboard-options">
+        <ul class="dashboard-options">
             <li>
-                <a href="/coming_soon.php">Issues</a>
+                <a href="/view_issues.php">Issues</a>
             </li>
             <li>
                 <a href="/active_reservations.php">Reservations</a>

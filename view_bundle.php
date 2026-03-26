@@ -174,7 +174,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
 
                     if($time != null){
                         ?>
-                        <p> The most popular time for pickup is <?php echo $time?></p>
+<!--                        <p> The most popular time for pickup is --><?php //echo $time?><!--</p>-->
                         <?php
                     } else {
                         ?>

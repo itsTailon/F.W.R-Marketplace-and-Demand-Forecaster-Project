@@ -1,401 +1,301 @@
-bundleID,bundleStatus,title,details,quantity,rrp,discountedPrice,sellerID,purchaserID,expiryDate,pickupWindow
-1,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2024-11-16,15:00-16:00
-2,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2024-11-16,15:00-16:00
-3,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2024-11-16,15:00-16:00
-4,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2024-11-16,15:00-16:00
-5,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2024-11-16,15:00-16:00
-6,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2024-11-16,15:00-16:00
-7,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2024-11-16,18:00-19:00
-8,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2024-11-16,18:00-19:00
-9,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2024-11-16,18:00-19:00
-10,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2024-11-16,18:00-19:00
-11,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2024-12-16,15:00-16:00
-12,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2024-12-16,15:00-16:00
-13,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2024-12-16,15:00-16:00
-14,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2024-12-16,15:00-16:00
-15,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2024-12-16,15:00-16:00
-16,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2024-12-16,14:00-15:00
-17,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2024-12-16,15:00-16:00
-18,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2024-12-16,15:00-16:00
-19,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2024-12-16,15:00-16:00
-20,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2024-12-16,15:00-16:00
-21,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2025-01-16,15:00-16:00
-22,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-01-16,15:00-16:00
-23,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2025-01-16,15:00-16:00
-24,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-01-16,15:00-16:00
-25,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2025-01-16,15:00-16:00
-26,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-01-16,18:00-19:00
-27,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2025-01-16,18:00-19:00
-28,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-01-16,18:00-19:00
-29,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2025-01-16,18:00-19:00
-30,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-01-16,18:00-19:00
-31,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2025-02-16,15:00-16:00
-32,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-02-16,15:00-16:00
-33,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2025-02-16,15:00-16:00
-34,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-02-16,15:00-16:00
-35,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2025-02-16,15:00-16:00
-36,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-02-16,15:00-16:00
-37,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2025-02-16,18:00-19:00
-38,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-02-16,18:00-19:00
-39,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2025-02-16,18:00-19:00
-40,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-02-16,18:00-19:00
-41,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2025-03-16,15:00-16:00
-42,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-03-16,15:00-16:00
-43,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2025-03-16,15:00-16:00
-44,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-03-16,15:00-16:00
-45,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2025-03-16,15:00-16:00
-46,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-03-16,14:00-15:00
-47,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2025-03-16,15:00-16:00
-48,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-03-16,15:00-16:00
-49,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2025-03-16,15:00-16:00
-50,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-03-16,15:00-16:00
-51,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2025-04-16,15:00-16:00
-52,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-04-16,15:00-16:00
-53,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2025-04-16,15:00-16:00
-54,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-04-16,15:00-16:00
-55,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2025-04-16,15:00-16:00
-56,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-04-16,18:00-19:00
-57,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2025-04-16,18:00-19:00
-58,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-04-16,18:00-19:00
-59,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2025-04-16,18:00-19:00
-60,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-04-16,18:00-19:00
-61,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2025-05-16,15:00-16:00
-62,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-05-16,15:00-16:00
-63,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2025-05-16,15:00-16:00
-64,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-05-16,15:00-16:00
-65,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2025-05-16,15:00-16:00
-66,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-05-16,15:00-16:00
-67,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2025-05-16,18:00-19:00
-68,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-05-16,18:00-19:00
-69,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2025-05-16,18:00-19:00
-70,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-05-16,18:00-19:00
-71,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2025-06-16,15:00-16:00
-72,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-06-16,15:00-16:00
-73,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2025-06-16,15:00-16:00
-74,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-06-16,15:00-16:00
-75,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2025-06-16,15:00-16:00
-76,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-06-16,14:00-15:00
-77,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2025-06-16,15:00-16:00
-78,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-06-16,15:00-16:00
-79,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2025-06-16,15:00-16:00
-80,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-06-16,15:00-16:00
-81,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2025-07-16,15:00-16:00
-82,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-07-16,15:00-16:00
-83,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2025-07-16,15:00-16:00
-84,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-07-16,15:00-16:00
-85,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2025-07-16,15:00-16:00
-86,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-07-16,18:00-19:00
-87,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2025-07-16,18:00-19:00
-88,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-07-16,18:00-19:00
-89,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2025-07-16,18:00-19:00
-90,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-07-16,18:00-19:00
-91,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2025-08-16,15:00-16:00
-92,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-08-16,15:00-16:00
-93,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2025-08-16,15:00-16:00
-94,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-08-16,15:00-16:00
-95,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2025-08-16,15:00-16:00
-96,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-08-16,15:00-16:00
-97,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2025-08-16,18:00-19:00
-98,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-08-16,18:00-19:00
-99,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2025-08-16,18:00-19:00
-100,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-08-16,18:00-19:00
-101,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2025-09-16,15:00-16:00
-102,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-09-16,15:00-16:00
-103,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2025-09-16,15:00-16:00
-104,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-09-16,15:00-16:00
-105,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2025-09-16,15:00-16:00
-106,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-09-16,14:00-15:00
-107,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2025-09-16,15:00-16:00
-108,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-09-16,15:00-16:00
-109,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2025-09-16,15:00-16:00
-110,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-09-16,15:00-16:00
-111,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2025-09-16,15:00-16:00
-112,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-09-16,15:00-16:00
-113,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2025-09-16,15:00-16:00
-114,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-09-16,15:00-16:00
-115,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2025-09-16,15:00-16:00
-116,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-09-16,18:00-19:00
-117,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2025-09-16,18:00-19:00
-118,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-09-16,18:00-19:00
-119,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2025-09-16,18:00-19:00
-120,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-09-16,18:00-19:00
-121,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2025-09-16,15:00-16:00
-122,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-09-16,15:00-16:00
-123,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2025-09-16,15:00-16:00
-124,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-09-16,15:00-16:00
-125,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2025-09-16,15:00-16:00
-126,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-09-16,15:00-16:00
-127,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2025-09-16,18:00-19:00
-128,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-09-16,18:00-19:00
-129,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2025-09-16,18:00-19:00
-130,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-09-16,18:00-19:00
-131,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2025-09-16,15:00-16:00
-132,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-10-16,15:00-16:00
-133,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2025-10-16,15:00-16:00
-134,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-10-16,15:00-16:00
-135,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2025-10-16,15:00-16:00
-136,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-10-16,14:00-15:00
-137,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2025-10-16,15:00-16:00
-138,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-10-16,15:00-16:00
-139,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2025-10-16,15:00-16:00
-140,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-10-16,15:00-16:00
-141,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2025-10-16,15:00-16:00
-142,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-10-16,15:00-16:00
-143,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2025-10-16,15:00-16:00
-144,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-10-16,15:00-16:00
-145,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2025-10-16,15:00-16:00
-146,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-10-16,18:00-19:00
-147,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2025-10-16,18:00-19:00
-148,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-10-16,18:00-19:00
-149,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2025-10-16,18:00-19:00
-150,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-10-16,18:00-19:00
-151,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2025-10-16,15:00-16:00
-152,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-10-16,15:00-16:00
-153,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2025-10-16,15:00-16:00
-154,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-10-16,15:00-16:00
-155,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2025-10-16,15:00-16:00
-156,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-10-16,15:00-16:00
-157,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2025-10-16,18:00-19:00
-158,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-10-16,18:00-19:00
-159,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2025-10-16,18:00-19:00
-160,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-10-16,18:00-19:00
-161,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2025-11-16,15:00-16:00
-162,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-11-16,15:00-16:00
-163,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2025-11-16,15:00-16:00
-164,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-11-16,15:00-16:00
-165,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2025-11-16,15:00-16:00
-166,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-11-16,14:00-15:00
-167,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2025-11-16,15:00-16:00
-168,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-11-16,15:00-16:00
-169,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2025-11-16,15:00-16:00
-170,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-11-16,15:00-16:00
-171,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2025-11-16,15:00-16:00
-172,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-11-16,15:00-16:00
-173,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2025-11-16,15:00-16:00
-174,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-11-16,15:00-16:00
-175,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2025-11-16,15:00-16:00
-176,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-11-16,18:00-19:00
-177,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2025-11-16,18:00-19:00
-178,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-11-16,18:00-19:00
-179,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2025-11-16,18:00-19:00
-180,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-11-16,18:00-19:00
-181,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2025-11-16,15:00-16:00
-182,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-11-16,15:00-16:00
-183,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2025-11-16,15:00-16:00
-184,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-11-16,15:00-16:00
-185,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2025-11-16,15:00-16:00
-186,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-11-16,15:00-16:00
-187,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2025-11-16,18:00-19:00
-188,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-11-16,18:00-19:00
-189,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2025-11-16,18:00-19:00
-190,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-11-16,18:00-19:00
-191,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2025-12-16,15:00-16:00
-192,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2025-12-16,15:00-16:00
-193,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2025-12-16,15:00-16:00
-194,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2025-12-16,15:00-16:00
-195,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2025-12-16,15:00-16:00
-196,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2025-12-16,14:00-15:00
-197,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2025-12-16,15:00-16:00
-198,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2025-12-16,15:00-16:00
-199,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2025-12-16,15:00-16:00
-200,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2025-12-16,15:00-16:00
-201,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2025-12-16,15:00-16:00
-202,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2025-12-16,15:00-16:00
-203,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2025-12-16,15:00-16:00
-204,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2025-12-16,15:00-16:00
-205,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2025-12-16,15:00-16:00
-206,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2025-12-16,18:00-19:00
-207,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2025-12-16,18:00-19:00
-208,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2025-12-16,18:00-19:00
-209,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2025-12-16,18:00-19:00
-210,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2025-12-16,18:00-19:00
-211,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2025-12-16,15:00-16:00
-212,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2025-12-16,15:00-16:00
-213,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2025-12-16,15:00-16:00
-214,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2025-12-16,15:00-16:00
-215,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2025-12-16,15:00-16:00
-216,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2025-12-16,15:00-16:00
-217,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2025-12-16,18:00-19:00
-218,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2025-12-16,18:00-19:00
-219,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2025-12-16,18:00-19:00
-220,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2025-12-16,18:00-19:00
-221,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2026-01-16,15:00-16:00
-222,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-01-16,15:00-16:00
-223,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2026-01-16,15:00-16:00
-224,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-01-16,15:00-16:00
-225,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2026-01-16,15:00-16:00
-226,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-01-16,14:00-15:00
-227,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2026-01-16,15:00-16:00
-228,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-01-16,15:00-16:00
-229,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2026-01-16,15:00-16:00
-230,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-01-16,15:00-16:00
-231,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2026-01-16,15:00-16:00
-232,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-01-16,15:00-16:00
-233,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2026-01-16,15:00-16:00
-234,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-01-16,15:00-16:00
-235,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2026-01-16,15:00-16:00
-236,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-01-16,18:00-19:00
-237,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2026-01-16,18:00-19:00
-238,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-01-16,18:00-19:00
-239,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2026-01-16,18:00-19:00
-240,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-01-16,18:00-19:00
-241,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2026-01-16,15:00-16:00
-242,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-01-16,15:00-16:00
-243,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2026-01-16,15:00-16:00
-244,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-01-16,15:00-16:00
-245,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2026-01-16,15:00-16:00
-246,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-01-16,15:00-16:00
-247,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2026-01-16,18:00-19:00
-248,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-01-16,18:00-19:00
-249,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2026-01-16,18:00-19:00
-250,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-01-16,18:00-19:00
-251,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2026-02-16,15:00-16:00
-252,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-02-16,15:00-16:00
-253,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2026-02-16,15:00-16:00
-254,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-02-16,15:00-16:00
-255,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2026-02-16,15:00-16:00
-256,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-02-16,14:00-15:00
-257,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2026-02-16,15:00-16:00
-258,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-02-16,15:00-16:00
-259,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2026-02-16,15:00-16:00
-260,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-02-16,15:00-16:00
-261,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2026-02-16,15:00-16:00
-262,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-02-16,15:00-16:00
-263,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2026-02-16,15:00-16:00
-264,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-02-16,15:00-16:00
-265,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2026-02-16,15:00-16:00
-266,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-02-16,18:00-19:00
-267,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2026-02-16,18:00-19:00
-268,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-02-16,18:00-19:00
-269,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2026-02-16,18:00-19:00
-270,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-02-16,18:00-19:00
-271,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2026-02-16,15:00-16:00
-272,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-02-16,15:00-16:00
-273,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2026-02-16,15:00-16:00
-274,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-02-16,15:00-16:00
-275,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2026-02-16,15:00-16:00
-276,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-02-16,15:00-16:00
-277,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2026-02-16,18:00-19:00
-278,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-02-16,18:00-19:00
-279,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2026-02-16,18:00-19:00
-280,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-02-16,18:00-19:00
-281,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2026-03-16,15:00-16:00
-282,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-03-16,15:00-16:00
-283,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2026-03-16,15:00-16:00
-284,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-03-16,15:00-16:00
-285,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2026-03-16,15:00-16:00
-286,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-03-16,14:00-15:00
-287,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2026-03-16,15:00-16:00
-288,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-03-16,15:00-16:00
-289,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2026-03-16,15:00-16:00
-290,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-03-16,15:00-16:00
-291,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2026-03-16,15:00-16:00
-292,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-03-16,15:00-16:00
-293,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2026-03-16,15:00-16:00
-294,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-03-16,15:00-16:00
-295,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2026-03-16,15:00-16:00
-296,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-03-16,18:00-19:00
-297,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2026-03-16,18:00-19:00
-298,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-03-16,18:00-19:00
-299,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2026-03-16,18:00-19:00
-300,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-03-16,18:00-19:00
-301,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2026-03-16,15:00-16:00
-302,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-03-16,15:00-16:00
-303,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2026-03-16,15:00-16:00
-304,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-03-16,15:00-16:00
-305,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2026-03-16,15:00-16:00
-306,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-03-16,15:00-16:00
-307,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2026-03-16,18:00-19:00
-308,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-03-16,18:00-19:00
-309,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2026-03-16,18:00-19:00
-310,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-03-16,18:00-19:00
-311,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2026-04-16,15:00-16:00
-312,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-04-16,15:00-16:00
-313,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2026-04-16,15:00-16:00
-314,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-04-16,15:00-16:00
-315,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2026-04-16,15:00-16:00
-316,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-04-16,14:00-15:00
-317,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2026-04-16,15:00-16:00
-318,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-04-16,15:00-16:00
-319,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2026-04-16,15:00-16:00
-320,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-04-16,15:00-16:00
-321,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2026-04-16,15:00-16:00
-322,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-04-16,15:00-16:00
-323,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2026-04-16,15:00-16:00
-324,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-04-16,15:00-16:00
-325,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2026-04-16,15:00-16:00
-326,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-04-16,18:00-19:00
-327,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2026-04-16,18:00-19:00
-328,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-04-16,18:00-19:00
-329,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2026-04-16,18:00-19:00
-330,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-04-16,18:00-19:00
-331,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2026-04-16,15:00-16:00
-332,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-04-16,15:00-16:00
-333,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2026-04-16,15:00-16:00
-334,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-04-16,15:00-16:00
-335,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2026-04-16,15:00-16:00
-336,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-04-16,15:00-16:00
-337,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2026-04-16,18:00-19:00
-338,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-04-16,18:00-19:00
-339,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2026-04-16,18:00-19:00
-340,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-04-16,18:00-19:00
-341,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,2,5,2.5,11,NULL,2026-05-16,15:00-16:00
-342,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-05-16,15:00-16:00
-343,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,3,30,10,13,NULL,2026-05-16,15:00-16:00
-344,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-05-16,15:00-16:00
-345,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,15,NULL,2026-05-16,15:00-16:00
-346,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-05-16,14:00-15:00
-347,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,17,NULL,2026-05-16,15:00-16:00
-348,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-05-16,15:00-16:00
-349,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,19,NULL,2026-05-16,15:00-16:00
-350,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-05-16,15:00-16:00
-351,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,21,NULL,2026-05-16,15:00-16:00
-352,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-05-16,15:00-16:00
-353,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",2,9,3,23,NULL,2026-05-16,15:00-16:00
-354,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-05-16,15:00-16:00
-355,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,3,12,6,25,NULL,2026-05-16,15:00-16:00
-356,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-05-16,18:00-19:00
-357,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,16,4,27,NULL,2026-05-16,18:00-19:00
-358,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-05-16,18:00-19:00
-359,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,12,4,29,NULL,2026-05-16,18:00-19:00
-360,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-05-16,18:00-19:00
-361,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,1,NULL,2026-05-16,15:00-16:00
-362,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-05-16,15:00-16:00
-363,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,3,NULL,2026-05-16,15:00-16:00
-364,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-05-16,15:00-16:00
-365,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,5,NULL,2026-05-16,15:00-16:00
-366,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-05-16,15:00-16:00
-367,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",3,15,5,7,NULL,2026-05-16,18:00-19:00
-368,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-05-16,18:00-19:00
-369,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,2,16,8,9,NULL,2026-05-16,18:00-19:00
-370,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-05-16,18:00-19:00
-371,onsale,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,3,5,2.5,11,NULL,2026-06-16,15:00-16:00
-372,offsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,0,30,10,12,NULL,2026-06-16,15:00-16:00
-373,onsale,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,2,30,10,13,NULL,2026-06-16,15:00-16:00
-374,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,12,6,14,NULL,2026-06-16,15:00-16:00
-375,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,15,NULL,2026-06-16,15:00-16:00
-376,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,16,NULL,2026-06-16,14:00-15:00
-377,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,15,7.5,17,NULL,2026-06-16,15:00-16:00
-378,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,18,NULL,2026-06-16,15:00-16:00
-379,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,15,7.5,19,NULL,2026-06-16,15:00-16:00
-380,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,15,7.5,20,NULL,2026-06-16,15:00-16:00
-381,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,21,NULL,2026-06-16,15:00-16:00
-382,offsale,Sushi Bundle,A delicious selection of freshly-made sushi.,0,18,9,22,NULL,2026-06-16,15:00-16:00
-383,onsale,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",3,9,3,23,NULL,2026-06-16,15:00-16:00
-384,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,12,4,24,NULL,2026-06-16,15:00-16:00
-385,onsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,2,12,6,25,NULL,2026-06-16,15:00-16:00
-386,offsale,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,0,12,6,26,NULL,2026-06-16,18:00-19:00
-387,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",3,16,4,27,NULL,2026-06-16,18:00-19:00
-388,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,18,6,28,NULL,2026-06-16,18:00-19:00
-389,onsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",2,12,4,29,NULL,2026-06-16,18:00-19:00
-390,offsale,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",0,12,4,30,NULL,2026-06-16,18:00-19:00
-391,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,1,NULL,2026-06-16,15:00-16:00
-392,offsale,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,0,36,9,2,NULL,2026-06-16,15:00-16:00
-393,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,2,16,4,3,NULL,2026-06-16,15:00-16:00
-394,offsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,0,16,4,4,NULL,2026-06-16,15:00-16:00
-395,onsale,Cake Bundle,Slices of delicious cake that are too delicious to waste.,3,16,4,5,NULL,2026-06-16,15:00-16:00
-396,offsale,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only £1,0,2.35,1,6,NULL,2026-06-16,15:00-16:00
-397,onsale,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",2,15,5,7,NULL,2026-06-16,18:00-19:00
-398,offsale,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,0,16,8,8,NULL,2026-06-16,18:00-19:00
-399,onsale,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,3,16,8,9,NULL,2026-06-16,18:00-19:00
-400,offsale,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,0,13,6.5,10,NULL,2026-06-16,18:00-19:00
+ï»¿bundleID,bundleStatus,sellerID,title,details,category,imageURL,rrp,discountedPrice,validFrom,validUntil,purchaserID
+1,reserved,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+2,reserved,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+3,collected,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+4,expired,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+5,expired,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+6,collected,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+7,collected,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+8,expired,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+9,available,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+10,expired,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+11,reserved,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+12,available,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+13,collected,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+14,available,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+15,collected,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+16,reserved,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+17,collected,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+18,reserved,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+19,expired,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+20,reserved,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+21,reserved,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+22,expired,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+23,reserved,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+24,available,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+25,collected,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+26,available,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+27,reserved,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+28,reserved,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+29,expired,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+30,reserved,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+31,collected,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+32,expired,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+33,expired,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+34,reserved,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+35,collected,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+36,reserved,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+37,available,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+38,expired,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+39,collected,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+40,available,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+41,collected,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+42,expired,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+43,available,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+44,collected,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+45,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+46,available,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+47,collected,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+48,collected,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+49,reserved,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+50,collected,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+51,reserved,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+52,collected,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+53,reserved,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+54,collected,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+55,collected,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+56,available,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+57,expired,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+58,collected,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+59,reserved,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+60,expired,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+61,available,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+62,available,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+63,available,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+64,collected,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+65,expired,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+66,reserved,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+67,available,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+68,collected,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+69,expired,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+70,expired,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+71,expired,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+72,reserved,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+73,available,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+74,available,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+75,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+76,available,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+77,expired,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+78,expired,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+79,expired,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+80,collected,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+81,reserved,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+82,collected,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+83,reserved,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+84,available,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+85,collected,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+86,collected,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+87,reserved,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+88,reserved,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+89,available,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+90,collected,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+91,expired,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+92,reserved,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+93,collected,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+94,reserved,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+95,expired,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+96,reserved,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+97,collected,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+98,available,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+99,expired,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+100,available,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+101,available,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+102,reserved,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+103,available,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+104,collected,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+105,expired,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+106,available,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+107,expired,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+108,collected,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+109,expired,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+110,collected,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+111,available,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+112,expired,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+113,collected,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+114,reserved,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+115,collected,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+116,expired,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+117,reserved,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+118,available,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+119,collected,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+120,expired,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+121,reserved,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+122,expired,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+123,expired,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+124,available,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+125,expired,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+126,available,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+127,reserved,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+128,available,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+129,expired,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+130,collected,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+131,expired,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+132,available,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+133,reserved,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+134,reserved,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+135,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+136,expired,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+137,expired,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+138,reserved,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+139,collected,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+140,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+141,available,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+142,collected,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+143,collected,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+144,collected,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+145,expired,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+146,reserved,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+147,available,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+148,expired,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+149,collected,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+150,expired,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+151,reserved,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+152,reserved,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+153,expired,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+154,collected,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+155,reserved,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+156,reserved,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+157,reserved,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+158,reserved,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+159,reserved,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+160,expired,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+161,available,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+162,available,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+163,expired,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+164,collected,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+165,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+166,expired,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+167,reserved,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+168,collected,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+169,reserved,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+170,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+171,reserved,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+172,reserved,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+173,reserved,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+174,available,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+175,reserved,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+176,reserved,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+177,expired,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+178,available,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+179,expired,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+180,available,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+181,available,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+182,available,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+183,collected,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+184,expired,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+185,available,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+186,collected,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+187,expired,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+188,expired,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+189,available,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+190,expired,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+191,reserved,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+192,reserved,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+193,expired,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+194,available,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+195,collected,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+196,available,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+197,collected,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+198,reserved,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+199,expired,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+200,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+201,reserved,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+202,expired,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+203,available,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+204,collected,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+205,expired,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+206,collected,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+207,expired,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+208,collected,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+209,reserved,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+210,collected,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+211,available,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+212,reserved,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+213,reserved,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+214,collected,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+215,expired,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+216,available,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+217,available,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+218,reserved,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+219,expired,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+220,available,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+221,reserved,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+222,reserved,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+223,collected,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+224,collected,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+225,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+226,reserved,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+227,expired,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+228,expired,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+229,available,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+230,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+231,available,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+232,reserved,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+233,collected,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+234,expired,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+235,expired,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+236,available,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+237,expired,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+238,expired,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+239,available,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+240,collected,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+241,available,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+242,reserved,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+243,collected,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+244,reserved,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+245,collected,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+246,reserved,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+247,expired,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+248,reserved,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+249,reserved,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+250,reserved,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+251,reserved,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+252,available,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+253,available,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+254,available,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+255,reserved,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+256,available,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+257,reserved,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+258,expired,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+259,collected,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+260,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+261,expired,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+262,reserved,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+263,collected,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+264,collected,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+265,available,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+266,available,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+267,collected,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+268,reserved,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+269,expired,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+270,available,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60
+271,expired,1,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller1.jpg,16,4,16:00,17:00,31
+272,available,2,Wrap Bundle,Collect three freshly made wraps made for you by Comida.,meals,seller2.jpg,36,9,15:00,16:00,32
+273,available,3,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller3.jpg,16,4,16:00,17:00,33
+274,expired,4,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller4.jpg,16,4,16:00,17:00,34
+275,available,5,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller5.jpg,16,4,16:00,17:00,35
+276,expired,6,Dish of the Day Bundle,Collect a serving of the Dish of the Day for only Â£1,meals,seller6.jpg,2.35,1,15:00,16:00,36
+277,available,7,Cooked Breakfast Bundle,"Collect various breakfast foods including sausages, hash browns, and bacon.",meals,seller7.jpg,15,5,12:00,13:00,37
+278,expired,8,Brownie Bundle,Collect 4 delicious chocolate brownie slices.,brownies,seller8.jpg,16,8,16:00,17:00,38
+279,expired,9,Pasties & Pies,A delicious assortment of freshly-baked pasties and pies.,savoury_pastries,seller9.jpg,16,8,16:00,17:00,39
+280,expired,10,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller10.jpg,13,6.5,17:00,20:00,40
+281,expired,11,Meal Deal Bundle,Collect a freshly-made sandwich along with a snack and a soft drink.,sandwiches,seller11.jpg,5,2.5,14:30,15:00,41
+282,available,12,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller12.jpg,30,10,20:00,21:00,42
+283,available,13,Hot Food Bundle,Collect a delicious assortment of hot food including pizzas and burgers,meals,seller13.jpg,30,10,12:00,13:00,43
+284,reserved,14,Sandwiches & Baguettes,A delicious assortment of freshly-made sandwiches and baguettes,sandwiches,seller14.jpg,12,6,16:00,17:00,44
+285,collected,15,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller15.jpg,16,4,16:00,17:00,45
+286,collected,16,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller16.jpg,15,7.5,19:00,20:00,46
+287,reserved,17,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller17.jpg,15,7.5,19:00,20:00,47
+288,available,18,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller18.jpg,15,7.5,19:00,20:00,48
+289,collected,19,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller19.jpg,15,7.5,19:00,20:00,49
+290,expired,20,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller20.jpg,15,7.5,19:00,20:00,50
+291,expired,21,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller21.jpg,12,6,16:00,17:00,51
+292,reserved,22,Sushi Bundle,A delicious selection of freshly-made sushi.,meals,seller22.jpg,18,9,16:00,17:00,52
+293,reserved,23,Lunch Bundle,"Collect a freshly-made sandwich, a panini, and a baguette.",sandwiches,seller23.jpg,9,3,15:00,16:00,53
+294,reserved,24,Cake Bundle,Slices of delicious cake that are too delicious to waste.,cakes,seller24.jpg,12,4,14:00,15:00,54
+295,available,25,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller25.jpg,12,6,19:00,20:00,55
+296,expired,26,Breakfast Bundle,A delicious selection of croissants and pan au chocolats.,sweet_pastries,seller26.jpg,12,6,16:00,17:00,56
+297,collected,27,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller27.jpg,16,4,18:00,19:00,57
+298,expired,28,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller28.jpg,18,6,18:00,19:00,58
+299,collected,29,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller29.jpg,12,4,21:00,23:00,59
+300,collected,30,Groceries Bundle,"A delicious selection of fresh fruit, vegetables, bakery produce, and meat.",groceries,seller30.jpg,12,4,21:00,23:00,60

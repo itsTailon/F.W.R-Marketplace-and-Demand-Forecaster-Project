@@ -113,7 +113,7 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
     <button type="button" class="button" id="seasonal-update-btn">Update</button>
 </div>
 <canvas class="graph-2d" id="seasonal-graph" width="900" height="500"></canvas>
-<div id="forecast-seasonal-probabilities"></div>
+<!--<div id="forecast-seasonal-probabilities"></div>-->
 
 
 <script src="/assets/js/lib/jquery/jquery-4.0.0.min.js"></script>

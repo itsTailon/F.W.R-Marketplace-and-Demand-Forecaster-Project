@@ -17,7 +17,7 @@
                 <a href="/active_reservations.php">Reservations</a>
             </li>
             <li>
-                <a href="/coming_soon.php">Issues</a>
+                <a href="/issues.php">Issues</a>
             </li>
         </ul>
         <br>
