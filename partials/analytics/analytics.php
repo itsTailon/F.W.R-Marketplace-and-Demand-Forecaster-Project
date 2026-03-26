@@ -18,16 +18,18 @@ $bundles = Seller::getAllBundlesForUser($userID);
 
 $seller = Seller::load($userID);
 
-// Get quick stats
 
 
+
+// quick stats data
 $all_reservations = Reservation::getAllReservationsForUser($userID, "seller");
-
 $revenue = 0;
 $numberOfSales = 0;
 $numberReserved = 0;
 $numberOfReservations = 0;
 
+
+// Pricing Effectiveness Graph Data
 $pricingEffectivenessData = [0,0,0,0,0,0,0,0,0,0];
 
 
@@ -43,6 +45,7 @@ $categoryData = [];
 $sellThroughData = [0,0,0]; // to be added at a later date.
 
 
+
 foreach($all_reservations as $r) {
     $numberOfReservations += 1;
 
@@ -53,12 +56,13 @@ foreach($all_reservations as $r) {
         // increment sellThroughData collected
         $sellThroughData[0] += 1;
 
-        // pricingEffectiveness stuff
         //get discount percentage
         $discountPercentage = 1 - ($r['discountedPrice'] / $r['rrp']);
+
+        // update pricing effectiveness data with discount percentage.
         $pricingEffectivenessData[floor($discountPercentage * 10)] += 1;
 
-        // pickup window stuff
+        // append pickup window data.
         if(isset($pickupTimeData[$r['pickupWindow']])) {
             $pickupTimeData[$r['pickupWindow']] += 1;
         }
@@ -92,13 +96,14 @@ foreach($all_reservations as $r) {
     }
 }
 
-
+// get all expired bundles.
 $bundlesExpired = Bundle::loadAllExpiredBundles();
 foreach($bundlesExpired as $eb) {
+    // append number of items that have expired.
     $sellThroughData[2] += $eb->getQuantity();
 } 
 
-
+// calculate collection rate 
 $collectionRate = $numberOfReservations > 0 ? round(($numberOfSales / $numberOfReservations) * 100, 2) : 0;
 
 
@@ -119,6 +124,7 @@ if(count($pickupTimeData) > 0) {
     $topPickupTime = $keys[$topIndex];
 }
 
+// get top category.
 $topCategory = 'None';
 if(count($categoryData) > 0) {
     $keys = array_keys($categoryData);
@@ -135,6 +141,7 @@ if(count($categoryData) > 0) {
 }
 
 
+// order the pickup times from earliest to latest.
 function cmp($a, $b) {
     $valA = intval(explode(':', $a)[0]);
     $valB = intval(explode(':', $b)[0]);
@@ -146,11 +153,9 @@ function cmp($a, $b) {
     return ($valA < $valB) ? -1 : 1;
 } 
 
+// sort pickuptimeData by key using cmp function.
 uksort($pickupTimeData, 'cmp');
 
-// --------------
-
-// price effectiveness data
 
 
 
@@ -313,15 +318,20 @@ uksort($pickupTimeData, 'cmp');
 
 
 <script>
-    //seller actions stuff
+    //seller actions functionality
+
+    // load all actions and display them in table
     function loadActions() {
+        // get all checkboxes and make sure they are unchecked.
         const selectAllCheckbox = document.getElementById('selectAll');
         selectAllCheckbox.checked = false;
 
+        // set get request to get all actions for seller.
         $.ajax({
             type: 'GET',
             url: '/backend/API/Model/sellerAction.php',
         success: function(resp) {
+            // append action to table.
             const actionList = document.getElementById('sellerActionsList');
             actionList.innerHTML = '';
 
@@ -343,11 +353,12 @@ uksort($pickupTimeData, 'cmp');
 
 
     }
-
+    // load actions on page load.
     loadActions();
 
 
 
+    // open create action pop up when create button clicked.
     document.getElementById('openCreateActionButton').addEventListener('click', () => {
         const createMenu = document.querySelector('.analytics-create-action-wrapper');
 
@@ -358,6 +369,7 @@ uksort($pickupTimeData, 'cmp');
         }
     });
 
+    // hide create action menu when clicked off of it.
     document.getElementById('createActionOverlay').addEventListener('click', () => {
         const overlay = document.getElementById('createActionOverlay');
 
@@ -368,6 +380,7 @@ uksort($pickupTimeData, 'cmp');
         }
     });
 
+    // implement functionality of cancel button on the create action menu.
     document.querySelector('.analytics-create-action-buttons-cancel').addEventListener('click', () => {
         const overlay = document.getElementById('createActionOverlay');
         const createMenu = document.querySelector('.analytics-create-action-wrapper');
@@ -380,8 +393,6 @@ uksort($pickupTimeData, 'cmp');
 
 
     // form submit for the create action
-
-
     document.querySelector('.analytics-create-action-buttons-create').addEventListener('click', () => {
         const actionField = document.getElementById('actionTakenField');
         const reasonField =document.getElementById('reasoningField');
@@ -417,7 +428,6 @@ uksort($pickupTimeData, 'cmp');
 
 
     // add check box functionality for list
-
     document.querySelector('.analytics-seller-actions-table').addEventListener('change', function(e) {
         if(e.target.id === 'selectAll') {
             // select all logic
@@ -457,7 +467,6 @@ uksort($pickupTimeData, 'cmp');
 
 
     // add delete functionality.
-
     document.querySelector('.analytics-seller-actions-delete-button').addEventListener('click', () => {
         const allCheckboxes = document.querySelectorAll('.action-checkbox');
         ids = [];
@@ -496,11 +505,15 @@ uksort($pickupTimeData, 'cmp');
 
 <script src="assets/js/lib/Chart/chart.umd.min.js"></script>
 <script>
-    // chart stuff
+    // charts
+    
 
+
+    // PRICING EFFECTIVENESS GRAPH.
     const data = <?php echo json_encode($pricingEffectivenessData); ?>;
     const labels = ['0-10%','10-20%', '20-30%', '30-40%', '40-50%', '50-60%', '60-70%', '70-80%','80-90%', '90-100%'];
 
+    // create bar chart using pricing effectiveness data.
     new Chart(document.getElementById('pricingEffectivenessChart'), {
         type: 'bar',
         options: {
@@ -548,10 +561,12 @@ uksort($pickupTimeData, 'cmp');
 
     });
 
-    // Sell through
+    // SELL THROUGH CHART
 
     const sellData = <?php echo json_encode($sellThroughData); ?>;;
     const sellLabels = ['Collected', 'No-Show', 'Expired'];
+
+    // create doughnut graph using sellthrough data.
     new Chart(document.getElementById('sellThroughChart'), {
         type: 'doughnut',
         options: {
@@ -581,12 +596,14 @@ uksort($pickupTimeData, 'cmp');
         }
     });
 
-    // pickupWindow
+    // PICKUP WINDOW GRAPH
 
     const pickupTimeLabels = <?php echo json_encode(array_keys($pickupTimeData)); ?>;
     const pickupTimeValues = <?php echo json_encode(array_values($pickupTimeData)); ?>;
 
+    // check if any pickTime data even exists.
     if (pickupTimeLabels.length > 0) {
+        // create pickupTime bar chart
         new Chart(document.getElementById('topPickupTimesChart'), {
             type: 'bar',
             options: {
@@ -628,16 +645,20 @@ uksort($pickupTimeData, 'cmp');
             }
         });
     } else {
+        // No data.
         document.getElementById('topPickupTimesChart').parentElement.innerHTML = '<p>No pickup data available yet.</p>';
     }
 
 
 
-    //category stuff
+    // TOP CATEGORIES GRAPH
     const categoryLabels = <?php echo json_encode(array_keys($categoryData)); ?>;
     const categoryValues = <?php echo json_encode(array_values($categoryData)); ?>;
 
+
+    // check if any category data.
     if (categoryLabels.length > 0) {
+        // create bar chart displaying category data.
         new Chart(document.getElementById('topCategoriesChart'), {
             type: 'bar',
             options: {
@@ -684,6 +705,7 @@ uksort($pickupTimeData, 'cmp');
         });
     }
     else {
+        // no category data.
         document.getElementById('topCategoriesChart').parentElement.innerHTML = '<p>No category data available yet.</p>';
     }
     

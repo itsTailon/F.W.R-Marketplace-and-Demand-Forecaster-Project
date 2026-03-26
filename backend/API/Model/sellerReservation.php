@@ -61,21 +61,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $bundle = Bundle::load($reservation->getBundleID());
 
             // Check if the given status is valid
-            switch ($status) {
-                case "Completed":
-                    $rStatus = ReservationStatus::Completed;
-                    break;
-                case "NoShow":
-                    $rStatus = ReservationStatus::NoShow;
-                    // notify customer.
-                    Notification::create([
-                        "userID" => $reservation->getPurchaserID(),
-                        "title" => "Reservation Cancelled", 
-                        "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked no show."
-                    ]);
-                    break;
-                default:
-                    throw new InvalidArgumentException("Invalid status");
+
+            if($status == "NoShow") {
+                $rStatus = ReservationStatus::NoShow;
+                // notify customer.
+                Notification::create([
+                    "userID" => $reservation->getPurchaserID(),
+                    "title" => "Reservation Cancelled", 
+                    "message" => "Your reservation for the bundle: " . $bundle->getTitle() . " has been marked no show."
+                ]);
+            }
+            else {
+                throw new InvalidArgumentException("Invalid status");
             }
 
 

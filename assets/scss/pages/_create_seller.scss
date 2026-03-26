@@ -10,6 +10,12 @@
     height: 100vh;
 }
 
+.create-seller-nav ul a {
+    display: flex;
+    gap: 6px;
+}
+
+
 .create-seller {
     margin-top: 6vh;
     display: flex;

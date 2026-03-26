@@ -75,3 +75,9 @@ $allSellers = Seller::getAll();
     </ul>
 </section>
 
+<?php
+
+// Include page footer and closing tags
+require_once 'partials/footer.php';
+
+?>
