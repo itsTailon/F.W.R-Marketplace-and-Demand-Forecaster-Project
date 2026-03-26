@@ -183,7 +183,6 @@ require_once 'partials/dashboard/dashboard_sidebar.php';
                     }
                 }
                 ?>
-                    <div class="bundle-view__recommendation"
                 <?php
             }
             ?>

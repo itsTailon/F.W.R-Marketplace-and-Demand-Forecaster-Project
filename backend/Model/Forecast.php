@@ -5,7 +5,7 @@ namespace TTE\App\Model;
 use DateInterval;
 use DateTime;
 
-include '../Dataset/forecast.csv';
+//include 'backend/Dataset/forecast.csv';
 
 class Forecast
 {
@@ -94,7 +94,7 @@ class Forecast
         foreach($allReservations as $reservation) {
             $day = getdate(strtotime($reservation["reservationDate"]))["weekday"];
             $date = getdate(strtotime($reservation["reservationDate"]));
-            $time = getdate(strtotime($reservation["reservationTime"]))["hours"];
+            $time = getdate(strtotime($reservation["reservationDate"]))["hours"];
 
             if($lastDay != null) {
                 $lastDay_Day = $lastDay['wday'];
@@ -372,13 +372,13 @@ class Forecast
         $categoryNoShow = array();
         $discountNoShow = array();
         $weatherConditionNoShow = array();
-        $pickUpWindowNoShow = array();
+        $timeNoShow = array();
 
         $dateCollected = array();
         $categoryCollected = array();
         $discountCollected = array();
         $weatherConditionCollected = array();
-        $pickUpWindowCollected = array();
+        $timeCollected = array();
 
 
         $dates = array(
@@ -391,7 +391,7 @@ class Forecast
             "Sunday"
         );
         $categories = array();
-        $pickUpWindows = array();
+        $times = array();
         $discounts = array();
         $weatherConditions = array();
 
@@ -414,13 +414,10 @@ class Forecast
 
             $status = $reservation["reservationStatus"];
 
-            $pickUp = explode(":", $relatedBundle->getPickupWindow())[0];
+            $time = explode(":", $relatedBundle->getPickupWindow())[0];
 
             // only account for completed bundles
-            if($status == "collected" || $status == "no-show") {
-                $dataPoint =  array($date, $pickUp, $discountPercentage,$category,$weatherCondition, $status);
-                $data[] = $dataPoint;
-
+            if($status == "completed" || $status == "no-show") {
                 // if the category specification has not been seen before
                 if(!in_array($category, $categories)) {
                     $categories[] = $category;
@@ -434,31 +431,71 @@ class Forecast
                     $weatherConditions[] = $weatherCondition;
                 }
 
-                if(!in_array($pickUp, $pickUpWindows)) {
-                    $pickUpWindows[] = $pickUp;
+                if(!in_array($time, $times)) {
+                    $times[] = $time;
                 }
             }
 
             // add 1 to relevant specifications
             if($status == "no-show") {
+                if (!isset($dateNoShow[$date])) {
+                    $dateNoShow[$date] = 0;
+                }
+
+                if (!isset($categoryNoShow[$category])) {
+                    $categoryNoShow[$category] = 0;
+                }
+
+                if (!isset($discountNoShow[$discountPercentage])) {
+                    $discountNoShow[$discountPercentage] = 0;
+                }
+
+                if (!isset($weatherConditionNoShow[$weatherCondition])) {
+                    $weatherConditionNoShow[$weatherCondition] = 0;
+                }
+
+                if (!isset($timeNoShow[$time])) {
+                    $timeNoShow[$time] = 0;
+                }
+
                 $dateNoShow[$date] += 1;
                 $categoryNoShow[$category] += 1;
                 $discountNoShow[$discountPercentage] += 1;
                 $weatherConditionNoShow[$weatherCondition] += 1;
-                $pickUpWindowNoShow[$pickUp] += 1;
+                $timeNoShow[$time] += 1;
             } elseif ($status == "completed") {
+                if (!isset($dateCollected[$date])) {
+                    $dateCollected[$date] = 0;
+                }
+
+                if (!isset($categoryCollected[$category])) {
+                    $categoryCollected[$category] = 0;
+                }
+
+                if (!isset($discountCollected[$discountPercentage])) {
+                    $discountCollected[$discountPercentage] = 0;
+                }
+
+                if (!isset($weatherConditionCollected[$weatherCondition])) {
+                    $weatherConditionCollected[$weatherCondition] = 0;
+                }
+
+                if (!isset($timeCollected[$time])) {
+                    $timeCollected[$time] = 0;
+                }
+
                 $dateCollected[$date] += 1;
                 $categoryCollected[$category] += 1;
                 $discountCollected[$discountPercentage] += 1;
                 $weatherConditionCollected[$weatherCondition] += 1;
-                $pickUpWindowCollected[$pickUp] += 1;
+                $timeCollected[$time] += 1;
             }
         }
 
         // calculate probability for each of the specifications
         $probabilities['date'] = Forecast::calculateProbability($dateCollected,$dateNoShow,$dates);
         $probabilities['category'] = Forecast::calculateProbability($categoryCollected,$categoryNoShow,$categories);
-        $probabilities['time'] = Forecast::calculateProbability($pickUpWindowCollected,$pickUpWindowNoShow,$pickUpWindows);
+        $probabilities['time'] = Forecast::calculateProbability($timeCollected,$timeNoShow,$times);
         $probabilities['discountPercentage'] = Forecast::calculateProbability($discountCollected,$discountNoShow,$discounts);
         $probabilities['weatherCondition'] = Forecast::calculateProbability($weatherConditionCollected,$weatherConditionNoShow,$weatherConditions);
 
@@ -470,12 +507,12 @@ class Forecast
 
         // calculates a probability of collection based off a list of collected information and no-show information for a given specification
         foreach ($keys as $key) {
-            if ($collected[$key] == null){ // no listings
-                $probabilityArray[$key] = 0;
-            } else if ($noShow[$key] == null){ // all listings have been collected
-                $probabilityArray[$key] = 1;
+            if ($collected[$key] == null || !isset($collected[$key])) { // no listings
+                $probabilityArray[strval($key)] = 0;
+            } else if ($noShow[strval($key)] == null || !isset($noShow[$key])){ // all listings have been collected
+                $probabilityArray[strval($key)] = 1;
             } else { // calculate probability
-                $probabilityArray[$key] = $collected[$key] / ($noShow[$key] + $collected[$key]);
+                $probabilityArray[strval($key)] = $collected[$key] / ($noShow[$key] + $collected[$key]);
             }
         }
 
@@ -580,7 +617,7 @@ class Forecast
         $movingAvg = self::movingAverage($category, 0, 24, 0, 100, 'any', $reservations);
 
         // get probability list
-        $probabilities = Self::calculateProbabilitySpread();
+        $probabilities = self::calculateProbabilitySpread();
 
         // get the average listings for bundles
         $count = 0;
@@ -601,15 +638,20 @@ class Forecast
         // find the best listing time
         $highestProb = 0;
         $count = 0;
+        $bestTime = 0;
         while ($count <= 24) {
-            if($probabilities['time'][strval($count)] > $highestProb){
+            if(isset($probabilities['time'][strval($count)]) && $probabilities['time'][strval($count)] > $highestProb){
                 $highestProb = $probabilities['time'][strval($count)];
                 $bestTime = $count;
             }
              $count++;
         }
 
-        $timeFormat = strval($bestTime) . ":00-" . strval($bestTime+1) . ":00";
+        if($bestTime != 0) {
+            $timeFormat = strval($bestTime) . ":00-" . strval($bestTime + 1) . ":00";
+        } else {
+            $bestTime = "unavailable (not enough data)";
+        }
 
         // return array of data
         return array($collected, $noShow, $quantity, $timeFormat);

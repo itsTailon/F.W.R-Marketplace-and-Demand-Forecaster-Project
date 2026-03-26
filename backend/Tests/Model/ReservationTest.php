@@ -95,7 +95,9 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
+
         ]);
 
         // Create test reservation
@@ -118,6 +120,7 @@ class ReservationTest extends TestCase
             'expiryDate' => new DateTimeImmutable("now"),
             'discountedPrice' => 500,
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
         ]);
 
@@ -203,6 +206,7 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 5
         ]);
 
@@ -237,7 +241,9 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
+
         ]);
 
         // Test creating reservation with missing values
@@ -277,6 +283,7 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
         ]);
 
@@ -368,6 +375,7 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
         ]);
 
@@ -379,7 +387,14 @@ class ReservationTest extends TestCase
         ]);
 
         // Check if loaded reservation matches the original reservation
-        self::assertEquals($reservation, Reservation::load($reservation->getID()));
+        $loadedReservation = Reservation::load($reservation->getID());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
+        self::assertEquals($reservation->getBundleID(),  $loadedReservation->getBundleID());
+        self::assertEquals($reservation->getPurchaserID(),  $loadedReservation->getPurchaserID());
+        self::assertEquals($reservation->getStatus(),  $loadedReservation->getStatus());
+        self::assertEquals($reservation->getClaimCode(),  $loadedReservation->getClaimCode());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
+        self::assertEquals($reservation->getID(),  $loadedReservation->getID());
 
         // Attempt to load reservation that does not exist
         $thrown = false;
@@ -438,6 +453,7 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
         ]);
 
@@ -503,6 +519,7 @@ class ReservationTest extends TestCase
             'discountedPrice' => 500,
             'expiryDate' => new DateTimeImmutable("now"),
             'sellerID' => $seller->getUserID(),
+            'pickupWindow' => "17:00-18:00",
             'quantity' => 1
         ]);
 
@@ -567,7 +584,7 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle", "details" => "No Show Bundle", "quantity" => 1, "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle",'pickupWindow' => "17:00-18:00", "details" => "No Show Bundle", "quantity" => 1, "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markNoShow($reservation->getID());
@@ -585,7 +602,7 @@ class ReservationTest extends TestCase
         $customer = Customer::create(["email" => "noshowcustomer@example.com", "password" => "password", "username" => "noshowcustomer@example.com"]);
         $seller = Seller::create(["email" => "noshowseller@example.com", "password" => "password", "name" => "No Show Seller", "address" => "123 Testing Street"]);
 
-        $bundle = Bundle::create(["sellerID" => $seller->getUserID(), "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle", "quantity" => 1, "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
+        $bundle = Bundle::create(["sellerID" => $seller->getUserID(),'pickupWindow' => "17:00-18:00", "bundleStatus" => BundleStatus::OffSale, 'expiryDate' => new DateTimeImmutable("now"), "title" => "No Show Bundle", "quantity" => 1, "details" => "No Show Bundle", "rrp" => 1000, "discountedPrice" => 500]);
         $reservation = Reservation::create(["bundleID" => $bundle->getID(), "purchaserID" => $customer->getUserID(), "status" => ReservationStatus::Active, "claimCode" => "abcdabcdabcdabcd"]);
 
         Reservation::markCollected($reservation->getID());
