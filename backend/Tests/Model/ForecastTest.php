@@ -330,8 +330,6 @@ class ForecastTest extends TestCase
             'quantity' => 100
         ]);
 
-
-
         Reservation::create([
             'purchaserID' => $purchaser->getUserID(),
             'bundleID' => $bundle1->getID(),
