@@ -644,7 +644,7 @@ class Forecast
                 $highestProb = $probabilities['time'][strval($count)];
                 $bestTime = $count;
             }
-             $count++;
+            $count++;
         }
 
         if($bestTime != 0) {
@@ -657,5 +657,4 @@ class Forecast
         return array($collected, $noShow, $quantity, $timeFormat);
     }
 }
-
 
