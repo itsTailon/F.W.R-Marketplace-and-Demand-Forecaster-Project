@@ -287,6 +287,7 @@ class Reservation extends StoredObject
             $today = getdate(time())['yday'];
             $weatherCon = self::getCurrentWeather($today);
             $thisReservation->weatherCondition = $weatherCon;
+            $thisReservation->reservationDate = new DateTime();
 
             // Create SQL statement to create reservation record
             $stmt = DatabaseHandler::getPDO()->prepare("INSERT INTO reservation (bundleID, purchaserID, reservationStatus, claimCode, weatherCondition) 
